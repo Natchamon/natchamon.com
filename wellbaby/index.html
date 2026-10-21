@@ -594,7 +594,6 @@ function renderForm(){
   if(S.gd===undefined) S.gd=GDL.map(g=>g[0]);
   REG={}; const v=S.visit; const late=v>=6, tod=v>=18; const G=GD[gk(v)];
   let h='';
-  h+=`<div class="note" id="exnote"><span>ลองดูตัวอย่างการกรอกก่อนก็ได้ ข้อมูลตัวอย่างเป็นข้อมูลสมมติ</span><span><button class="btn" id="btn-ex" type="button">โหลดข้อมูลตัวอย่าง</button></span></div>
   <div class="note"><span>ไม่มีอะไรผิดปกติ? แตะครั้งเดียวเพื่อตั้งค่า “ปกติ/ไม่มีปัญหา” ให้ครอบครัว การกิน การนอน การขับถ่าย พัฒนาการ ตรวจร่างกาย และสรุป (แก้รายข้อได้ภายหลัง)</span><span><button class="btn" id="btn-allnormal" type="button">ตั้งเป็นปกติทั้งหมด</button></span></div>`;
   h+=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
     <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
@@ -903,7 +902,6 @@ document.addEventListener('click',e=>{
     case 'tab-report': case 'btn-toreport': setView('report'); break;
     case 'btn-back': setView('form'); break;
     case 'btn-gauto': delete S.gevalManual; refresh(); break;
-    case 'btn-ex': example(); break;
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
     case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO()}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
     case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=t.id==='btn-copy'?chartNote():reportText(); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
