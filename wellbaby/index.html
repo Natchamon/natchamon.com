@@ -643,7 +643,7 @@ function renderForm(){
   h+=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
     <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
     <div class="g2">${txt('dob','วันเกิด','', 'date')}${txt('vd','วันที่ตรวจ','', 'date')}
-      ${num('preterm','คลอดก่อนกำหนด','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
+      ${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
     <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
     ${segTxt('who','ผู้พาเด็กมา',[['m','มารดา'],['f','บิดา'],['g','ปู่ย่าตายาย'],['o','อื่น ๆ']],'ระบุ (ถ้ามี)')}
     <details class="idbox"${(S.name||S.hn)?' open':''}><summary>ข้อมูลระบุตัวตน (ไม่บังคับ — เว้นว่างได้)</summary>
@@ -769,7 +769,7 @@ function renderForm(){
 /* ---------- derived ---------- */
 function ageInfo(){
   const dob=parseISO(S.dob), vd=parseISO(S.vd); if(dob==null||vd==null||vd<dob) return null;
-  const a=ageParts(dob,vd); const pre=Math.max(0,+S.preterm||0);
+  const a=ageParts(dob,vd); const ga=+S.ga, pre=(ga>=20&&ga<37)?Math.round((40-ga)*10)/10:0;
   const corr=a.total-pre*7; return {m:a.m,d:a.days,total:a.total,corrDays:corr,corrM:corr/30.4375,pre};
 }
 function growthAge(){ const a=ageInfo(); if(a) return {m:a.corrM,from:a.pre>0?'อายุปรับ':'อายุจริง'}; return {m:S.visit,from:'อายุตามนัด'}; }
@@ -814,7 +814,7 @@ function refresh(){
     if(!S.dob) h='<span class="pill">กรอกวันเกิดเพื่อคำนวณอายุ</span>';
     else if(!a) h='<span class="pill bad">วันเกิดและวันที่ตรวจไม่สอดคล้องกัน</span>';
     else { h=`<span>อายุ <b>${a.m} เดือน ${a.d} วัน</b></span>`;
-      if(a.pre>0) h+=`<span class="pill">อายุปรับ ${Math.floor(a.corrM)} เดือน ${Math.max(0,Math.round((a.corrM-Math.floor(a.corrM))*30.4375))} วัน</span>`;
+      if(a.pre>0) h+=`<span class="pill">GA ${S.ga} สัปดาห์ · อายุปรับ ${Math.floor(a.corrM)} เดือน ${Math.max(0,Math.round((a.corrM-Math.floor(a.corrM))*30.4375))} วัน</span>`;
       const dm=a.m+a.d/30.4375, tol=S.visit>=18?2:1, diff=Math.abs(dm-S.visit);
       if(a.m>228) h+='<span class="pill bad">อายุเกิน 19 ปี ข้อมูลอ้างอิงนี้ไม่ครอบคลุม</span>';
       else if(diff<=tol) h+=`<span class="pill ok">ตรงกับนัด ${vl(S.visit)}</span>`;
@@ -860,7 +860,7 @@ function model(){
   const v=S.visit, late=v>=6, tod=v>=18, out=[]; const add=(t,rows)=>{const r=rows.filter(x=>x[1]!==''&&x[1]!=null); out.push({t,rows:r.length?r:[['','ไม่ได้บันทึก']]});};
   const a=ageInfo();
   add('ข้อมูลผู้ป่วย',[['ชื่อ-สกุล',S.name||''],['HN',S.hn||''],['เพศ',S.sex==='M'?'ชาย':S.sex==='F'?'หญิง':''],['วันเกิด',thDate(S.dob)],['วันที่ตรวจ',thDate(S.vd)],
-    ['อายุ',a?`${a.m} เดือน ${a.d} วัน`+(a.pre>0?` (คลอดก่อนกำหนด ${a.pre} สัปดาห์)`:''):''],['ผู้พาเด็กมา',st('who')],['อาการสำคัญ',S.cc||'']]);
+    ['อายุ',a?`${a.m} เดือน ${a.d} วัน`+(a.pre>0?` (คลอดก่อนกำหนด GA ${S.ga} สัปดาห์)`:''):''],['ผู้พาเด็กมา',st('who')],['อาการสำคัญ',S.cc||'']]);
   add('ครอบครัวและการเลี้ยงดู',[['การประเมินครอบครัว',st('fam')],['ประเด็นที่พูดคุย',cl('rear')]]);
   const nr=[['ชนิดนม',cl('milk')],['ความถี่',unit('feeds','ครั้ง/วัน')]];
   if(!late) nr.push(['ระยะเวลากินนม',unit('feedmin','นาที/มื้อ')]);
