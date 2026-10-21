@@ -181,6 +181,8 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 @media (max-width:520px){.gtable{gap:6px}.gr{grid-template-columns:1fr;gap:2px;padding:8px 10px}.gr .nm{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.gr .nm small{display:inline;font-size:11px}.gr .big{font-size:18px}.strip{margin:6px 0 14px}.gr .age{gap:4px}}
 
 /* guidance */
+.gdhead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.gdhead .btn{min-height:32px;padding:3px 10px;font-size:13px}
+.gdall summary{cursor:pointer;font-size:12.5px;color:var(--accent);width:max-content}.gdall{margin-top:2px}
 .gd{border-top:1px solid var(--line);padding-top:10px}
 .gd:first-child{border-top:0;padding-top:0}
 .gd details{margin-top:6px}
@@ -755,10 +757,9 @@ function renderForm(){
   h+=card('สรุปและคำแนะนำ','',`
     ${segTxt('eval','ผลการประเมินรวม',NA)}
     <label class="fld"><span class="lb">คำแนะนำ/แผนการดูแล</span><textarea class="ta" data-k="advice" id="f_advice">${E(S.advice)}</textarea></label>
-    <div class="sub">คำแนะนำที่ให้แล้ว</div>
-    ${GDL.map(g=>`<div class="gd">${chips('gd',[[g[0],g[1]]])}<details><summary>ประเด็นที่ควรแนะนำ</summary><ul>${G[g[0]].map(x=>`<li>${x}</li>`).join('')}</ul></details></div>`).join('')}`);
-  // chips('gd') registered each time overwrites REG.gd; rebuild full list
-  REG.gd=GDL;
+    <div class="sub gdhead">คำแนะนำที่ให้แล้ว <button type="button" class="btn" data-chipall="gd" id="gd-all">ให้ครบทุกหัวข้อ</button></div>
+    ${chips('gd',GDL)}
+    <details class="gdall"><summary>ดูประเด็นที่ควรแนะนำของแต่ละหัวข้อ</summary>${GDL.map(g=>`<div class="gd"><b>${g[1]}</b><ul>${G[g[0]].map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</details>`);
 
   h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
   h+=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
@@ -804,6 +805,7 @@ function refresh(){
   { const ag=autoGrowth(); if(!S.gevalManual){ if(ag) S.geval=ag.key; else delete S.geval; } S._gz=ag?ag.z:null; }
   // controls
   document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
+  document.querySelectorAll('[data-chipall]').forEach(b=>{ const k=b.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; b.textContent=all.length&&all.every(x=>cur.indexOf(x)>-1)?'ล้างทั้งหมด':'ให้ครบทุกหัวข้อ'; });
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
   document.querySelectorAll('[data-sx]').forEach(el=>{ const on=el.dataset.sxv.split(',').indexOf(S[el.dataset.sx])>=0; const ip=el.querySelector('.inp'); if(ip) ip.hidden=!on; });
   { const xl=document.getElementById('exlist'); if(xl) xl.hidden=S.exall!=='a'; }
@@ -937,6 +939,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val;
     if(k==='exall'){ if(!S.exall) SYS.forEach(x=>{delete S['ex_'+x[0]];}); else if(S.exall==='n') SYS.forEach(x=>{S['ex_'+x[0]]='n';}); else SYS.forEach(x=>{ if(!S['ex_'+x[0]]) S['ex_'+x[0]]='n'; }); }
     refresh(); if(document.querySelector('[data-sx="'+k+'"]')&&S[k]){ const f=document.getElementById('f_'+k+'_t'); if(f&&f.offsetParent) try{f.focus({preventScroll:true})}catch(_){} } if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
+  if(t.dataset.chipall){ const k=t.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; S[k]=all.every(x=>cur.indexOf(x)>-1)?[]:all.slice(); refresh(); return; }
   if(t.dataset.chip){ const k=t.dataset.chip, a=(S[k]||[]).slice(), i=a.indexOf(t.dataset.val); if(i>-1) a.splice(i,1); else a.push(t.dataset.val); S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
   if(t.dataset.goto){ switchVisit(+t.dataset.goto); return; }
