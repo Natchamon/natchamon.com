@@ -130,7 +130,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .line2{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
 .line2 .inp{min-width:0}
 .g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 8px}
-.g4 .lb{font-size:12.5px;line-height:1.25;white-space:nowrap}.g4 .lb small{display:block;color:var(--ink-2);font-size:11px;white-space:nowrap}
+.g4 .lb{font-size:12.5px;line-height:1.25;white-space:nowrap}.g4 .lb small:empty{display:none}.g4 .lb small{display:block;color:var(--ink-2);font-size:11px;white-space:nowrap}
 .g4 .inp{min-height:38px;padding:0 6px}.g4 .inp input{padding:6px 0;text-align:center}
 .fontan{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}.fontan .lb small{color:var(--ink-2);font-size:11px}
 .afx{display:flex;align-items:center;gap:6px}.afx .inp{width:72px;min-height:38px;padding:0 6px}.afx .inp input{text-align:center;padding:6px 0}
@@ -617,7 +617,7 @@ function card(title,small,inner){return `<section class="card"><h2><span>${title
 
 function progItems(){
   const v=S.visit, dv=DEV[v].every(d=>S['dev_'+v+'_'+d[0]]), ex=SYS.every(x=>S['ex_'+x[0]]);
-  const L=[['วันเกิด',!!S.dob,'dob'],['เพศ',!!S.sex,'sex'],['วันที่ตรวจ',!!S.vd,'vd'],['น้ำหนัก',+S.wt>0,'wt'],[v>=24?'ส่วนสูง':'ความยาว',+S.len>0,'len'],['รอบศีรษะ',+S.hc>0,'hc'],
+  const L=[[ageMode()==='age'?'อายุ':'วันเกิด',ageMode()==='age'?(+S.age_y>0||+S.age_m>0):!!S.dob,ageMode()==='age'?'age_':'dob'],['เพศ',!!S.sex,'sex'],['วันที่ตรวจ',!!S.vd,'vd'],['น้ำหนัก',+S.wt>0,'wt'],[v>=24?'ส่วนสูง':'ความยาว',+S.len>0,'len'],['รอบศีรษะ',+S.hc>0,'hc'],
     ['การประเมินครอบครัว',!!S.fam,'fam'],['ชนิดนม',(S.milk||[]).length>0,'milk'],['ปัญหาการกิน',!!S.nprob,'nprob'],['การขับถ่าย',!!S.elim,'elim'],['ชั่วโมงนอน',(+S.sl_n>0)||(+S.sl_d>0),'sl_n'],['ปัญหาการนอน',!!S.sl_p,'sl_p'],
     ['พัฒนาการครบ 5 ด้าน',dv,'dev_'],['ตรวจร่างกายครบทุกระบบ',ex,'ex_'],['สรุปการเจริญเติบโต',!!S.geval,'geval']];
   if(v<=6) L.push(['การได้ยิน',!!S.hear,'hear']);
@@ -644,7 +644,8 @@ function renderForm(){
   h+=`<div class="note"><span>ไม่มีอะไรผิดปกติ? แตะครั้งเดียวเพื่อตั้งค่า “ปกติ/ไม่มีปัญหา” ให้ครอบครัว การกิน การนอน การขับถ่าย พัฒนาการ ตรวจร่างกาย และสรุป (แก้รายข้อได้ภายหลัง)</span><span><button class="btn" id="btn-allnormal" type="button">ตั้งเป็นปกติทั้งหมด</button></span></div>`;
   h+=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
     <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
-    <div class="g2">${txt('dob','วันเกิด','', 'date')}${txt('vd','วันที่ตรวจ','', 'date')}
+    <div class="row inl"><span class="lb">ระบุอายุด้วย</span>${seg('agemode',[['dob','วันเกิด'],['age','ปี/เดือน']])}</div>
+    <div class="g2"><div id="agebox-dob" class="fld">${txt('dob','วันเกิด','', 'date')}</div><div id="agebox-age" class="fld" hidden>${numrow([['age_y','อายุ (ปี)','','1'],['age_m','เดือน','','1']])}</div>${txt('vd','วันที่ตรวจ','', 'date')}
       ${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
     <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
     ${segTxt('who','ผู้พาเด็กมา',[['m','มารดา'],['f','บิดา'],['g','ปู่ย่าตายาย'],['o','อื่น ๆ']],'ระบุ (ถ้ามี)')}
@@ -768,7 +769,12 @@ function renderForm(){
 }
 
 /* ---------- derived ---------- */
+function ageMode(){ return S.agemode==='age'?'age':'dob'; }
+function ageYM(a){ const y=Math.floor(a.m/12), mo=a.m%12; return (y?y+' ปี ':'')+mo+' เดือน'; }
 function ageInfo(){
+  if(ageMode()==='age'){ const y=Math.max(0,+S.age_y||0), mo=Math.max(0,+S.age_m||0); if(!(+S.age_y>0||+S.age_m>0)) return null;
+    const m=Math.round(y*12+mo), ga=+S.ga, pre=(ga>=20&&ga<37)?Math.round((40-ga)*10)/10:0, total=Math.round(m*30.4375), corr=total-pre*7;
+    return {m,d:0,total,corrDays:corr,corrM:corr/30.4375,pre,approx:true}; }
   const dob=parseISO(S.dob), vd=parseISO(S.vd); if(dob==null||vd==null||vd<dob) return null;
   const a=ageParts(dob,vd); const ga=+S.ga, pre=(ga>=20&&ga<37)?Math.round((40-ga)*10)/10:0;
   const corr=a.total-pre*7; return {m:a.m,d:a.days,total:a.total,corrDays:corr,corrM:corr/30.4375,pre};
@@ -804,18 +810,19 @@ function refresh(){
   if(!S.exall){ const any=SYS.some(x=>S['ex_'+x[0]]); if(any) S.exall=SYS.some(x=>S['ex_'+x[0]]==='a')?'a':'n'; }
   { const ag=autoGrowth(); if(!S.gevalManual){ if(ag) S.geval=ag.key; else delete S.geval; } S._gz=ag?ag.z:null; }
   // controls
-  document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
+  document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',(b.dataset.seg==='agemode'?ageMode():S[b.dataset.seg])===b.dataset.val));
   document.querySelectorAll('[data-chipall]').forEach(b=>{ const k=b.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; b.setAttribute('aria-pressed',all.length>0&&all.every(x=>cur.indexOf(x)>-1)); });
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
+  { const am=ageMode(); const bd=document.getElementById('agebox-dob'), ba=document.getElementById('agebox-age'); if(bd) bd.hidden=am==='age'; if(ba) ba.hidden=am!=='age'; }
   document.querySelectorAll('[data-sx]').forEach(el=>{ const on=el.dataset.sxv.split(',').indexOf(S[el.dataset.sx])>=0; const ip=el.querySelector('.inp'); if(ip) ip.hidden=!on; });
   { const xl=document.getElementById('exlist'); if(xl) xl.hidden=S.exall!=='a'; }
   SYS.forEach(x=>{ const m=document.getElementById('exm_'+x[0]); if(m) m.hidden=S['ex_'+x[0]]!=='a'; });
   // age
   const ai=$('#ageinfo');
   if(ai){ const a=ageInfo(); let h='';
-    if(!S.dob) h='<span class="pill">กรอกวันเกิดเพื่อคำนวณอายุ</span>';
+    if(ageMode()==='age'?!a:!S.dob) h='<span class="pill">'+(ageMode()==='age'?'กรอกอายุ (ปี/เดือน) เพื่อคำนวณ':'กรอกวันเกิดเพื่อคำนวณอายุ')+'</span>';
     else if(!a) h='<span class="pill bad">วันเกิดและวันที่ตรวจไม่สอดคล้องกัน</span>';
-    else { h=`<span>อายุ <b>${a.m} เดือน ${a.d} วัน</b></span>`;
+    else { h=`<span>อายุ <b>${a.approx?ageYM(a):a.m+' เดือน '+a.d+' วัน'}</b></span>`;
       if(a.pre>0) h+=`<span class="pill">GA ${S.ga} สัปดาห์ · อายุปรับ ${Math.floor(a.corrM)} เดือน ${Math.max(0,Math.round((a.corrM-Math.floor(a.corrM))*30.4375))} วัน</span>`;
       const dm=a.m+a.d/30.4375, tol=S.visit>=18?2:1, diff=Math.abs(dm-S.visit);
       if(a.m>228) h+='<span class="pill bad">อายุเกิน 19 ปี ข้อมูลอ้างอิงนี้ไม่ครอบคลุม</span>';
@@ -861,8 +868,8 @@ function unit(k,u){ return S[k]!==undefined&&S[k]!==''?S[k]+' '+u:''; }
 function model(){
   const v=S.visit, late=v>=6, tod=v>=18, out=[]; const add=(t,rows)=>{const r=rows.filter(x=>x[1]!==''&&x[1]!=null); out.push({t,rows:r.length?r:[['','ไม่ได้บันทึก']]});};
   const a=ageInfo();
-  add('ข้อมูลผู้ป่วย',[['ชื่อ-สกุล',S.name||''],['HN',S.hn||''],['เพศ',S.sex==='M'?'ชาย':S.sex==='F'?'หญิง':''],['วันเกิด',thDate(S.dob)],['วันที่ตรวจ',thDate(S.vd)],
-    ['อายุ',a?`${a.m} เดือน ${a.d} วัน`+(a.pre>0?` (คลอดก่อนกำหนด GA ${S.ga} สัปดาห์)`:''):''],['ผู้พาเด็กมา',st('who')],['อาการสำคัญ',S.cc||'']]);
+  add('ข้อมูลผู้ป่วย',[['ชื่อ-สกุล',S.name||''],['HN',S.hn||''],['เพศ',S.sex==='M'?'ชาย':S.sex==='F'?'หญิง':''],['วันเกิด',ageMode()==='age'?'':thDate(S.dob)],['วันที่ตรวจ',thDate(S.vd)],
+    ['อายุ',a?(a.approx?ageYM(a):`${a.m} เดือน ${a.d} วัน`)+(a.pre>0?` (คลอดก่อนกำหนด GA ${S.ga} สัปดาห์)`:''):''],['ผู้พาเด็กมา',st('who')],['อาการสำคัญ',S.cc||'']]);
   add('ครอบครัวและการเลี้ยงดู',[['การประเมินครอบครัว',st('fam')],['ประเด็นที่พูดคุย',cl('rear')]]);
   const nr=[['ชนิดนม',cl('milk')],['ความถี่',unit('feeds','ครั้ง/วัน')]];
   if(!late) nr.push(['ระยะเวลากินนม',unit('feedmin','นาที/มื้อ')]);
@@ -936,7 +943,7 @@ function example(){
 document.addEventListener('input',e=>{ const k=e.target.dataset&&e.target.dataset.k; if(k){ S[k]=e.target.value; if(S.example&&(k==='name'||k==='hn')) S.example=false; refresh(); } });
 document.addEventListener('click',e=>{
   const t=e.target.closest('button'); if(!t) return;
-  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val;
+  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val&&k!=='agemode') delete S[k]; else S[k]=t.dataset.val;
     if(k==='exall'){ if(!S.exall) SYS.forEach(x=>{delete S['ex_'+x[0]];}); else if(S.exall==='n') SYS.forEach(x=>{S['ex_'+x[0]]='n';}); else SYS.forEach(x=>{ if(!S['ex_'+x[0]]) S['ex_'+x[0]]='n'; }); }
     refresh(); if(document.querySelector('[data-sx="'+k+'"]')&&S[k]){ const f=document.getElementById('f_'+k+'_t'); if(f&&f.offsetParent) try{f.focus({preventScroll:true})}catch(_){} } if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
   if(t.dataset.chipall){ const k=t.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; S[k]=all.every(x=>cur.indexOf(x)>-1)?[]:all.slice(); refresh(); return; }
