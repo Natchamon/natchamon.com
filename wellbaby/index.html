@@ -335,7 +335,8 @@ const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 const thDate=iso=>{const t=parseISO(iso); if(t==null) return ''; const d=new Date(t); return d.getUTCDate()+' '+TM[d.getUTCMonth()]+' '+(d.getUTCFullYear()+543);};
 const fromT=t=>{const d=new Date(t);return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');};
 
-let S={visit:2,vd:todayISO()};
+const DEFCC='Well baby clinic follow up';
+let S={visit:2,vd:todayISO(),cc:DEFCC};
 let REG={};
 const STR={ok:'ok',warn:'warn',bad:'bad'};
 
@@ -947,7 +948,7 @@ document.addEventListener('click',e=>{
     case 'btn-back': setView('form'); break;
     case 'btn-gauto': delete S.gevalManual; refresh(); break;
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
-    case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO()}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
+    case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO(),cc:DEFCC}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
     case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=t.id==='btn-copy'?chartNote():reportText(); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
       const fb=()=>{ $('#copyarea').innerHTML='<textarea class="copybox" id="cptxt" readonly></textarea>'; const ta=$('#cptxt'); ta.value=txt; ta.focus(); ta.select(); };
       try{ navigator.clipboard.writeText(txt).then(done,fb); }catch(_){ fb(); } break; }
