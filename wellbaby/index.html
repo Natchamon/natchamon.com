@@ -639,7 +639,7 @@ function renderForm(){
     <div class="grid">${num('wt','น้ำหนัก','กก.','0.01')}${num('len',v>=24?'ส่วนสูง (ยืน)':'ความยาว (นอน)','ซม.','0.1')}${num('hc','รอบศีรษะ','ซม.','0.1')}</div>
     ${v<=18?`<div class="grid">${txt('af','กระหม่อมหน้า (AF)')}${v===2?txt('pf','กระหม่อมหลัง (PF)'):''}</div>`:''}
     <div class="gtable" id="gtable"></div>
-    ${v>=24?'<p class="hint">อายุ 2 ปีขึ้นไป: เทียบ WHO 2006 (0–5 ปี) ใช้ส่วนสูงยืน กราฟไทย 2–19 ปีที่คลินิกใช้ ผมยังไม่ได้ยืนยันว่าเป็นเกณฑ์อ้างอิงชุดเดียวกัน ค่าที่ได้จึงเป็นการประมาณ หากต้องการยืนยันให้พล็อตบนกราฟจริง</p>':''}
+    <div id="gevinfo" class="hint"></div>
     ${segTxt('geval','สรุปการเจริญเติบโต',v>=12?GEV:NA)}`);
 
   // exam
@@ -726,8 +726,12 @@ function growthCalc(){
 }
 function band(res){ if(!res||res.out) return null; if(res.below) return 'low'; if(res.above) return 'high'; return 'ok'; }
 
+function autoGrowth(){ const sex=S.sex; if(!(+S.wt>0&&+S.len>0&&sex)) return null;
+  const r=growthCalc().R.wfl.res; if(!r||r.out) return null; const z=r.z, big=S.visit>=12;
+  const key=big?(z<-2?'mal':z>3?'ob':z>2?'ow':'n'):(Math.abs(z)>2?'a':'n'); return {key,z}; }
 /* ---------- refresh ---------- */
 function refresh(){
+  { const ag=autoGrowth(); if(!S.gevalManual){ if(ag) S.geval=ag.key; else delete S.geval; } S._gz=ag?ag.z:null; }
   // controls
   document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
@@ -763,6 +767,10 @@ function refresh(){
       return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">${rngTxt(res)}<small>(${exTxt(res)}) · z ${zTxt(res.z)}</small></div>${stripHTML(res.z)}<div class="age">${tag}${extra}${whoTag}${odd}</div></div></div>`; }).join('');
     h+=`<p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · ช่วงเปอร์เซ็นไทล์อ่านจากเส้นของกราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย (2565) ส่วนค่าในวงเล็บคำนวณโดยประมาณจากตำแหน่งระหว่างเส้น (รอบศีรษะใช้ตาราง WHO 2006)</p>`;
     gt.innerHTML=h; }
+  const gi=$('#gevinfo'); if(gi){ const big=S.visit>=12, nm=S.visit>=24?'ส่วนสูง':'ความยาว';
+    if(S.gevalManual) gi.innerHTML='เลือกเอง (ไม่ใช้ค่าอัตโนมัติ) <button type="button" class="btn ghost" id="btn-gauto">ใช้ค่าอัตโนมัติ</button>';
+    else if(S._gz==null) gi.textContent='สรุปอัตโนมัติจากน้ำหนักตาม'+nm+' เมื่อกรอกเพศ น้ำหนัก และ'+nm+'ครบ';
+    else gi.innerHTML='สรุปอัตโนมัติจากน้ำหนักตาม'+nm+' (z '+zTxt(S._gz)+')'+(big?': z &lt; −2 = Malnutrition · −2 ถึง +2 = ปกติ · &gt; +2 = Overweight · &gt; +3 = Obesity':': ปกติเมื่อ z อยู่ระหว่าง −2 ถึง +2')+' · แตะตัวเลือกเพื่อปรับเอง'; }
   const pi=progItems(), dn=pi.filter(x=>x[1]).length, pct=Math.round(dn/pi.length*100);
   const miss=pi.filter(x=>!x[1]); const pe=$('#prog'); if(pe) pe.innerHTML=`<span class="bar"><i style="width:${pct}%"></i></span><b>${dn}/${pi.length}</b>`+(miss.length?`<button type="button" class="miss" data-jump="${miss[0][2]}" title="ไปยังช่องที่ยังไม่ได้กรอก">ขาด: ${miss.slice(0,2).map(x=>x[0]).join(', ')}${miss.length>2?' +'+(miss.length-2):''}</button>`:'<span class="pill ok">กรอกครบแล้ว</span>');
   const td=$('#todo'); if(td){ const rest=pi.filter(x=>!x[1]); td.innerHTML=rest.length?`<ul class="todo">${rest.map(x=>`<li><button type="button" class="jl" data-jump="${x[2]}">${x[0]}</button></li>`).join('')}</ul>`:'<span class="pill ok">กรอกครบทุกรายการแล้ว</span>'; }
@@ -853,7 +861,7 @@ function example(){
 document.addEventListener('input',e=>{ const k=e.target.dataset&&e.target.dataset.k; if(k){ S[k]=e.target.value; if(S.example&&(k==='name'||k==='hn')) S.example=false; refresh(); } });
 document.addEventListener('click',e=>{
   const t=e.target.closest('button'); if(!t) return;
-  if(t.dataset.seg){ const k=t.dataset.seg; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val; refresh(); return; }
+  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val; refresh(); return; }
   if(t.dataset.chip){ const k=t.dataset.chip, a=(S[k]||[]).slice(), i=a.indexOf(t.dataset.val); if(i>-1) a.splice(i,1); else a.push(t.dataset.val); S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
   if(t.dataset.goto){ switchVisit(+t.dataset.goto); return; }
@@ -863,6 +871,7 @@ document.addEventListener('click',e=>{
     case 'tab-form': setView('form'); break;
     case 'tab-report': case 'btn-toreport': setView('report'); break;
     case 'btn-back': setView('form'); break;
+    case 'btn-gauto': delete S.gevalManual; refresh(); break;
     case 'btn-ex': example(); break;
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
     case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO()}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
