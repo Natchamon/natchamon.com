@@ -714,7 +714,6 @@ function refresh(){
       const dm=a.m+a.d/30.4375, tol=S.visit>=18?2:1, diff=Math.abs(dm-S.visit);
       if(a.m>60) h+='<span class="pill bad">อายุเกิน 5 ปี ข้อมูลอ้างอิงนี้ไม่ครอบคลุม</span>';
       else if(diff<=tol) h+=`<span class="pill ok">ตรงกับนัด ${vl(S.visit)}</span>`;
-      else { const near=VIS.reduce((p,c)=>Math.abs(c-dm)<Math.abs(p-dm)?c:p); h+=`<span class="pill warn">อายุห่างจากนัด ${vl(S.visit)} เกิน ${tol} เดือน</span>${near!==S.visit?`<button type="button" class="btn ghost" data-goto="${near}">เปลี่ยนเป็น ${vl(near)}</button>`:''}`; }
     }
     ai.innerHTML=h; }
   // sleep
