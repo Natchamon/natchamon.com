@@ -249,7 +249,7 @@ const STR={ok:'ok',warn:'warn',bad:'bad'};
 
 /* ---------- content ---------- */
 const VIS=[2,4,6,9,12,18,24,30,48];
-const VL={2:'2 เดือน',4:'4 เดือน',6:'6 เดือน',9:'9 เดือน',12:'12 เดือน',18:'18 เดือน',24:'2 ปี',30:'2 ปี 6 เดือน',48:'4 ปี'};
+const VL={2:'2 เดือน',4:'4 เดือน',6:'6 เดือน',9:'9 เดือน',12:'12 เดือน',18:'18 เดือน',24:'2 ปี',30:'2 ปี 6 เดือน',48:'4 ปี',60:'5 ปี'};
 const VB={2:'2 เดือน',4:'4 เดือน',6:'6 เดือน',9:'9 เดือน',12:'12 เดือน',18:'18 เดือน',24:'2 ปี',30:'2½ ปี',48:'4 ปี'};
 const vl=v=>VL[v];
 const gk=v=>v<6?'early':v<=12?'late':v<24?'tod':v<48?'pre':'kid';
@@ -459,7 +459,7 @@ function chartNote(){
   if(S.vx_t) vx.push(S.vx_t);
   if(vx.length) vx.forEach(x=>L.push('- '+x)); else L.push('- (ไม่ได้บันทึก)');
   L.push('','Advice :'); c.adv.forEach(a=>L.push('- '+a));
-  L.push('','F/U at age '+((S.appt_age&&!/^อายุ /.test(S.appt_age))?S.appt_age:c.fu)+(S.appt_date?'  ('+thDate(S.appt_date)+')':''));
+  L.push('','F/U at age '+c.fu);
   L.push('advice clinical revisit'); if(c.pcm) L.push('Paracetamol for fever');
   return L.join('\n');
 }
@@ -519,7 +519,7 @@ function progItems(){
   if([9,18,30,48].indexOf(v)>-1) L.push(['คัดกรองพัฒนาการด้วยเครื่องมือมาตรฐาน',!!S.devscr]);
   if(v>=6) L.push(['การสัมผัสสารตะกั่ว',!!S.lead]);
   if(v>=18) L.push(['ความเสี่ยงไขมัน/เบาหวาน',!!S.dm]);
-  L.push(['ผลการประเมินรวม',!!S.eval],['นัดครั้งต่อไป',!!(S.appt_date||S.appt_age)]);
+  L.push(['ผลการประเมินรวม',!!S.eval]);
   return L;
 }
 function allNormal(){
@@ -656,9 +656,7 @@ function renderForm(){
   // chips('gd') registered each time overwrites REG.gd; rebuild full list
   REG.gd=GDL;
 
-  h+=card('นัดครั้งต่อไป','',`<div class="grid">${txt('appt_age','อายุ',`อายุ ${vl(VN[v].next)}`)}${txt('appt_date','วันที่นัด','','date')}</div>
-    <div class="row"><div><button type="button" class="btn ghost" id="btn-appt">ใช้วันที่ตามอายุ ${vl(VN[v].next)}</button></div></div>
-    ${txt('plan','แผนการติดตาม')}${txt('signer','ผู้ตรวจ (ชื่อแพทย์)')}`);
+  h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}${txt('signer','ผู้ตรวจ (ชื่อแพทย์)')}`);
   h+=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
   h+=`<div class="rbar"><button class="btn solid" id="btn-toreport" type="button">ดูรายงาน</button><button class="btn danger" id="btn-clear" type="button">เริ่มใหม่ (ล้างทั้งหมด)</button></div>`;
   $('#view-form').innerHTML=h;
@@ -775,7 +773,7 @@ function model(){
   add('วัคซีนและยา',[['วัคซีนที่ให้วันนี้',cl('vx')],['อื่น ๆ',S.vx_t||''],...(late?[['เสริมธาตุเหล็ก',st('iron')]]:[]),['ยา',S.med||'']]);
   add('สรุปผลการประเมิน',[['ผลการประเมินรวม',st('eval')],['คำแนะนำ/แผนการดูแล',S.advice||'']]);
   add('คำแนะนำที่ให้',[['',cl('gd')]]);
-  add('นัดครั้งต่อไป',[['อายุ',S.appt_age||(S.appt_date?'อายุ '+vl(VN[v].next):'')],['วันที่นัด',thDate(S.appt_date)],['แผน',S.plan||'']]);
+  add('นัดครั้งต่อไป',[['อายุ','อายุ '+vl(VN[v].next)],['แผน',S.plan||'']]);
   return out;
 }
 function renderReport(){
@@ -808,7 +806,7 @@ function example(){
   Object.assign(S,{example:true,visit:9,name:'ตัวอย่าง ทารกหญิง (ไม่ใช่ผู้ป่วยจริง)',hn:'000000',sex:'F',dob:fromT(dob),vd:todayISO(),who:'m',elim:'n',nprob:'n',sl_p:'n',cc:'มาตรวจตามนัด',
     wt:'8.4',len:'70.5',hc:'44.0',af:'1.5 × 1.5 ซม. นูนเล็กน้อย',milk:['bf','if'],feeds:'5',oz:'10',cmeals:'2',fg:['grain','veg','fruit','meat','iron'],
     stoolfreq:'1–2 ครั้ง/วัน',stoolcons:'ก้อนนิ่ม',sl_n:'10',sl_nw:'1',sl_d:'3',sl_dn:'2',act_move:'y',act_walker:'y',act_stroller:'y',
-    fam:'none',teeth:'y',teethn:'2',fluor:'y',brush:'y',dent:'n',vx:['mmr1','je1'],anemia:'n',hb:'11.8',lead:'ni',eval:'n',geval:'n',appt_date:fromT(addMonthsUTC(dob,12))});
+    fam:'none',teeth:'y',teethn:'2',fluor:'y',brush:'y',dent:'n',vx:['mmr1','je1'],anemia:'n',hb:'11.8',lead:'ni',eval:'n',geval:'n'});
   ['GM','FM','RL','EL','PS'].forEach(k=>S['dev_9_'+k]='p'); SYS.forEach(s=>S['ex_'+s[0]]='n');
   switchVisit(9); $('#exnote').className='note ex'; $('#exnote').innerHTML='<span>กำลังแสดงข้อมูลตัวอย่าง (สมมติ) กด “เริ่มใหม่” ท้ายหน้าเพื่อเริ่มกรอกจริง</span>';
 }
@@ -827,7 +825,6 @@ document.addEventListener('click',e=>{
     case 'btn-back': setView('form'); break;
     case 'btn-ex': example(); break;
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
-    case 'btn-appt': { const dob=parseISO(S.dob); if(dob!=null){ S.appt_date=fromT(addMonthsUTC(dob,VN[S.visit].next)); S.appt_age='อายุ '+vl(VN[S.visit].next); renderForm(); refresh(); } break; }
     case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO()}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
     case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=t.id==='btn-copy'?chartNote():reportText(); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
       const fb=()=>{ $('#copyarea').innerHTML='<textarea class="copybox" id="cptxt" readonly></textarea>'; const ta=$('#cptxt'); ta.value=txt; ta.focus(); ta.select(); };
