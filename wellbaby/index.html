@@ -200,10 +200,6 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
   <header class="hdr">
     <div class="hdr-top">
       <div class="brand">บันทึกเด็กดี<small>อิงแบบฟอร์ม CHS 2026 · อายุ 2 เดือน – 4 ปี</small></div>
-      <div class="tabs" role="tablist">
-        <button class="tab" role="tab" id="tab-form" aria-selected="true">บันทึก</button>
-        <button class="tab" role="tab" id="tab-report" aria-selected="false">รายงาน</button>
-      </div>
     </div>
     <div class="prog" id="prog" aria-live="polite"></div>
   </header>
@@ -804,7 +800,6 @@ function reportText(){
 function setView(which){
   const rep=which==='report';
   $('#view-form').hidden=rep; $('#view-report').hidden=!rep;
-  $('#tab-form').setAttribute('aria-selected',!rep); $('#tab-report').setAttribute('aria-selected',rep);
   if(rep) renderReport(); window.scrollTo(0,0);
 }
 function switchVisit(v){ S.visit=v; renderVisits(); renderForm(); document.body.dataset.visit=v; refresh(); }
