@@ -119,6 +119,8 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 8px}
 .g4 .lb{font-size:12.5px;line-height:1.25;white-space:nowrap}.g4 .lb small{display:block;color:var(--ink-2);font-size:11px;white-space:nowrap}
 .g4 .inp{min-height:38px;padding:0 6px}.g4 .inp input{padding:6px 0;text-align:center}
+.fontan{display:flex;gap:14px;flex-wrap:wrap;align-items:flex-start}.fontan .lb small{color:var(--ink-2);font-size:11px}
+.afx{display:flex;align-items:center;gap:6px}.afx .inp{width:72px;min-height:38px;padding:0 6px}.afx .inp input{text-align:center;padding:6px 0}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
 .g2 .fld,.g2 .inp{min-width:0}.g2 input[type=date]{min-width:0;font-size:14px}
 .g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
@@ -492,7 +494,7 @@ function chartNote(){
   else if(v===4&&S.solid==='yes') L.push('  - Food : เริ่มอาหารเสริมแล้ว');
   L.push('','Growth :');
   const {R}=growthCalc(); const pc=[]; Object.keys(R).forEach(k=>{const r=R[k]; if(r.res&&!r.res.out) pc.push(r.name+' '+pctFull(r.res));});
-  L.push('  - Height : '+(S.len?S.len+' cm':'-')+'     Weight : '+(S.wt?S.wt+' kg':'-')+(S.hc?'     HC : '+S.hc+' cm':'')+(S.af&&v<=18?'     AF : '+S.af:'')+(v===2&&S.pf?'     PF : '+S.pf:''));
+  L.push('  - Height : '+(S.len?S.len+' cm':'-')+'     Weight : '+(S.wt?S.wt+' kg':'-')+(S.hc?'     HC : '+S.hc+' cm':'')+((S.af_w||S.af_l)&&v<=18?'     AF : '+afTxt():'')+(v===2&&S.pf?'     PF : '+pfTxt():''));
   if(pc.length) L.push('  - '+pc.join(', '));
   L.push('  - '+(S.geval==='n'?'appropriate':S.geval?(S.geval==='a'?'not appropriate':sl('geval'))+(S.geval_t?': '+S.geval_t:''):'การประเมิน: ไม่ได้บันทึก'));
   L.push('','Development :');
@@ -526,6 +528,8 @@ function num(k,label,unit,step){return `<label class="fld"><span class="lb">${la
 function txt(k,label,ph,type){return `<label class="fld"><span class="lb">${label}</span><span class="inp"><input type="${type||'text'}" id="f_${k}" data-k="${k}" placeholder="${E(ph||'')}" value="${E(S[k])}"></span></label>`;}
 function seg(k,opts){reg(k,opts);return `<div class="seg" role="group">${opts.map(o=>`<button type="button" class="opt t-${o[2]||''}" data-seg="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
 function chips(k,opts){reg(k,opts);return `<div class="chips">${opts.map(o=>`<button type="button" class="opt" data-chip="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
+function afTxt(){ return (S.af_w||S.af_l)?(S.af_w||'?')+' × '+(S.af_l||'?')+' ซม.':''; }
+function pfTxt(){ return S.pf==='c'?'ปิดแล้ว':S.pf==='o'?'ยังเปิดอยู่':''; }
 function numrow(a){return `<div class="g4" style="grid-template-columns:repeat(${a.length},minmax(0,1fr))">${a.map(x=>`<label class="fld"><span class="lb">${x[1]}<small>${x[2]}</small></span><span class="inp"><input ${x[4]==='t'?'type="text"':`type="number" inputmode="decimal" step="${x[3]||'any'}" min="0"`} id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>`;}
 function segTxt(k,label,opts,ph){const tone=opts.filter(o=>o[2]==='warn'||o[2]==='bad').map(o=>o[0]);return `<div class="row"><span class="lb">${label}</span><div class="line2"${tone.length?` data-sx="${k}" data-sxv="${tone.join(',')}"`:''}>${seg(k,opts)}<span class="inp"><input type="text" data-k="${k}_t" id="f_${k}_t" placeholder="${ph||'ระบุ'}" value="${E(S[k+'_t'])}"></span></div></div>`;}
 const NA=[['n','ปกติ','ok'],['a','ผิดปกติ','bad']];
@@ -654,7 +658,7 @@ function renderForm(){
   // measurement
   h+=card('การเจริญเติบโต','เทียบเกณฑ์อ้างอิง WHO 2006 (0–5 ปี)',`
     ${numrow([['wt','น้ำหนัก','กก.','0.01'],['len',v>=24?'ส่วนสูง':'ความยาว','ซม.','0.1'],['hc','รอบศีรษะ','ซม.','0.1']])}
-    ${v<=18?numrow([['af','กระหม่อมหน้า','AF','','t']].concat(v===2?[['pf','กระหม่อมหลัง','PF','','t']]:[])):''}
+    ${v<=18?`<div class="fontan"><div class="fld"><span class="lb">กระหม่อมหน้า (AF)<small> ซม.</small></span><span class="afx"><span class="inp"><input type="number" inputmode="decimal" step="0.5" min="0" id="f_af_w" data-k="af_w" value="${E(S.af_w)}" aria-label="AF กว้าง"></span><b>×</b><span class="inp"><input type="number" inputmode="decimal" step="0.5" min="0" id="f_af_l" data-k="af_l" value="${E(S.af_l)}" aria-label="AF ยาว"></span></span></div>${v===2?`<div class="fld"><span class="lb">กระหม่อมหลัง (PF)</span>${seg('pf',[['c','ปิดแล้ว'],['o','ยังเปิด']])}</div>`:''}</div>`:''}
     <div class="gtable" id="gtable"></div>
     <div id="gevinfo" class="hint"></div>
     ${segTxt('geval','สรุปการเจริญเติบโต',v>=12?GEV:NA)}`);
@@ -831,7 +835,7 @@ function model(){
   dr.push(['สรุปพัฒนาการ',fails.length?'<span class="f">สงสัยไม่ผ่าน: '+fails.join(', ')+'</span>':(DEV[v].every(x=>S['dev_'+v+'_'+x[0]]==='p')?'<span class="g">ผ่านครบ 5 ด้าน</span>':'')]);
   if(S.dev_t) dr.push(['หมายเหตุ',E(S.dev_t)]);
   out.push({t:'พัฒนาการ',rows:dr.filter(x=>x[1]!=='').length?dr.filter(x=>x[1]!==''):[['','ไม่ได้บันทึก']],html:true});
-  const {R}=growthCalc(); const gr=[['น้ำหนัก',unit('wt','กก.')],[v>=24?'ส่วนสูง':'ความยาว',unit('len','ซม.')],['รอบศีรษะ',unit('hc','ซม.')]].concat(v<=18?[['กระหม่อมหน้า (AF)',S.af||'']]:[]); if(v===2) gr.push(['กระหม่อมหลัง (PF)',S.pf||'']);
+  const {R}=growthCalc(); const gr=[['น้ำหนัก',unit('wt','กก.')],[v>=24?'ส่วนสูง':'ความยาว',unit('len','ซม.')],['รอบศีรษะ',unit('hc','ซม.')]].concat(v<=18?[['กระหม่อมหน้า (AF)',afTxt()]]:[]); if(v===2) gr.push(['กระหม่อมหลัง (PF)',pfTxt()]);
   Object.keys(R).forEach(k=>{const r=R[k]; if(r.res&&!r.res.out){const b=band(r.res); const flag=b==='low'?' (ต่ำกว่า P3)':b==='high'?' (สูงกว่า P97)':''; gr.push([r.name,pctFull(r.res)+' · z '+zTxt(r.res.z)]);}});
   gr.push(['สรุปการเจริญเติบโต',st('geval')]); add('การเจริญเติบโต (กราฟสมาคมต่อมไร้ท่อเด็กฯ 2565)',gr);
   add('การตรวจร่างกาย',SYS.map(s=>[s[1],st('ex_'+s[0])]));
