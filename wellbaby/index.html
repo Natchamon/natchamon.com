@@ -523,11 +523,11 @@ function chartNote(){
   L.push('','Nutrition :');
   if(v>=18){
     L.push('  - Breastfeeding : '+(has('bm')?'yes':'no'));
-    L.push('  - Milk (UHT/whole) : '+(has('whole')?'yes'+(S.oz?' '+S.oz+' oz/day':''):'no')+(S.bottle==='y'?'   (stopped bottle)':S.bottle==='n'?'   (still using bottle)':''));
+    L.push('  - Milk (UHT/whole) : '+(has('whole')?'yes'+(S.oz?' '+ozEn():''):'no')+(S.bottle==='y'?'   (stopped bottle)':S.bottle==='n'?'   (still using bottle)':''));
     L.push('  - Food : '+([S.mainm&&S.mainm+' main meals/day',S.snack&&S.snack+' snacks/day',S.variety==='y'?'varied':S.variety==='n'?'not varied':'',S.fv==='y'?'fruit/veg adequate':S.fv==='n'?'fruit/veg inadequate':'',S.ssb==='y'?'sugar-sweetened drinks: yes':S.ssb==='n'?'no sugar-sweetened drinks':''].filter(Boolean).join(', ')||'ไม่ได้บันทึก'));
   } else {
   L.push('  - Breastfeeding : '+((has('bf')||has('ebm'))?'yes'+(S.feeds?' '+S.feeds+' ครั้ง/วัน':''):'no'));
-  L.push('  - Infant formula : '+((has('if')||has('fof'))?'yes'+(S.oz?' '+S.oz+' oz/day':''):'no'));
+  L.push('  - Infant formula : '+((has('if')||has('fof'))?'yes'+(S.oz?' '+ozEn():''):'no'));
   }
   if(v>=6&&v<18){ L.push('  - Food : '+((+S.cmeals)?S.cmeals+' มื้อ/วัน':'ไม่ได้บันทึก')+(cl('fg')?' ('+cl('fg')+')':'')); }
   else if(v===4&&S.solid==='yes') L.push('  - Food : เริ่มอาหารเสริมแล้ว');
@@ -587,14 +587,19 @@ function nutriRec(v){
     r.meals=3; r.mealTxt=v===12?'อายุ 10–12 เดือน: อาหารเสริม 3 มื้อ':'อาหารหลักครบหมู่ 3 มื้อ/วัน'; }
   return r;
 }
+function ozDay(){ const o=+S.oz,f=+S.feeds; return (o>0&&f>0)?o*f:0; }
+function ozEn(){ const d=ozDay(); return S.oz?(S.oz+' oz/feed'+(d?' x '+S.feeds+' = '+fmtOz(d)+' oz/day':'')):''; }
+function ozTh(){ const d=ozDay(); return S.oz?(S.oz+' ออนซ์/ครั้ง'+(d?' × '+S.feeds+' ครั้ง = '+fmtOz(d)+' ออนซ์/วัน':'')):''; }
 function pill(c,t){ return `<span class="pill ${c}">${t}</span>`; }
 function nrecMilkHTML(){
-  const v=S.visit, r=nutriRec(v), oz=+S.oz, m=S.milk||[]; let h=`<span><b>แนะนำ:</b> ${r.milkTxt}</span>`;
+  const v=S.visit, r=nutriRec(v), oz=ozDay(), m=S.milk||[]; let h=`<span><b>แนะนำ:</b> ${r.milkTxt}</span>`;
   if(r.milk&&oz>0){
+    h+=`<span>รวม <b>${fmtOz(oz)} ออนซ์/วัน</b> <small>(${S.oz} ออนซ์ × ${S.feeds} ครั้ง)</small></span>`;
     const lo=r.milk[0], hi=r.milk[1];
     h+= oz<lo?pill('warn','ต่ำกว่าช่วงแนะนำ ('+fmtOz(lo)+'–'+fmtOz(hi)+' ออนซ์)'): oz>hi?pill('warn','สูงกว่าช่วงแนะนำ ('+fmtOz(lo)+'–'+fmtOz(hi)+' ออนซ์)'):pill('ok','อยู่ในช่วงแนะนำ ('+fmtOz(lo)+'–'+fmtOz(hi)+' ออนซ์)');
     if(m.indexOf('bf')>-1||m.indexOf('bm')>-1) h+='<span>มีการดูดนมแม่โดยตรงร่วมด้วย ปริมาณจริงวัดไม่ได้ ให้ดูการเจริญเติบโตประกอบ</span>';
-  } else if(v<6&&!(w=>w>0)(+S.wt)) h+='<span>กรอกน้ำหนักเพื่อคำนวณช่วงแนะนำ</span>';
+  } else if(+S.oz>0&&!(+S.feeds>0)) h+='<span>กรอกความถี่นม (ครั้ง/วัน) เพื่อคำนวณปริมาณต่อวัน</span>';
+  else if(v<6&&!(w=>w>0)(+S.wt)) h+='<span>กรอกน้ำหนักเพื่อคำนวณช่วงแนะนำ</span>';
   h+=`<small>ที่มา: ${r.milkSrc}</small>`; return h;
 }
 function nrecMealHTML(){
@@ -654,7 +659,7 @@ function renderForm(){
   const milkOpts=[['bf','ดูดนมแม่โดยตรง'],['ebm','นมแม่ที่ปั๊มไว้ (EBM)'],['if','นมผสมสำหรับทารก (IF)']];
   if(late) milkOpts.push(['fof','นมผสมสูตรต่อเนื่อง (FOF)']);
   let nut=`<div class="row"><span class="lb">ชนิดนม</span>${chips('milk',milkOpts)}</div>
-    ${numrow([['feeds','ความถี่นม','ครั้ง/วัน','1']].concat(late?[]:[['feedmin','เวลากินนม','นาที/มื้อ','1']],[['oz','นมปั๊ม/ผสม','ออนซ์/วัน','1']],late?[['cmeals','อาหารเสริม','มื้อ/วัน','1']]:[]))}
+    ${numrow([['feeds','ความถี่นม','ครั้ง/วัน','1']].concat(late?[]:[['feedmin','เวลากินนม','นาที/มื้อ','1']],[['oz','นมปั๊ม/ผสม','ออนซ์/ครั้ง','0.5']],late?[['cmeals','อาหารเสริม','มื้อ/วัน','1']]:[]))}
     <div class="age nrec" id="nrec-milk"></div>`;
   if(!late) nut+=segTxt('fhyg','สุขอนามัยในการให้นม',[['ok','เหมาะสม','ok'],['bad','ไม่เหมาะสม','warn']]);
   if(v===4) nut+=segTxt('solid','เริ่มอาหารเสริมแล้วหรือยัง',[['no','ยังไม่เริ่ม'],['yes','เริ่มแล้ว']])+`<p class="hint">แนะนำให้เริ่มอาหารเสริมแทนนม 1 มื้อเมื่ออายุ 6 เดือน</p>`;
@@ -662,7 +667,7 @@ function renderForm(){
     <div class="row"><span class="lb">กลุ่มอาหารที่เริ่มให้แล้ว</span>${chips('fg',[['grain','ธัญพืช/ข้าว'],['veg','ผัก'],['fruit','ผลไม้'],['meat','เนื้อสัตว์/ปลา/ไข่'],['iron','อาหารที่มีธาตุเหล็ก']])}</div>
     <p class="hint">${v===6?'อายุ 6–8 เดือน: อาหารเสริม 1 มื้อ':v===9?'อายุ 8–10 เดือน: อาหารเสริม 2 มื้อ':'อายุ 10–12 เดือน: อาหารเสริม 3 มื้อ'} อาหารครบหมู่และมีธาตุเหล็กเพียงพอ</p>`;
   if(tod) nut=`<div class="row"><span class="lb">ชนิดนม</span>${chips('milk',[['bm','นมแม่'],['whole','นมวัว/นม UHT']])}</div>
-    ${numrow([['oz','นม','ออนซ์/วัน','1'],['mainm','อาหารหลัก','มื้อ/วัน','1'],['snack','อาหารว่าง','มื้อ/วัน','1']])}
+    ${numrow([['oz','นม','ออนซ์/ครั้ง','0.5'],['feeds','ความถี่นม','ครั้ง/วัน','1'],['mainm','อาหารหลัก','มื้อ/วัน','1'],['snack','อาหารว่าง','มื้อ/วัน','1']])}
     <div class="age nrec" id="nrec-milk"></div>
     <div class="age nrec" id="nrec-meal"></div>
     <div class="row inl"><span class="lb">เลิกขวดนมแล้ว</span>${seg('bottle',YN)}</div>
@@ -858,11 +863,11 @@ function model(){
   add('ครอบครัวและการเลี้ยงดู',[['การประเมินครอบครัว',st('fam')],['ประเด็นที่พูดคุย',cl('rear')]]);
   const nr=[['ชนิดนม',cl('milk')],['ความถี่',unit('feeds','ครั้ง/วัน')]];
   if(!late) nr.push(['ระยะเวลากินนม',unit('feedmin','นาที/มื้อ')]);
-  nr.push(['ปริมาณนม EBM/นมผสม',unit('oz','ออนซ์/วัน')]);
+  nr.push(['ปริมาณนม EBM/นมผสม',ozTh()]);
   if(!late) nr.push(['สุขอนามัยการให้นม',st('fhyg')]);
   if(v===4) nr.push(['อาหารเสริม',st('solid')]);
   if(late){ nr.push(['อาหารเสริม',unit('cmeals','มื้อ/วัน')]); nr.push(['กลุ่มอาหารที่เริ่มแล้ว',cl('fg')]); }
-  if(tod){ nr.length=0; nr.push(['ชนิดนม',cl('milk')],['ปริมาณนม',unit('oz','ออนซ์/วัน')],['เลิกขวดนม',sl('bottle')],['อาหารหลัก',unit('mainm','มื้อ/วัน')],['อาหารว่าง',unit('snack','มื้อ/วัน')],['อาหารหลากหลาย',sl('variety')],['ผักและผลไม้',sl('fv')],['เครื่องดื่มรสหวาน',sl('ssb')]); }
+  if(tod){ nr.length=0; nr.push(['ชนิดนม',cl('milk')],['ปริมาณนม',ozTh()],['เลิกขวดนม',sl('bottle')],['อาหารหลัก',unit('mainm','มื้อ/วัน')],['อาหารว่าง',unit('snack','มื้อ/วัน')],['อาหารหลากหลาย',sl('variety')],['ผักและผลไม้',sl('fv')],['เครื่องดื่มรสหวาน',sl('ssb')]); }
   nr.push(['ปัญหาการกิน',st('nprob')]); add('โภชนาการ',nr);
   add('การขับถ่าย',[['ปัสสาวะ/อุจจาระ',st('elim')],v===2?['สีอุจจาระ',S.stoolcolor||'']:['ลักษณะอุจจาระ',S.stoolcons||''],['ความถี่',S.stoolfreq||'']]);
   const n=+S.sl_n||0,d=+S.sl_d||0;
@@ -919,7 +924,7 @@ function switchVisit(v){ S.visit=v; renderVisits(); renderForm(); document.body.
 function example(){
   const t=parseISO(todayISO()); const dob=addMonthsUTC(t,-9)-3*864e5;
   Object.assign(S,{example:true,visit:9,name:'ตัวอย่าง ทารกหญิง (ไม่ใช่ผู้ป่วยจริง)',hn:'000000',sex:'F',dob:fromT(dob),vd:todayISO(),who:'m',elim:'n',nprob:'n',sl_p:'n',cc:'มาตรวจตามนัด',
-    wt:'8.4',len:'70.5',hc:'44.0',af:'1.5 × 1.5 ซม. นูนเล็กน้อย',milk:['bf','if'],feeds:'5',oz:'10',cmeals:'2',fg:['grain','veg','fruit','meat','iron'],
+    wt:'8.4',len:'70.5',hc:'44.0',af:'1.5 × 1.5 ซม. นูนเล็กน้อย',milk:['bf','if'],feeds:'5',oz:'2',cmeals:'2',fg:['grain','veg','fruit','meat','iron'],
     stoolfreq:'1–2 ครั้ง/วัน',stoolcons:'ก้อนนิ่ม',sl_n:'10',sl_nw:'1',sl_d:'3',sl_dn:'2',act_move:'y',act_walker:'y',act_stroller:'y',
     fam:'none',teeth:'y',teethn:'2',fluor:'y',brush:'y',dent:'n',vx:['mmr1','je1'],anemia:'n',hb:'11.8',lead:'ni',eval:'n',geval:'n'});
   ['GM','FM','RL','EL','PS'].forEach(k=>S['dev_9_'+k]='p'); SYS.forEach(s=>S['ex_'+s[0]]='n'); S.exall='n';
