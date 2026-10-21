@@ -162,7 +162,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .strip .tl{position:absolute;top:13px;font-size:10.5px;color:var(--ink-2);transform:translateX(-50%);font-variant-numeric:tabular-nums}
 .strip .mk{position:absolute;top:-3px;width:5px;height:16px;border-radius:3px;background:var(--ink);transform:translateX(-50%)}
 .gr.empty .rs{color:var(--ink-2);font-size:13px}
-@media (max-width:520px){.gr{grid-template-columns:1fr}}
+@media (max-width:520px){.gtable{gap:6px}.gr{grid-template-columns:1fr;gap:2px;padding:8px 10px}.gr .nm{display:flex;align-items:baseline;gap:6px;flex-wrap:wrap}.gr .nm small{display:inline;font-size:11px}.gr .big{font-size:18px}.strip{margin:6px 0 14px}.gr .age{gap:4px}}
 
 /* guidance */
 .gd{border-top:1px solid var(--line);padding-top:10px}
@@ -525,8 +525,8 @@ function num(k,label,unit,step){return `<label class="fld"><span class="lb">${la
 function txt(k,label,ph,type){return `<label class="fld"><span class="lb">${label}</span><span class="inp"><input type="${type||'text'}" id="f_${k}" data-k="${k}" placeholder="${E(ph||'')}" value="${E(S[k])}"></span></label>`;}
 function seg(k,opts){reg(k,opts);return `<div class="seg" role="group">${opts.map(o=>`<button type="button" class="opt t-${o[2]||''}" data-seg="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
 function chips(k,opts){reg(k,opts);return `<div class="chips">${opts.map(o=>`<button type="button" class="opt" data-chip="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
-function numrow(a){return `<div class="g4" style="grid-template-columns:repeat(${a.length},minmax(0,1fr))">${a.map(x=>`<label class="fld"><span class="lb">${x[1]}<small>${x[2]}</small></span><span class="inp"><input type="number" inputmode="decimal" step="${x[3]||'any'}" min="0" id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>`;}
-function segTxt(k,label,opts,ph){return `<div class="row"><span class="lb">${label}</span><div class="line2">${seg(k,opts)}<span class="inp"><input type="text" data-k="${k}_t" id="f_${k}_t" placeholder="${ph||'ระบุ'}" value="${E(S[k+'_t'])}"></span></div></div>`;}
+function numrow(a){return `<div class="g4" style="grid-template-columns:repeat(${a.length},minmax(0,1fr))">${a.map(x=>`<label class="fld"><span class="lb">${x[1]}<small>${x[2]}</small></span><span class="inp"><input ${x[4]==='t'?'type="text"':`type="number" inputmode="decimal" step="${x[3]||'any'}" min="0"`} id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>`;}
+function segTxt(k,label,opts,ph){const tone=opts.filter(o=>o[2]==='warn'||o[2]==='bad').map(o=>o[0]);return `<div class="row"><span class="lb">${label}</span><div class="line2"${tone.length?` data-sx="${k}" data-sxv="${tone.join(',')}"`:''}>${seg(k,opts)}<span class="inp"><input type="text" data-k="${k}_t" id="f_${k}_t" placeholder="${ph||'ระบุ'}" value="${E(S[k+'_t'])}"></span></div></div>`;}
 const NA=[['n','ปกติ','ok'],['a','ผิดปกติ','bad']];
 const YN=[['y','ใช่','ok'],['n','ไม่ใช่','warn']];
 const fmtOz=x=>String(Math.round(x*10)/10).replace(/\.0$/,'');
@@ -654,8 +654,8 @@ function renderForm(){
 
   // measurement
   h+=card('การเจริญเติบโต','เทียบเกณฑ์อ้างอิง WHO 2006 (0–5 ปี)',`
-    <div class="grid">${num('wt','น้ำหนัก','กก.','0.01')}${num('len',v>=24?'ส่วนสูง (ยืน)':'ความยาว (นอน)','ซม.','0.1')}${num('hc','รอบศีรษะ','ซม.','0.1')}</div>
-    ${v<=18?`<div class="grid">${txt('af','กระหม่อมหน้า (AF)')}${v===2?txt('pf','กระหม่อมหลัง (PF)'):''}</div>`:''}
+    ${numrow([['wt','น้ำหนัก','กก.','0.01'],['len',v>=24?'ส่วนสูง':'ความยาว','ซม.','0.1'],['hc','รอบศีรษะ','ซม.','0.1']])}
+    ${v<=18?numrow([['af','กระหม่อมหน้า','AF','','t']].concat(v===2?[['pf','กระหม่อมหลัง','PF','','t']]:[])):''}
     <div class="gtable" id="gtable"></div>
     <div id="gevinfo" class="hint"></div>
     ${segTxt('geval','สรุปการเจริญเติบโต',v>=12?GEV:NA)}`);
@@ -758,6 +758,7 @@ function refresh(){
   // controls
   document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
+  document.querySelectorAll('[data-sx]').forEach(el=>{ const on=el.dataset.sxv.split(',').indexOf(S[el.dataset.sx])>=0; const ip=el.querySelector('.inp'); if(ip) ip.hidden=!on; });
   { const xl=document.getElementById('exlist'); if(xl) xl.hidden=S.exall!=='a'; }
   SYS.forEach(x=>{ const m=document.getElementById('exm_'+x[0]); if(m) m.hidden=S['ex_'+x[0]]!=='a'; });
   // age
@@ -790,7 +791,7 @@ function refresh(){
       let extra=''; if(k==='wfl'){ if(res.z<-2) extra='<span class="pill bad">ผอม (WHO: z &lt; −2)</span>'; else if(res.z>2) extra='<span class="pill bad">น้ำหนักเกินเทียบความยาว (z &gt; +2)</span>'; }
       const odd=Math.abs(res.z)>5?'<span class="pill bad">ค่านอกช่วงที่น่าเป็นไปได้ ตรวจสอบตัวเลข/หน่วย</span>':'';
       return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">${rngTxt(res)}<small>(${exTxt(res)}) · z ${zTxt(res.z)}</small></div>${stripHTML(res.z)}<div class="age">${tag}${extra}${whoTag}${odd}</div></div></div>`; }).join('');
-    h+=`<p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · ช่วงเปอร์เซ็นไทล์อ่านจากเส้นของกราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย (2565) ส่วนค่าในวงเล็บคำนวณโดยประมาณจากตำแหน่งระหว่างเส้น (รอบศีรษะใช้ตาราง WHO 2006)</p>`;
+    h+=`<details class="idbox"><summary>อายุที่ใช้คำนวณ ${g.m.toFixed(1)} เดือน — วิธีคำนวณ</summary><p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · ช่วงเปอร์เซ็นไทล์อ่านจากเส้นของกราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย (2565) ส่วนค่าในวงเล็บคำนวณโดยประมาณจากตำแหน่งระหว่างเส้น (รอบศีรษะใช้ตาราง WHO 2006)</p></details>`;
     gt.innerHTML=h; }
   const gi=$('#gevinfo'); if(gi){ const big=S.visit>=12, nm=S.visit>=24?'ส่วนสูง':'ความยาว';
     if(S.gevalManual) gi.innerHTML='เลือกเอง (ไม่ใช้ค่าอัตโนมัติ) <button type="button" class="btn ghost" id="btn-gauto">ใช้ค่าอัตโนมัติ</button>';
@@ -888,7 +889,7 @@ document.addEventListener('click',e=>{
   const t=e.target.closest('button'); if(!t) return;
   if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val;
     if(k==='exall'){ if(!S.exall) SYS.forEach(x=>{delete S['ex_'+x[0]];}); else if(S.exall==='n') SYS.forEach(x=>{S['ex_'+x[0]]='n';}); else SYS.forEach(x=>{ if(!S['ex_'+x[0]]) S['ex_'+x[0]]='n'; }); }
-    refresh(); if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
+    refresh(); if(document.querySelector('[data-sx="'+k+'"]')&&S[k]){ const f=document.getElementById('f_'+k+'_t'); if(f&&f.offsetParent) try{f.focus({preventScroll:true})}catch(_){} } if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
   if(t.dataset.chip){ const k=t.dataset.chip, a=(S[k]||[]).slice(), i=a.indexOf(t.dataset.val); if(i>-1) a.splice(i,1); else a.push(t.dataset.val); S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
   if(t.dataset.goto){ switchVisit(+t.dataset.goto); return; }
