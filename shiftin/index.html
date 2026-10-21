@@ -536,24 +536,22 @@ const TYPES={
   specialist:{label:"เฉพาะทาง",color:"#4f46e5",soft:"#eef2ff"}
 };
 const SHIFTS=[
-  {id:"a1",type:"er",pay:1200,unit:"ชม.",clinic:"รพ.ฟ้าใสรังสิต",verified:true,area:"ธัญบุรี, ปทุมธานี",time:"20:00–08:00",overnight:true,dates:[["today","วันนี้!"],["d","ส. 18 ต.ค."],["d","อา. 19 ต.ค.",true],["d","อ. 21 ต.ค."]],perks:["ไม่หัก 3%","มีอาหาร"],views:48,req:"ประสบการณ์ ER ≥ 1 ปี · ACLS",notes:"ห้องฉุกเฉิน 12 เตียง มีพยาบาล ER 3 คนต่อเวร"},
-  {id:"a2",type:"aesthetic",pay:8000,unit:"วัน",df:10,clinic:"Glow Up Clinic",branch:"สยาม",verified:true,area:"ปทุมวัน, กรุงเทพฯ",time:"11:00–20:00",dates:[["tmrw","พรุ่งนี้"],["d","ส. 25 ต.ค."]],perks:["Botox","Filler","HIFU"],aes:true,portfolio:true,views:61,req:"มีผลงาน Filler อย่างน้อย 50 เคส",notes:"มีผู้ช่วยแพทย์ประจำห้อง"},
-  {id:"a3",type:"opd_sso",pay:900,unit:"ชม.",clinic:"คลินิกสุขใจเวชกรรม",branch:"บางนา",verified:false,area:"บางนา, กรุงเทพฯ",time:"09:00–17:00",dates:[["d","ส. 18 ต.ค."],["d","ส. 25 ต.ค."]],perks:["ไม่หักพัก","ค่าเดินทาง"],views:22,req:"แพทย์ทั่วไป",notes:"ผู้ป่วยประกันสังคมประมาณ 60 รายต่อวัน"},
-  {id:"a4",type:"ncd",pay:850,unit:"ชม.",clinic:"ดีเฮลท์ คลินิก",verified:true,area:"เมือง, นนทบุรี",time:"08:00–16:00",dates:[["d","อ. 21 ต.ค."],["d","อ. 28 ต.ค."],["d","อ. 4 พ.ย."],["d","อ. 11 พ.ย."],["d","อ. 18 พ.ย."]],perks:["มีอาหาร"],views:17,req:"แพทย์ทั่วไป สนใจดูแลโรคเรื้อรัง",notes:"คลินิกเบาหวาน ความดัน มีพยาบาลคัดกรอง"},
-  {id:"a5",type:"gp_parttime",pay:1000,unit:"ชม.",clinic:"คลินิกหมอครอบครัวลาดพร้าว",verified:false,area:"จตุจักร, กรุงเทพฯ",time:"17:00–21:00",dates:[["today","วันนี้!"],["d","จ. 20 ต.ค."]],perks:["ไม่หัก 3%"],views:35,req:"แพทย์ทั่วไป",notes:"คลินิกเย็นหลังเลิกงาน"},
-  {id:"a6",type:"er",pay:1100,unit:"ชม.",clinic:"รพ.ชายทะเลการแพทย์",verified:true,area:"เมือง, ชลบุรี",time:"08:00–20:00",dates:[["tmrw","พรุ่งนี้"],["d","พ. 22 ต.ค."]],perks:["มีอาหาร","ค่าเดินทาง"],views:29,req:"ประสบการณ์ ER ≥ 6 เดือน",notes:"มีห้องพักแพทย์"},
-  {id:"a7",type:"specialist",pay:null,unit:"",clinic:"เดอร์มา สกินแคร์",verified:true,area:"เมือง, เชียงใหม่",time:"10:00–18:00",dates:[["d","อา. 26 ต.ค."]],perks:["ตจวิทยา"],views:12,req:"แพทย์ผู้เชี่ยวชาญด้านผิวหนัง",notes:"ค่าตอบแทนตกลงกันตามประสบการณ์"},
-  {id:"a8",type:"aesthetic",pay:6500,unit:"วัน",clinic:"Bloom Aesthetic",branch:"อารีย์",verified:true,area:"พญาไท, กรุงเทพฯ",time:"12:00–20:00",dates:[["d","อา. 19 ต.ค."],["d","จ. 20 ต.ค."]],perks:["Skin booster","Laser"],aes:true,portfolio:true,views:40,req:"มีผลงานด้านเลเซอร์",notes:"ลูกค้านัดล่วงหน้าทั้งหมด"}
+  {id:"a1",type:"er",pay:1200,unit:"ชม.",clinic:"โรงพยาบาลตัวอย่าง A",verified:true,area:"ปทุมธานี",time:"20:00–08:00",overnight:true,dates:[["today","วันนี้!"],["d","ส. 18 ต.ค."],["d","อา. 19 ต.ค.",true],["d","อ. 21 ต.ค."]],perks:["ไม่หัก 3%","มีอาหาร"],req:"ประสบการณ์ ER",notes:"ข้อมูลตัวอย่างสำหรับเดโม"},
+  {id:"a2",type:"aesthetic",pay:8000,unit:"วัน",df:10,clinic:"คลินิกความงามตัวอย่าง B",verified:true,area:"กรุงเทพฯ",time:"11:00–20:00",dates:[["tmrw","พรุ่งนี้"],["d","ส. 25 ต.ค."]],perks:["Botox","Filler"],aes:true,portfolio:true,req:"มีผลงานด้านความงาม",notes:"ข้อมูลตัวอย่างสำหรับเดโม"},
+  {id:"a3",type:"opd_sso",pay:900,unit:"ชม.",clinic:"คลินิกตัวอย่าง C",verified:false,area:"กรุงเทพฯ",time:"09:00–17:00",dates:[["d","ส. 18 ต.ค."],["d","ส. 25 ต.ค."]],perks:["ไม่หักพัก","ค่าเดินทาง"],req:"แพทย์ทั่วไป",notes:"ข้อมูลตัวอย่างสำหรับเดโม"},
+  {id:"a4",type:"ncd",pay:850,unit:"ชม.",clinic:"คลินิกตัวอย่าง D",verified:true,area:"นนทบุรี",time:"08:00–16:00",dates:[["d","อ. 21 ต.ค."],["d","อ. 28 ต.ค."],["d","อ. 4 พ.ย."]],perks:["มีอาหาร"],req:"แพทย์ทั่วไป",notes:"ข้อมูลตัวอย่างสำหรับเดโม"},
+  {id:"a5",type:"gp_parttime",pay:1000,unit:"ชม.",clinic:"คลินิกตัวอย่าง E",verified:false,area:"กรุงเทพฯ",time:"17:00–21:00",dates:[["today","วันนี้!"],["d","จ. 20 ต.ค."]],perks:["ไม่หัก 3%"],req:"แพทย์ทั่วไป",notes:"ข้อมูลตัวอย่างสำหรับเดโม"},
+  {id:"a7",type:"specialist",pay:null,unit:"",clinic:"คลินิกเฉพาะทางตัวอย่าง F",verified:true,area:"เชียงใหม่",time:"10:00–18:00",dates:[["d","อา. 26 ต.ค."]],perks:["ตจวิทยา"],req:"แพทย์ผู้เชี่ยวชาญ",notes:"ค่าตอบแทนตกลงกัน"}
 ];
 const APPLICANTS=[
-  {ini:"ธศ",c:"#0d9488",s:"#e3f4f1",name:"นพ. ธนกร ศรีวงศ์",lic:"ว.61842",exp:"GP 4 ปี",st:"pending"},
-  {ini:"ปอ",c:"#3f6fb0",s:"#e9eef8",name:"พญ. ปิยะธิดา อินทรสุข",lic:"ว.64107",exp:"OPD 2 ปี",st:"pending"},
-  {ini:"กว",c:"#8b5cc7",s:"#efe9fa",name:"นพ. กิตติพัฒน์ วัฒนา",lic:"ว.59330",exp:"ER 6 ปี",st:"pending"}
+  {ini:"1",c:"#0d9488",s:"#e3f4f1",name:"แพทย์ตัวอย่าง 1",lic:"ว.00001",exp:"GP",st:"pending"},
+  {ini:"2",c:"#3f6fb0",s:"#e9eef8",name:"แพทย์ตัวอย่าง 2",lic:"ว.00002",exp:"OPD",st:"pending"},
+  {ini:"3",c:"#8b5cc7",s:"#efe9fa",name:"แพทย์ตัวอย่าง 3",lic:"ว.00003",exp:"ER",st:"pending"}
 ];
 const QUEUE=[
-  {name:"นพ. ณัฐวุฒิ ใจดี",lic:"ว.65520",when:"ส่งเมื่อ 10 นาทีที่แล้ว",st:"pending"},
-  {name:"พญ. สุภาวดี ทองดี",lic:"ว.66871",when:"ส่งเมื่อ 1 ชม.ที่แล้ว",st:"pending"},
-  {name:"นพ. ภาคิน รุ่งเรือง",lic:"ว.67012",when:"ส่งเมื่อ 3 ชม.ที่แล้ว",st:"pending"}
+  {name:"แพทย์ตัวอย่าง 4",lic:"ว.00004",when:"ส่งเมื่อ 10 นาทีที่แล้ว",st:"pending"},
+  {name:"แพทย์ตัวอย่าง 5",lic:"ว.00005",when:"ส่งเมื่อ 1 ชม.ที่แล้ว",st:"pending"},
+  {name:"แพทย์ตัวอย่าง 6",lic:"ว.00006",when:"ส่งเมื่อ 3 ชม.ที่แล้ว",st:"pending"}
 ];
 const state={view:"browse",type:"all",date:null,q:"",tier:"T3",shift:"a1",picked:new Set(["ส. 18 ต.ค."]),applied:{}};
 const $=s=>document.querySelector(s);
@@ -576,7 +574,6 @@ function card(s,tier){
       `<div class="dchips">${shown.map(([k,l])=>`<span class="dchip ${k==="today"?"today":k==="tmrw"?"tmrw":""}">${l}</span>`).join("")}${more>0?`<span class="dchip more">+${more}</span>`:""}</div>`}
       <div class="perks" style="color:${s.aes?"#c85d92":"#2f9e6a"}">${s.perks.map(p=>`<span>${esc(p)}</span>`).join("")}</div>
       ${s.portfolio?'<span class="pf">📄 ต้องมีผลงาน</span>':""}
-      <div class="views">👁 ${s.views} แพทย์เข้าชม</div>
       ${btn}
     </div></button>`;
 }
@@ -628,7 +625,7 @@ function renderClinic(){
   $("#screen").innerHTML=`
     <div class="two">
       <div>
-        <div class="lhead"><span class="k">ผู้สมัคร · ${APPLICANTS.length} คน</span><h3>OPD · ส. 18 ต.ค. · 09:00–17:00</h3><p>คลินิกสุขใจเวชกรรม · บางนา</p></div>
+        <div class="lhead"><span class="k">ผู้สมัคร · ${APPLICANTS.length} คน</span><h3>OPD · ส. 18 ต.ค. · 09:00–17:00</h3><p>คลินิกตัวอย่าง C</p></div>
         <div class="list">${APPLICANTS.map((a,i)=>`<div class="row">
           <span class="av" style="color:${a.c};background:${a.s}">${a.ini}</span>
           <div class="who"><b>${a.name}</b><span><span class="mono">${a.lic}</span> · ${a.exp} · ยืนยันตัวตนแล้ว ✓</span></div>
