@@ -121,6 +121,9 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .g4 .inp{min-height:38px;padding:0 6px}.g4 .inp input{padding:6px 0;text-align:center}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
 .g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
+.row.inl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.nrec:empty{display:none}
+.keep2{display:contents}
 .keep2 .line2{grid-template-columns:auto 1fr!important}
 #sleepinfo:empty{display:none}
 .body:has(.g2){gap:10px}
@@ -522,6 +525,7 @@ function num(k,label,unit,step){return `<label class="fld"><span class="lb">${la
 function txt(k,label,ph,type){return `<label class="fld"><span class="lb">${label}</span><span class="inp"><input type="${type||'text'}" id="f_${k}" data-k="${k}" placeholder="${E(ph||'')}" value="${E(S[k])}"></span></label>`;}
 function seg(k,opts){reg(k,opts);return `<div class="seg" role="group">${opts.map(o=>`<button type="button" class="opt t-${o[2]||''}" data-seg="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
 function chips(k,opts){reg(k,opts);return `<div class="chips">${opts.map(o=>`<button type="button" class="opt" data-chip="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
+function numrow(a){return `<div class="g4" style="grid-template-columns:repeat(${a.length},minmax(0,1fr))">${a.map(x=>`<label class="fld"><span class="lb">${x[1]}<small>${x[2]}</small></span><span class="inp"><input type="number" inputmode="decimal" step="${x[3]||'any'}" min="0" id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>`;}
 function segTxt(k,label,opts,ph){return `<div class="row"><span class="lb">${label}</span><div class="line2">${seg(k,opts)}<span class="inp"><input type="text" data-k="${k}_t" id="f_${k}_t" placeholder="${ph||'ระบุ'}" value="${E(S[k+'_t'])}"></span></div></div>`;}
 const NA=[['n','ปกติ','ok'],['a','ผิดปกติ','bad']];
 const YN=[['y','ใช่','ok'],['n','ไม่ใช่','warn']];
@@ -609,25 +613,23 @@ function renderForm(){
   const milkOpts=[['bf','ดูดนมแม่โดยตรง'],['ebm','นมแม่ที่ปั๊มไว้ (EBM)'],['if','นมผสมสำหรับทารก (IF)']];
   if(late) milkOpts.push(['fof','นมผสมสูตรต่อเนื่อง (FOF)']);
   let nut=`<div class="row"><span class="lb">ชนิดนม</span>${chips('milk',milkOpts)}</div>
-    <div class="grid">${num('feeds','ความถี่ในการกินนม','ครั้ง/วัน','1')}${late?'':num('feedmin','ระยะเวลากินนม','นาที/มื้อ','1')}${num('oz','ปริมาณนม EBM/นมผสม','ออนซ์/วัน','1')}</div>
+    ${numrow([['feeds','ความถี่นม','ครั้ง/วัน','1']].concat(late?[]:[['feedmin','เวลากินนม','นาที/มื้อ','1']],[['oz','นมปั๊ม/ผสม','ออนซ์/วัน','1']],late?[['cmeals','อาหารเสริม','มื้อ/วัน','1']]:[]))}
     <div class="age nrec" id="nrec-milk"></div>`;
   if(!late) nut+=segTxt('fhyg','สุขอนามัยในการให้นม',[['ok','เหมาะสม','ok'],['bad','ไม่เหมาะสม','warn']]);
   if(v===4) nut+=segTxt('solid','เริ่มอาหารเสริมแล้วหรือยัง',[['no','ยังไม่เริ่ม'],['yes','เริ่มแล้ว']])+`<p class="hint">แนะนำให้เริ่มอาหารเสริมแทนนม 1 มื้อเมื่ออายุ 6 เดือน</p>`;
-  if(late) nut+=`<div class="grid">${num('cmeals','อาหารเสริม','มื้อ/วัน','1')}</div>
-    <div class="age nrec" id="nrec-meal"></div>
+  if(late) nut+=`<div class="age nrec" id="nrec-meal"></div>
     <div class="row"><span class="lb">กลุ่มอาหารที่เริ่มให้แล้ว</span>${chips('fg',[['grain','ธัญพืช/ข้าว'],['veg','ผัก'],['fruit','ผลไม้'],['meat','เนื้อสัตว์/ปลา/ไข่'],['iron','อาหารที่มีธาตุเหล็ก']])}</div>
     <p class="hint">${v===6?'อายุ 6–8 เดือน: อาหารเสริม 1 มื้อ':v===9?'อายุ 8–10 เดือน: อาหารเสริม 2 มื้อ':'อายุ 10–12 เดือน: อาหารเสริม 3 มื้อ'} อาหารครบหมู่และมีธาตุเหล็กเพียงพอ</p>`;
   if(tod) nut=`<div class="row"><span class="lb">ชนิดนม</span>${chips('milk',[['bm','นมแม่'],['whole','นมวัว/นม UHT']])}</div>
-    <div class="grid">${num('oz','ปริมาณนม','ออนซ์/วัน','1')}</div>
+    ${numrow([['oz','นม','ออนซ์/วัน','1'],['mainm','อาหารหลัก','มื้อ/วัน','1'],['snack','อาหารว่าง','มื้อ/วัน','1']])}
     <div class="age nrec" id="nrec-milk"></div>
-    <div class="row"><span class="lb">เลิกขวดนมแล้ว</span>${seg('bottle',YN)}</div>
-    <div class="grid">${num('mainm','อาหารหลัก','มื้อ/วัน','1')}${num('snack','อาหารว่าง','มื้อ/วัน','1')}</div>
     <div class="age nrec" id="nrec-meal"></div>
-    <div class="row"><span class="lb">อาหารหลากหลาย</span>${seg('variety',[['y','หลากหลาย','ok'],['n','ไม่หลากหลาย','warn']])}</div>
-    <div class="row"><span class="lb">ผักและผลไม้</span>${seg('fv',[['y','เพียงพอ','ok'],['n','ไม่เพียงพอ','warn']])}</div>
-    <div class="row"><span class="lb">เครื่องดื่มรสหวาน</span>${seg('ssb',[['n','ไม่ดื่ม','ok'],['y','ดื่ม','warn']])}</div>`;
+    <div class="row inl"><span class="lb">เลิกขวดนมแล้ว</span>${seg('bottle',YN)}</div>
+    <div class="row inl"><span class="lb">อาหารหลากหลาย</span>${seg('variety',[['y','หลากหลาย','ok'],['n','ไม่หลากหลาย','warn']])}</div>
+    <div class="row inl"><span class="lb">ผักและผลไม้</span>${seg('fv',[['y','เพียงพอ','ok'],['n','ไม่เพียงพอ','warn']])}</div>
+    <div class="row inl"><span class="lb">เครื่องดื่มรสหวาน</span>${seg('ssb',[['n','ไม่ดื่ม','ok'],['y','ดื่ม','warn']])}</div>`;
   nut+=segTxt('nprob','ปัญหาการกิน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา');
-  h+=card('โภชนาการ','',nut);
+  h+=card('โภชนาการ','',`<div class="keep2">${nut}</div>`);
 
   h+=card('การขับถ่าย','',`${segTxt('elim','ปัสสาวะ/อุจจาระ',NA,'ระบุสิ่งที่ผิดปกติ')}
     <details class="idbox"${(S.stoolcolor||S.stoolcons||S.stoolfreq)?' open':''}><summary>บันทึกรายละเอียดอุจจาระ (ไม่บังคับ)</summary><div class="grid">${v===2?txt('stoolcolor','สีอุจจาระ'):txt('stoolcons','ลักษณะอุจจาระ')}${txt('stoolfreq','ความถี่')}</div></details>`);
