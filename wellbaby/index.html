@@ -54,8 +54,19 @@ button,input,select,textarea{font:inherit;color:inherit}
 .tabs{display:flex;gap:4px;background:var(--soft);padding:3px;border-radius:10px}
 .tab{border:0;background:transparent;padding:7px 16px;border-radius:8px;cursor:pointer;color:var(--ink-2);font-weight:500;min-height:36px}
 .tab[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 2px rgba(20,30,80,.15)}
-.visits{display:flex;gap:8px;margin-top:10px;overflow-x:auto;padding-bottom:4px;scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
-.visits .vbtn{flex:0 0 92px;scroll-snap-align:start}
+/* visit picker: compact sticky strip on phones, left sidebar on wide screens */
+.visits{position:sticky;top:calc(var(--hdr-h,84px) + env(safe-area-inset-top,0px));z-index:19;display:flex;gap:6px;overflow-x:auto;padding:6px 0;background:var(--surface);box-shadow:0 0 0 100vmax var(--surface);clip-path:inset(0 -100vmax);scroll-snap-type:x proximity;-webkit-overflow-scrolling:touch}
+.visits .vbtn{flex:0 0 auto;scroll-snap-align:start;padding:6px 14px;min-height:38px}
+.visits .vbtn span{display:none}
+.layout{display:block}
+.content{min-width:0}
+@media (min-width:820px){
+  .app{max-width:1120px}
+  .layout{display:grid;grid-template-columns:172px minmax(0,1fr);gap:20px;align-items:start}
+  .visits{top:calc(var(--hdr-h,84px) + env(safe-area-inset-top,0px) + 14px);margin-top:14px;flex-direction:column;gap:6px;padding:0;overflow-x:visible;overflow-y:auto;max-height:calc(100vh - var(--hdr-h,84px) - 36px);background:none;box-shadow:none;clip-path:none;z-index:10}
+  .visits .vbtn{flex:none;text-align:left;padding:8px 12px;min-height:46px}
+  .visits .vbtn span{display:block}
+}
 .vbtn{border:1.5px solid var(--line);background:var(--surface);border-radius:10px;padding:8px 6px;cursor:pointer;text-align:center;line-height:1.2;min-height:48px}
 .vbtn b{display:block;font:600 16px/1.2 var(--f-head)}
 .vbtn span{font-size:11.5px;color:var(--ink-2)}
@@ -177,7 +188,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 
 @media print{
   body{background:#fff;color:#000;padding:0}
-  body::before,.hdr,#view-form,.rbar,.foot,.note,.copybox{display:none!important}
+  body::before,.hdr,.visits,#view-form,.rbar,.foot,.note,.copybox{display:none!important}
   #view-report{display:block!important}
   .sheet{border:0;margin:0}
   *{color-scheme:light}
@@ -194,11 +205,15 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
         <button class="tab" role="tab" id="tab-report" aria-selected="false">รายงาน</button>
       </div>
     </div>
-    <div class="visits" id="visits"></div>
     <div class="prog" id="prog" aria-live="polite"></div>
   </header>
-  <main id="view-form"></main>
-  <main id="view-report" hidden></main>
+  <div class="layout">
+    <nav class="visits" id="visits" aria-label="ครั้งที่ตรวจ"></nav>
+    <div class="content">
+      <main id="view-form"></main>
+      <main id="view-report" hidden></main>
+    </div>
+  </div>
   <p class="foot">ข้อมูลที่กรอกอยู่ในหน้านี้เท่านั้น ไม่ถูกส่งหรือบันทึกที่ใด และจะหายเมื่อปิดหน้า · อ้างอิงเนื้อหา: แนวทางดูแลสุขภาพเด็กไทย (2564), แบบฟอร์ม Child Health Supervision Visit ที่ผู้ใช้จัดหา, WHO Child Growth Standards 2006 · เป็นเครื่องมือช่วยบันทึก ไม่ใช่เอกสารทางการ ผู้ตรวจต้องตรวจทานก่อนลงนาม</p>
 </div>
 
@@ -826,6 +841,9 @@ document.addEventListener('click',e=>{
 });
 
 renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh();
+</script>
+<script>
+(function(){var h=document.querySelector('.hdr');if(!h)return;function set(){document.documentElement.style.setProperty('--hdr-h',h.offsetHeight+'px')}set();window.addEventListener('resize',set);window.addEventListener('load',set);if(window.ResizeObserver){try{new ResizeObserver(set).observe(h)}catch(e){}}})();
 </script>
 
 </body></html>
