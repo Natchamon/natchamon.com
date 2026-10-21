@@ -120,6 +120,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .g4 .lb{font-size:12.5px;line-height:1.25;white-space:nowrap}.g4 .lb small{display:block;color:var(--ink-2);font-size:11px;white-space:nowrap}
 .g4 .inp{min-height:38px;padding:0 6px}.g4 .inp input{padding:6px 0;text-align:center}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+.g2 .fld,.g2 .inp{min-width:0}.g2 input[type=date]{min-width:0;font-size:14px}
 .g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
 .row.inl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
 .nrec:empty{display:none}
@@ -592,12 +593,10 @@ function renderForm(){
   h+=`<div class="note" id="exnote"><span>ลองดูตัวอย่างการกรอกก่อนก็ได้ ข้อมูลตัวอย่างเป็นข้อมูลสมมติ</span><span><button class="btn" id="btn-ex" type="button">โหลดข้อมูลตัวอย่าง</button></span></div>
   <div class="note"><span>ไม่มีอะไรผิดปกติ? แตะครั้งเดียวเพื่อตั้งค่า “ปกติ/ไม่มีปัญหา” ให้ครอบครัว การกิน การนอน การขับถ่าย พัฒนาการ ตรวจร่างกาย และสรุป (แก้รายข้อได้ภายหลัง)</span><span><button class="btn" id="btn-allnormal" type="button">ตั้งเป็นปกติทั้งหมด</button></span></div>`;
   h+=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
-    <div class="row"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
-    <div class="grid">${txt('dob','วันเกิด','', 'date')}${txt('vd','วันที่ตรวจ','', 'date')}
-      ${num('preterm','คลอดก่อนกำหนด (ถ้ามี)','สัปดาห์','1')}</div>
-    <p class="hint">คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age) คำนวณเปอร์เซ็นไทล์การเจริญเติบโต</p>
-    <div class="age" id="ageinfo"></div>
-    <div class="grid">${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
+    <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
+    <div class="g2">${txt('dob','วันเกิด','', 'date')}${txt('vd','วันที่ตรวจ','', 'date')}
+      ${num('preterm','คลอดก่อนกำหนด','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
+    <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
     ${segTxt('who','ผู้พาเด็กมา',[['m','มารดา'],['f','บิดา'],['g','ปู่ย่าตายาย'],['o','อื่น ๆ']],'ระบุ (ถ้ามี)')}
     <details class="idbox"${(S.name||S.hn)?' open':''}><summary>ข้อมูลระบุตัวตน (ไม่บังคับ — เว้นว่างได้)</summary>
       <div class="grid">${txt('name','ชื่อ-สกุล')}${txt('hn','HN')}</div>
