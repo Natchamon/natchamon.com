@@ -642,7 +642,8 @@ function renderForm(){
   REG={}; const v=S.visit; const late=v>=6, tod=v>=18; const G=GD[gk(v)];
   let h='';
   h+=`<div class="note"><span>ไม่มีอะไรผิดปกติ? แตะครั้งเดียวเพื่อตั้งค่า “ปกติ/ไม่มีปัญหา” ให้ครอบครัว การกิน การนอน การขับถ่าย พัฒนาการ ตรวจร่างกาย และสรุป (แก้รายข้อได้ภายหลัง)</span><span><button class="btn" id="btn-allnormal" type="button">ตั้งเป็นปกติทั้งหมด</button></span></div>`;
-  h+=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
+  const P={};
+  P['ข้อมูลสำหรับคำนวณ']=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
     <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
     <div class="row inl"><span class="lb">ระบุอายุด้วย</span>${seg('agemode',[['dob','วันเกิด'],['age','ปี/เดือน']])}</div>
     <div class="g2"><div id="agebox-dob" class="fld">${txt('dob','วันเกิด','', 'date')}</div><div id="agebox-age" class="fld" hidden>${numrow([['age_y','อายุ (ปี)','','1'],['age_m','เดือน','','1']])}</div>${txt('vd','วันที่ตรวจ','', 'date')}
@@ -653,8 +654,8 @@ function renderForm(){
       <div class="grid">${txt('name','ชื่อ-สกุล')}${txt('hn','HN')}</div>
       <p class="hint">ใช้เฉพาะเพื่อแสดงในรายงานฉบับเต็ม Chart note ไม่ได้ใส่ชื่อ/HN อยู่แล้ว และไม่มีการบันทึกข้อมูลใดไว้ที่ไหน ใช้วันเกิดเพื่อคำนวณอายุเท่านั้น</p>
     </details>`);
-  h+=card('ควรทำในการตรวจครั้งนี้',`อายุ ${vl(v)}`,`<ul class="due">${DUE[v].map(x=>`<li>${x}</li>`).join('')}</ul>`);
-  h+=card('ครอบครัวและการเลี้ยงดู','',`
+  P['ควรทำในการตรวจครั้งนี้']=card('ควรทำในการตรวจครั้งนี้',`อายุ ${vl(v)}`,`<ul class="due">${DUE[v].map(x=>`<li>${x}</li>`).join('')}</ul>`);
+  P['ครอบครัวและการเลี้ยงดู']=card('ครอบครัวและการเลี้ยงดู','',`
     ${segTxt('fam','การประเมินครอบครัว',[['none','ไม่พบความเสี่ยง','ok'],['risk','พบความเสี่ยง','warn']])}
     <div class="row"><span class="lb">ประเด็นเรื่องการเลี้ยงดูที่พูดคุย</span>${chips('rear',REAR[v].map((x,i)=>['r'+i,x]))}</div>
     ${v<=6?`<p class="hint"><b>แม่:</b> คัดกรองภาวะซึมเศร้าหลังคลอดอย่างน้อย 1 ครั้งในช่วง 6 เดือนแรก</p>`:''}`);
@@ -679,17 +680,17 @@ function renderForm(){
     <div class="row inl"><span class="lb">ผักและผลไม้</span>${seg('fv',[['y','เพียงพอ','ok'],['n','ไม่เพียงพอ','warn']])}</div>
     <div class="row inl"><span class="lb">เครื่องดื่มรสหวาน</span>${seg('ssb',[['n','ไม่ดื่ม','ok'],['y','ดื่ม','warn']])}</div>`;
   nut+=segTxt('nprob','ปัญหาการกิน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา');
-  h+=card('โภชนาการ','',`<div class="keep2">${nut}</div>`);
+  P['โภชนาการ']=card('โภชนาการ','',`<div class="keep2">${nut}</div>`);
 
-  h+=card('การขับถ่าย','',`${segTxt('elim','ปัสสาวะ/อุจจาระ',NA,'ระบุสิ่งที่ผิดปกติ')}
+  P['การขับถ่าย']=card('การขับถ่าย','',`${segTxt('elim','ปัสสาวะ/อุจจาระ',NA,'ระบุสิ่งที่ผิดปกติ')}
     <details class="idbox"${(S.stoolcolor||S.stoolcons||S.stoolfreq)?' open':''}><summary>บันทึกรายละเอียดอุจจาระ (ไม่บังคับ)</summary><div class="grid">${v===2?txt('stoolcolor','สีอุจจาระ'):txt('stoolcons','ลักษณะอุจจาระ')}${txt('stoolfreq','ความถี่')}</div></details>`);
 
-  h+=card('การนอนหลับ',`แนะนำ ${VN[v].sleep[0]}–${VN[v].sleep[1]} ชม./วัน รวมนอนกลางวัน`,`
+  P['การนอนหลับ']=card('การนอนหลับ',`แนะนำ ${VN[v].sleep[0]}–${VN[v].sleep[1]} ชม./วัน รวมนอนกลางวัน`,`
     <div class="g4">${[['sl_n','นอนคืน','ชม.','0.5'],['sl_nw','ตื่นคืน','ครั้ง','1'],['sl_d','นอนวัน','ชม.','0.5'],['sl_dn','งีบ','ครั้ง','1']].map(x=>`<label class="fld"><span class="lb">${x[1]}<small> (${x[2]})</small></span><span class="inp"><input type="number" inputmode="decimal" step="${x[3]}" min="0" id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>
     ${tod&&v<48?`<div class="row"><span class="lb">ยังกินนมกลางคืน</span>${seg('nightfeed',[['n','ไม่','ok'],['y','ใช่','warn']])}</div>`:''}
     <div class="age" id="sleepinfo"></div><div class="keep2">${segTxt('sl_p','ปัญหาการนอน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา')}</div>`);
 
-  h+=card('กิจกรรมทางกาย','',tod?
+  P['กิจกรรมทางกาย']=card('กิจกรรมทางกาย','',tod?
     `${txt('outdoor','เล่นกลางแจ้ง')}<div class="grid">${num('actmin','กิจกรรมทางกายรวม','นาที/วัน','5')}</div><p class="hint">แนะนำอย่างน้อย 180 นาที/วัน (รวมทุกระดับความหนัก)${v===48?' รวมกิจกรรมหนักอย่างน้อย 60 นาที':''}</p>`:late?
     `<div class="row"><span class="lb">เคลื่อนไหวในพื้นที่ปลอดภัย</span>${seg('act_move',YN)}</div>
      <div class="row"><span class="lb">ไม่ใช้รถหัดเดิน</span>${seg('act_walker',YN)}</div>
@@ -697,13 +698,13 @@ function renderForm(){
     `<div class="row"><span class="lb">นอนคว่ำ/เคลื่อนไหวอิสระ (tummy time)</span>${seg('tummy',[['y','ได้ทำ','ok'],['n','ไม่ได้ทำ','warn']])}</div>`);
 
   // development
-  h+=card('พัฒนาการ','เฝ้าระวังด้วยการซักถามและสังเกต',
+  P['พัฒนาการ']=card('พัฒนาการ','เฝ้าระวังด้วยการซักถามและสังเกต',
     `<div class="row"><div><button type="button" class="btn ghost" data-setall="dev">ทำได้ทุกข้อ</button></div></div>`+
     DEV[v].map(d=>`<div class="dev"><div class="dm"><b>${DOM[d[0]]}</b><span>${d[1]}</span><em>${d[2]}</em></div>${seg('dev_'+v+'_'+d[0],[['p','ทำได้ ✓','ok'],['f','ทำไม่ได้ ✗','bad']])}</div>`).join('')+
     `<div class="age" id="deveval"></div>`+txt('dev_t','หมายเหตุพัฒนาการ'));
 
   // measurement
-  h+=card('การเจริญเติบโต','เทียบเกณฑ์อ้างอิง WHO 2006 (0–5 ปี)',`
+  P['การเจริญเติบโต']=card('การเจริญเติบโต','เทียบเกณฑ์อ้างอิง WHO 2006 (0–5 ปี)',`
     ${numrow([['wt','น้ำหนัก','กก.','0.01'],['len',v>=24?'ส่วนสูง':'ความยาว','ซม.','0.1'],['hc','รอบศีรษะ','ซม.','0.1']])}
     ${v<=18?`<div class="fontan"><div class="fld"><span class="lb">กระหม่อมหน้า (AF)<small> ซม.</small></span><span class="afx"><span class="inp"><input type="number" inputmode="decimal" step="0.5" min="0" id="f_af_w" data-k="af_w" value="${E(S.af_w)}" aria-label="AF กว้าง"></span><b>×</b><span class="inp"><input type="number" inputmode="decimal" step="0.5" min="0" id="f_af_l" data-k="af_l" value="${E(S.af_l)}" aria-label="AF ยาว"></span></span></div>${v===2?`<div class="fld"><span class="lb">กระหม่อมหลัง (PF)</span>${seg('pf',[['c','ปิดแล้ว'],['o','ยังเปิด']])}</div>`:''}</div>`:''}
     <div class="gtable" id="gtable"></div>
@@ -712,7 +713,7 @@ function renderForm(){
 
   // exam
   const exp=examPoints(v);
-  h+=card('การตรวจร่างกาย','',`<p class="hint"><b>จุดตรวจเฉพาะวัย (${vl(v)})</b><br>${EXAMNOTE[v]}</p>
+  P['การตรวจร่างกาย']=card('การตรวจร่างกาย','',`<p class="hint"><b>จุดตรวจเฉพาะวัย (${vl(v)})</b><br>${EXAMNOTE[v]}</p>
     <div class="row"><span class="lb">ผลการตรวจร่างกายโดยรวม</span>${seg('exall',NA)}</div>
     <div id="exlist" hidden>    <p class="hint">ทุกระบบถูกตั้งเป็นปกติไว้ให้แล้ว — เลือกเฉพาะระบบที่ผิดปกติ</p>
     ${SYS.map(s=>`<div class="row exrow"><span class="lb">${s[1]}</span>${seg('ex_'+s[0],NA)}
@@ -735,10 +736,10 @@ function renderForm(){
   if(v>=18) scr+=`<div class="row"><span class="lb">ความเสี่ยงไขมันในเลือดสูง/เบาหวาน</span><div class="line2">${seg('dm',[['ni','ไม่มีข้อบ่งชี้'],['ind','มีข้อบ่งชี้','warn']])}<span class="inp"><input type="text" data-k="dm_t" id="f_dm_t" placeholder="ระบุ" value="${E(S.dm_t)}"></span></div></div>`;
   if(v>=6) scr+=`<div class="row"><span class="lb">การสัมผัสสารตะกั่ว (กลุ่มเสี่ยง)</span><div class="line2">${seg('lead',[['ni','ไม่มีข้อบ่งชี้'],['ind','มีข้อบ่งชี้','warn']])}<span class="inp"><input type="text" data-k="lead_t" id="f_lead_t" placeholder="ระบุ" value="${E(S.lead_t)}"></span></div></div>`;
   if(v<=4) scr+=`<p class="hint">กลุ่มเสี่ยง: ไม่มีรายการที่ต้องตรวจเพิ่มในอายุนี้</p>`;
-  h+=card('การคัดกรอง/ตรวจทางห้องปฏิบัติการ','',scr);
+  P['การคัดกรอง/ตรวจทางห้องปฏิบัติการ']=card('การคัดกรอง/ตรวจทางห้องปฏิบัติการ','',scr);
 
   // oral
-  h+=card('สุขภาพช่องปาก','',late?
+  P['สุขภาพช่องปาก']=card('สุขภาพช่องปาก','',late?
     `<div class="row"><span class="lb">ฟันขึ้นแล้ว</span><div class="line2">${seg('teeth',[['y','ขึ้นแล้ว'],['n','ยังไม่ขึ้น']])}<span class="inp"><input type="number" min="0" inputmode="numeric" data-k="teethn" id="f_teethn" placeholder="จำนวน" value="${E(S.teethn)}"><i>ซี่</i></span></div></div>
      ${tod?`<div class="row"><span class="lb">ฟันผุ</span>${seg('caries',[['n','ไม่พบ','ok'],['y','พบ','warn']])}</div>`:''}
      <div class="row"><span class="lb">ใช้ยาสีฟันผสมฟลูออไรด์ 1000 ppm (ปริมาณเท่า${v>=48?'เมล็ดถั่ว':'เมล็ดข้าวสาร'})</span>${seg('fluor',YN)}</div>
@@ -748,22 +749,23 @@ function renderForm(){
      <div class="row"><span class="lb">เช็ดเหงือกทุกวัน</span>${seg('gum',YN)}</div>`);
 
   // immunization
-  h+=card('วัคซีนและยา','',`
+  P['วัคซีนและยา']=card('วัคซีนและยา','',`
     <div class="row"><span class="lb">วัคซีนที่ให้ในวันนี้</span>${chips('vx',VAX[v])}</div>
     ${txt('vx_t','วัคซีนอื่น/เลื่อนฉีด/วัคซีนทางเลือกที่ให้')}
     ${late?segTxt('iron','เสริมธาตุเหล็ก',[['no','ไม่ได้ให้'],['yes','ให้']]):''}
     ${txt('med','ยาที่ใช้')}`);
 
   // evaluation
-  h+=card('สรุปและคำแนะนำ','',`
+  P['สรุปและคำแนะนำ']=card('สรุปและคำแนะนำ','',`
     ${segTxt('eval','ผลการประเมินรวม',NA)}
     <label class="fld"><span class="lb">คำแนะนำ/แผนการดูแล</span><textarea class="ta" data-k="advice" id="f_advice">${E(S.advice)}</textarea></label>
     <div class="sub">คำแนะนำที่ให้แล้ว</div>
     <details class="gdall"><summary>ดูประเด็นที่ควรแนะนำของแต่ละหัวข้อ</summary>${GDL.map(g=>`<div class="gd"><b>${g[1]}</b><ul>${G[g[0]].map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</details>
     ${(reg('gd',GDL),'')}<div class="chips"><button type="button" class="opt" data-chipall="gd" id="gd-all" aria-pressed="false">แนะนำเรื่องการเลี้ยงดูแล้ว</button></div>`);
 
-  h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
-  h+=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
+  P['นัดครั้งต่อไป']=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
+  P['ยังไม่ได้กรอก']=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
+  h+=['ข้อมูลสำหรับคำนวณ','การเจริญเติบโต','ครอบครัวและการเลี้ยงดู','โภชนาการ','การขับถ่าย','การนอนหลับ','กิจกรรมทางกาย','พัฒนาการ','การตรวจร่างกาย','สุขภาพช่องปาก','การคัดกรอง/ตรวจทางห้องปฏิบัติการ','วัคซีนและยา','สรุปและคำแนะนำ','นัดครั้งต่อไป','ควรทำในการตรวจครั้งนี้','ยังไม่ได้กรอก'].map(k=>P[k]||'').join('');
   h+=`<div class="rbar"><button class="btn solid" id="btn-toreport" type="button">ดูรายงาน</button><button class="btn danger" id="btn-clear" type="button">เริ่มใหม่ (ล้างทั้งหมด)</button></div>`;
   $('#view-form').innerHTML=h;
 }
