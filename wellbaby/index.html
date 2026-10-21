@@ -757,8 +757,8 @@ function renderForm(){
   h+=card('สรุปและคำแนะนำ','',`
     ${segTxt('eval','ผลการประเมินรวม',NA)}
     <label class="fld"><span class="lb">คำแนะนำ/แผนการดูแล</span><textarea class="ta" data-k="advice" id="f_advice">${E(S.advice)}</textarea></label>
-    <div class="sub gdhead">คำแนะนำที่ให้แล้ว <button type="button" class="btn" data-chipall="gd" id="gd-all">ให้ครบทุกหัวข้อ</button></div>
-    ${chips('gd',GDL)}
+    <div class="sub">คำแนะนำที่ให้แล้ว</div>
+    ${(reg('gd',GDL),'')}<div class="chips"><button type="button" class="opt" data-chipall="gd" id="gd-all" aria-pressed="false">แนะนำเรื่องการเลี้ยงดูแล้ว</button></div>
     <details class="gdall"><summary>ดูประเด็นที่ควรแนะนำของแต่ละหัวข้อ</summary>${GDL.map(g=>`<div class="gd"><b>${g[1]}</b><ul>${G[g[0]].map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</details>`);
 
   h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
@@ -805,7 +805,7 @@ function refresh(){
   { const ag=autoGrowth(); if(!S.gevalManual){ if(ag) S.geval=ag.key; else delete S.geval; } S._gz=ag?ag.z:null; }
   // controls
   document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
-  document.querySelectorAll('[data-chipall]').forEach(b=>{ const k=b.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; b.textContent=all.length&&all.every(x=>cur.indexOf(x)>-1)?'ล้างทั้งหมด':'ให้ครบทุกหัวข้อ'; });
+  document.querySelectorAll('[data-chipall]').forEach(b=>{ const k=b.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; b.setAttribute('aria-pressed',all.length>0&&all.every(x=>cur.indexOf(x)>-1)); });
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
   document.querySelectorAll('[data-sx]').forEach(el=>{ const on=el.dataset.sxv.split(',').indexOf(S[el.dataset.sx])>=0; const ip=el.querySelector('.inp'); if(ip) ip.hidden=!on; });
   { const xl=document.getElementById('exlist'); if(xl) xl.hidden=S.exall!=='a'; }
