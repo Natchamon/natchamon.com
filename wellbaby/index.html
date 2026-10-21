@@ -712,7 +712,7 @@ function renderForm(){
   // chips('gd') registered each time overwrites REG.gd; rebuild full list
   REG.gd=GDL;
 
-  h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}${txt('signer','ผู้ตรวจ (ชื่อแพทย์)')}`);
+  h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
   h+=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
   h+=`<div class="rbar"><button class="btn solid" id="btn-toreport" type="button">ดูรายงาน</button><button class="btn danger" id="btn-clear" type="button">เริ่มใหม่ (ล้างทั้งหมด)</button></div>`;
   $('#view-form').innerHTML=h;
@@ -857,7 +857,7 @@ function renderReport(){
   h+=`<article class="sheet"><div class="sh"><h1>บันทึกการตรวจสุขภาพเด็กดี อายุ ${vl(v)}</h1><p>Child Health Supervision Visit · ${E(S.name||'ไม่ระบุชื่อ')}${S.hn?' · HN '+E(S.hn):''}</p></div>`;
   if(S.example) h+=`<div class="wm">ข้อมูลตัวอย่าง ไม่ใช่ผู้ป่วยจริง</div>`;
   m.forEach(s=>{ h+=`<div class="rsec"><h3>${s.t}</h3>${s.rows.map(r=>`<div class="rrow"><span class="k">${s.html?E(r[0]).replace(/&lt;/g,'<'):E(r[0])}</span><span class="v">${s.html?r[1]:E(r[1])}</span></div>`).join('')}</div>`; });
-  h+=`<div class="sign"><div>${E(S.signer||'')||'&nbsp;'}<br>ลงชื่อผู้ตรวจ</div></div><p class="disc">เปอร์เซ็นไทล์คำนวณจาก WHO Child Growth Standards 2006 ผู้ตรวจต้องตรวจทานข้อมูลก่อนลงนาม</p></article>`;
+  h+=`<div class="sign"><div>&nbsp;<br>ลงชื่อผู้ตรวจ</div></div><p class="disc">เปอร์เซ็นไทล์คำนวณจาก WHO Child Growth Standards 2006 ผู้ตรวจต้องตรวจทานข้อมูลก่อนลงนาม</p></article>`;
   el.innerHTML=h;
 }
 function reportText(){
