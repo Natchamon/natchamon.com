@@ -335,7 +335,7 @@ const todayISO=()=>{const d=new Date();return d.getFullYear()+'-'+String(d.getMo
 const thDate=iso=>{const t=parseISO(iso); if(t==null) return ''; const d=new Date(t); return d.getUTCDate()+' '+TM[d.getUTCMonth()]+' '+(d.getUTCFullYear()+543);};
 const fromT=t=>{const d=new Date(t);return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');};
 
-const DEFCC='Well baby clinic follow up';
+const DEFCC='มาตรวจสุขภาพเด็กดีตามนัด';
 let S={visit:2,vd:todayISO(),cc:DEFCC};
 let REG={};
 const STR={ok:'ok',warn:'warn',bad:'bad'};
