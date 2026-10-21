@@ -594,7 +594,7 @@ function renderForm(){
   if(S.gd===undefined) S.gd=GDL.map(g=>g[0]);
   REG={}; const v=S.visit; const late=v>=6, tod=v>=18; const G=GD[gk(v)];
   let h='';
-  <div class="note"><span>ไม่มีอะไรผิดปกติ? แตะครั้งเดียวเพื่อตั้งค่า “ปกติ/ไม่มีปัญหา” ให้ครอบครัว การกิน การนอน การขับถ่าย พัฒนาการ ตรวจร่างกาย และสรุป (แก้รายข้อได้ภายหลัง)</span><span><button class="btn" id="btn-allnormal" type="button">ตั้งเป็นปกติทั้งหมด</button></span></div>`;
+  h+=`<div class="note"><span>ไม่มีอะไรผิดปกติ? แตะครั้งเดียวเพื่อตั้งค่า “ปกติ/ไม่มีปัญหา” ให้ครอบครัว การกิน การนอน การขับถ่าย พัฒนาการ ตรวจร่างกาย และสรุป (แก้รายข้อได้ภายหลัง)</span><span><button class="btn" id="btn-allnormal" type="button">ตั้งเป็นปกติทั้งหมด</button></span></div>`;
   h+=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
     <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
     <div class="g2">${txt('dob','วันเกิด','', 'date')}${txt('vd','วันที่ตรวจ','', 'date')}
