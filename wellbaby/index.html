@@ -116,6 +116,11 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .chips .opt[aria-pressed="true"]::before{background:var(--accent);border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent-soft)}
 .line2{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
 .line2 .inp{min-width:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
+.g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
+.keep2 .line2{grid-template-columns:auto 1fr!important}
+#sleepinfo:empty{display:none}
+.body:has(.g2){gap:10px}
 @media (max-width:520px){.line2{grid-template-columns:1fr}}
 
 /* due list */
@@ -625,9 +630,9 @@ function renderForm(){
     <details class="idbox"${(S.stoolcolor||S.stoolcons||S.stoolfreq)?' open':''}><summary>บันทึกรายละเอียดอุจจาระ (ไม่บังคับ)</summary><div class="grid">${v===2?txt('stoolcolor','สีอุจจาระ'):txt('stoolcons','ลักษณะอุจจาระ')}${txt('stoolfreq','ความถี่')}</div></details>`);
 
   h+=card('การนอนหลับ',`แนะนำ ${VN[v].sleep[0]}–${VN[v].sleep[1]} ชม./วัน รวมนอนกลางวัน`,`
-    <div class="grid">${num('sl_n','นอนกลางคืน','ชม./คืน','0.5')}${num('sl_nw','ตื่นกลางคืน','ครั้ง/คืน','1')}${num('sl_d','นอนกลางวัน','ชม./วัน','0.5')}${num('sl_dn','งีบกลางวัน','ครั้ง/วัน','1')}</div>
+    <div class="g2">${num('sl_n','นอนกลางคืน','ชม./คืน','0.5')}${num('sl_nw','ตื่นกลางคืน','ครั้ง/คืน','1')}${num('sl_d','นอนกลางวัน','ชม./วัน','0.5')}${num('sl_dn','งีบกลางวัน','ครั้ง/วัน','1')}</div>
     ${tod&&v<48?`<div class="row"><span class="lb">ยังกินนมกลางคืน</span>${seg('nightfeed',[['n','ไม่','ok'],['y','ใช่','warn']])}</div>`:''}
-    <div class="age" id="sleepinfo"></div>${segTxt('sl_p','ปัญหาการนอน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา')}`);
+    <div class="age" id="sleepinfo"></div><div class="keep2">${segTxt('sl_p','ปัญหาการนอน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา')}</div>`);
 
   h+=card('กิจกรรมทางกาย','',tod?
     `${txt('outdoor','เล่นกลางแจ้ง')}<div class="grid">${num('actmin','กิจกรรมทางกายรวม','นาที/วัน','5')}</div><p class="hint">แนะนำอย่างน้อย 180 นาที/วัน (รวมทุกระดับความหนัก)${v===48?' รวมกิจกรรมหนักอย่างน้อย 60 นาที':''}</p>`:late?
@@ -764,7 +769,7 @@ function refresh(){
     ai.innerHTML=h; }
   // sleep
   const si=$('#sleepinfo');
-  if(si){ const n=+S.sl_n||0,d=+S.sl_d||0; if(n||d){ const t=n+d,r=VN[S.visit].sleep; const ok=t>=r[0]&&t<=r[1]; si.innerHTML=`<span>รวม <b>${t.toFixed(1).replace(/\.0$/,'')} ชม./วัน</b></span><span class="pill ${ok?'ok':'warn'}">${ok?'อยู่ในช่วงแนะนำ':'นอกช่วงแนะนำ '+r[0]+'–'+r[1]+' ชม.'}</span>`; } else si.innerHTML=`<span class="pill">เกณฑ์แนะนำ (${VN[S.visit].sleepTxt}): ${VN[S.visit].sleep[0]}–${VN[S.visit].sleep[1]} ชม./วัน รวมนอนกลางวัน</span>`; }
+  if(si){ const n=+S.sl_n||0,d=+S.sl_d||0; if(n||d){ const t=n+d,r=VN[S.visit].sleep; const ok=t>=r[0]&&t<=r[1]; si.innerHTML=`<span>รวม <b>${t.toFixed(1).replace(/\.0$/,'')} ชม./วัน</b></span><span class="pill ${ok?'ok':'warn'}">${ok?'อยู่ในช่วงแนะนำ':'นอกช่วงแนะนำ '+r[0]+'–'+r[1]+' ชม.'}</span>`; } else si.innerHTML=''; }
   // development
   const de=$('#deveval');
   if(de){ const ks=DEV[S.visit].map(d=>[d[0],S['dev_'+S.visit+'_'+d[0]]]); const fails=ks.filter(k=>k[1]==='f').map(k=>k[0]); const set=ks.filter(k=>k[1]).length;
