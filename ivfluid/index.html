@@ -1,0 +1,121 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Paediatric IV Fluid Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
+--f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
+button,input{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto}
+header{padding:18px 0 4px}
+h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.body{padding:14px 16px;display:grid;gap:12px}
+.lb{font-size:13px;color:var(--ink-2)}
+.f{display:grid;gap:3px;min-width:0}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
+.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
+.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
+.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
+.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
+</style></head><body><div class="app">
+<header><h1>Paediatric IV fluid calculator<small>Maintenance (Holliday-Segar 4-2-1) + deficit replacement · by weight</small></h1></header>
+
+<div class="card"><h2>Patient</h2><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">Weight</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>kg</i></span></label>
+  <label class="f"><span class="lb">Dehydration (0 = none)</span><span class="inp"><input id="d" type="number" inputmode="decimal" min="0" max="15" step="1" value="0"><i>%</i></span></label>
+ </div>
+ <div class="seg" id="pre" aria-label="Dehydration presets">
+  <button class="opt" data-v="0" aria-pressed="true">None</button>
+  <button class="opt" data-v="5" aria-pressed="false">Mild 5%</button>
+  <button class="opt" data-v="7" aria-pressed="false">Moderate 7%</button>
+  <button class="opt" data-v="10" aria-pressed="false">Severe 10%</button>
+ </div>
+ <div class="g2">
+  <label class="f"><span class="lb">Bolus already given (optional)</span><span class="inp"><input id="b" type="number" inputmode="decimal" min="0" step="1" value="0"><i>mL</i></span></label>
+  <label class="f"><span class="lb">Ongoing losses (optional)</span><span class="inp"><input id="o" type="number" inputmode="decimal" min="0" step="1" value="0"><i>mL / 24 h</i></span></label>
+ </div>
+ <div class="f"><span class="lb">Replace deficit over</span>
+  <div class="seg" id="hrs"><button class="opt" data-v="24" aria-pressed="true">24 h</button><button class="opt" data-v="48" aria-pressed="false">48 h</button></div>
+ </div>
+</div></div>
+
+<div id="out"></div>
+
+<p class="foot">Calculation aid only. Check against your local protocol and the patient's clinical state, electrolytes and cardiac/renal status before prescribing. Holliday-Segar is not validated for neonates. Method: Holliday MA, Segar WE. Pediatrics 1957;19:823-32.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+let hrs=24;
+const r1=x=>Math.round(x*10)/10, r0=Math.round;
+function maint(w){ // returns {day, hr}
+  const a=Math.min(w,10), b=Math.min(Math.max(w-10,0),10), c=Math.max(w-20,0);
+  return {day:a*100+b*50+c*20, hr:a*4+b*2+c*1, a,b,c};
+}
+function seg(id,v,fn){document.querySelectorAll('#'+id+' .opt').forEach(x=>x.setAttribute('aria-pressed',String(+x.dataset.v===v)))}
+function calc(){
+  const w=parseFloat($('w').value), dp=Math.max(0,parseFloat($('d').value)||0),
+        bol=Math.max(0,parseFloat($('b').value)||0), ong=Math.max(0,parseFloat($('o').value)||0);
+  const out=$('out');
+  if(!(w>0)){out.innerHTML='';return}
+  const m=maint(w), mh=m.hr;
+  const defRaw=w*dp*10, def=Math.max(0,defRaw-bol);
+  const defH=def/hrs, ongH=ong/24;
+  const tot=mh+defH+ongH;
+  let h='';
+  if(w>150||w<1) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value.</div>`;
+  else if(w<3) h+=`<div class="note warn" style="margin-top:14px">Under 3 kg: Holliday-Segar is not validated for neonates. Use a neonatal fluid protocol.</div>`;
+  if(dp>=10) h+=`<div class="note warn" style="margin-top:14px">Severe dehydration/shock: give isotonic bolus 20 mL/kg (${r0(w*20)} mL) first and reassess. Deficit below is for after resuscitation.</div>`;
+  if(w>=40) h+=`<div class="note info" style="margin-top:14px">Maintenance is usually capped near adult values (about 100 mL/h, 2,400 mL/day). Uncapped figure shown below: ${r0(m.day)} mL/day.</div>`;
+  const mhC=w>=40?Math.min(mh,100):mh; const totC=mhC+defH+ongH;
+  h+=`<div class="card"><h2>Rate <small>${w} kg</small></h2><div class="body">
+   <div class="big"><div class="kpi main"><span>Total rate (even)</span><b>${r1(totC)}<small> mL/h</small></b></div>
+   <div class="kpi"><span>Maintenance only</span><b>${r1(mhC)}<small> mL/h</small></b></div></div>
+   <table><tr><th></th><th>mL / 24 h</th><th>mL/h</th></tr>
+   <tr><td>Maintenance</td><td>${r0(mhC*24)}</td><td>${r1(mhC)}</td></tr>
+   <tr><td>Deficit (over ${hrs} h)</td><td>${r0(defH*24)}</td><td>${r1(defH)}</td></tr>
+   ${ong?`<tr><td>Ongoing losses</td><td>${r0(ong)}</td><td>${r1(ongH)}</td></tr>`:''}
+   <tr><td><b>Total</b></td><td><b>${r0(totC*24)}</b></td><td><b>${r1(totC)}</b></td></tr></table>
+   <div class="work">
+    <div><b>Maintenance</b> (4-2-1): ${m.a}×4${m.b?` + ${m.b}×2`:''}${m.c?` + ${m.c}×1`:''} = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}</div>
+    <div><b>Per day</b> (100-50-20): ${m.a}×100${m.b?` + ${m.b}×50`:''}${m.c?` + ${m.c}×20`:''} = ${r0(m.day)} mL/day (the hourly 4-2-1 rule gives slightly less, ${r0(mh*24)} mL; both are accepted)</div>
+    <div><b>Deficit</b>: ${w} kg × ${dp}% × 10 = ${r0(defRaw)} mL${bol?` − bolus ${bol} = ${r0(def)} mL`:''}${dp?` → ÷ ${hrs} h = ${r1(defH)} mL/h`:''}</div>
+    <div><b>Drip rate</b>: microdrip (60 gtt/mL) = ${r0(totC)} gtt/min · macrodrip (20 gtt/mL) = ${r0(totC/3)} gtt/min</div>
+   </div></div></div>`;
+  if(def>0&&hrs===24){
+    const first=mhC*8+def/2+ongH*8, rest=mhC*16+def/2+ongH*16;
+    h+=`<div class="card"><h2>Alternative: 8 h / 16 h split <small>half the deficit in first 8 h</small></h2><div class="body">
+     <table><tr><th>Phase</th><th>Volume</th><th>mL/h</th></tr>
+     <tr><td>First 8 h</td><td>${r0(first)} mL</td><td>${r1(first/8)}</td></tr>
+     <tr><td>Next 16 h</td><td>${r0(rest)} mL</td><td>${r1(rest/16)}</td></tr></table></div></div>`;
+  }
+  out.innerHTML=h;
+}
+document.querySelectorAll('#pre .opt').forEach(b=>b.onclick=()=>{$('d').value=b.dataset.v;sync()});
+document.querySelectorAll('#hrs .opt').forEach(b=>b.onclick=()=>{hrs=+b.dataset.v;sync()});
+function sync(){seg('pre',parseFloat($('d').value)||0);seg('hrs',hrs);calc()}
+['w','d','b','o'].forEach(i=>$(i).addEventListener('input',sync));
+sync();
+</script></body></html>
