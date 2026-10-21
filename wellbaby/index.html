@@ -758,8 +758,8 @@ function renderForm(){
     ${segTxt('eval','ผลการประเมินรวม',NA)}
     <label class="fld"><span class="lb">คำแนะนำ/แผนการดูแล</span><textarea class="ta" data-k="advice" id="f_advice">${E(S.advice)}</textarea></label>
     <div class="sub">คำแนะนำที่ให้แล้ว</div>
-    ${(reg('gd',GDL),'')}<div class="chips"><button type="button" class="opt" data-chipall="gd" id="gd-all" aria-pressed="false">แนะนำเรื่องการเลี้ยงดูแล้ว</button></div>
-    <details class="gdall"><summary>ดูประเด็นที่ควรแนะนำของแต่ละหัวข้อ</summary>${GDL.map(g=>`<div class="gd"><b>${g[1]}</b><ul>${G[g[0]].map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</details>`);
+    <details class="gdall"><summary>ดูประเด็นที่ควรแนะนำของแต่ละหัวข้อ</summary>${GDL.map(g=>`<div class="gd"><b>${g[1]}</b><ul>${G[g[0]].map(x=>`<li>${x}</li>`).join('')}</ul></div>`).join('')}</details>
+    ${(reg('gd',GDL),'')}<div class="chips"><button type="button" class="opt" data-chipall="gd" id="gd-all" aria-pressed="false">แนะนำเรื่องการเลี้ยงดูแล้ว</button></div>`);
 
   h+=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
   h+=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
