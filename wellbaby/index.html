@@ -737,7 +737,8 @@ function growthCalc(){
 function band(res){ if(!res||res.out) return null; if(res.below) return 'low'; if(res.above) return 'high'; return 'ok'; }
 
 function autoGrowth(){ const sex=S.sex; if(!(+S.wt>0&&+S.len>0&&sex)) return null;
-  const r=growthCalc().R.wfl.res; if(!r||r.out) return null; const z=r.z, big=S.visit>=12;
+  const std=growthAge().m>=24, lms=interp(WHO[sex][std?'wfh':'wfl'],+S.len); if(!lms) return null;
+  const z=zOf(+S.wt,lms), big=S.visit>=12; /* WHO cut-offs only */
   const key=big?(z<-2?'mal':z>3?'ob':z>2?'ow':'n'):(Math.abs(z)>2?'a':'n'); return {key,z}; }
 /* ---------- refresh ---------- */
 function refresh(){
