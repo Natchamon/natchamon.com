@@ -568,7 +568,7 @@ function progItems(){
 }
 function allNormal(){
   const v=S.visit; Object.assign(S,{fam:'none',nprob:'n',sl_p:'n',elim:'n',geval:'n',eval:'n'});
-  DEV[v].forEach(d=>S['dev_'+v+'_'+d[0]]='p'); SYS.forEach(x=>S['ex_'+x[0]]='n');
+  DEV[v].forEach(d=>S['dev_'+v+'_'+d[0]]='p'); SYS.forEach(x=>S['ex_'+x[0]]='n'); S.exall='n';
   if(v>=6) S.lead='ni'; if(v>=18) S.dm='ni';
 }
 function renderVisits(){  $('#visits').innerHTML=VIS.map(v=>`<button class="vbtn" data-v="${v}" aria-pressed="${S.visit===v}"><b>${VB[v]}</b><span>${VSUB[v]}</span></button>`).join(''); const sel=document.querySelector('.vbtn[aria-pressed="true"]'); if(sel&&sel.scrollIntoView){ try{ sel.scrollIntoView({inline:'center',block:'nearest'}); }catch(_){} } }
@@ -652,10 +652,11 @@ function renderForm(){
 
   // exam
   const exp=examPoints(v);
-  h+=card('การตรวจร่างกาย','',`<details class="idbox"><summary>จุดตรวจเฉพาะวัย (${vl(v)})</summary><p class="hint"><b>${EXAMNOTE[v]}</b></p></details>
-    <div class="row"><div><button type="button" class="btn ghost" data-setall="exam">ปกติทุกระบบ</button></div></div>
+  h+=card('การตรวจร่างกาย','',`<div class="row"><span class="lb">ผลการตรวจร่างกายโดยรวม</span>${seg('exall',NA)}</div>
+    <div id="exlist" hidden><details class="idbox"><summary>จุดตรวจเฉพาะวัย (${vl(v)})</summary><p class="hint"><b>${EXAMNOTE[v]}</b></p></details>
+    <p class="hint">ทุกระบบถูกตั้งเป็นปกติไว้ให้แล้ว — เลือกเฉพาะระบบที่ผิดปกติ</p>
     ${SYS.map(s=>`<div class="row exrow"><span class="lb">${s[1]}</span>${seg('ex_'+s[0],NA)}
-      <div class="exmore" id="exm_${s[0]}" hidden><label class="fld"><span class="lb">ระบุความผิดปกติ</span><span class="inp"><input type="text" data-k="ex_${s[0]}_t" id="f_ex_${s[0]}_t" placeholder="ระบุ" value="${E(S['ex_'+s[0]+'_t'])}"></span></label>${exp[s[0]]?`<p class="look"><b>ตรวจดู:</b> ${exp[s[0]].join(' · ')}</p>`:''}</div></div>`).join('')}`);
+      <div class="exmore" id="exm_${s[0]}" hidden><label class="fld"><span class="lb">ระบุความผิดปกติ</span><span class="inp"><input type="text" data-k="ex_${s[0]}_t" id="f_ex_${s[0]}_t" placeholder="ระบุ" value="${E(S['ex_'+s[0]+'_t'])}"></span></label>${exp[s[0]]?`<p class="look"><b>ตรวจดู:</b> ${exp[s[0]].join(' · ')}</p>`:''}</div></div>`).join('')}</div>`);
 
   // screening
   let scr='';
@@ -742,10 +743,12 @@ function autoGrowth(){ const sex=S.sex; if(!(+S.wt>0&&+S.len>0&&sex)) return nul
   const key=big?(z<-2?'mal':z>3?'ob':z>2?'ow':'n'):(Math.abs(z)>2?'a':'n'); return {key,z}; }
 /* ---------- refresh ---------- */
 function refresh(){
+  if(!S.exall){ const any=SYS.some(x=>S['ex_'+x[0]]); if(any) S.exall=SYS.some(x=>S['ex_'+x[0]]==='a')?'a':'n'; }
   { const ag=autoGrowth(); if(!S.gevalManual){ if(ag) S.geval=ag.key; else delete S.geval; } S._gz=ag?ag.z:null; }
   // controls
   document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
+  { const xl=document.getElementById('exlist'); if(xl) xl.hidden=S.exall!=='a'; }
   SYS.forEach(x=>{ const m=document.getElementById('exm_'+x[0]); if(m) m.hidden=S['ex_'+x[0]]!=='a'; });
   // age
   const ai=$('#ageinfo');
@@ -867,18 +870,20 @@ function example(){
     wt:'8.4',len:'70.5',hc:'44.0',af:'1.5 × 1.5 ซม. นูนเล็กน้อย',milk:['bf','if'],feeds:'5',oz:'10',cmeals:'2',fg:['grain','veg','fruit','meat','iron'],
     stoolfreq:'1–2 ครั้ง/วัน',stoolcons:'ก้อนนิ่ม',sl_n:'10',sl_nw:'1',sl_d:'3',sl_dn:'2',act_move:'y',act_walker:'y',act_stroller:'y',
     fam:'none',teeth:'y',teethn:'2',fluor:'y',brush:'y',dent:'n',vx:['mmr1','je1'],anemia:'n',hb:'11.8',lead:'ni',eval:'n',geval:'n'});
-  ['GM','FM','RL','EL','PS'].forEach(k=>S['dev_9_'+k]='p'); SYS.forEach(s=>S['ex_'+s[0]]='n');
+  ['GM','FM','RL','EL','PS'].forEach(k=>S['dev_9_'+k]='p'); SYS.forEach(s=>S['ex_'+s[0]]='n'); S.exall='n';
   switchVisit(9); $('#exnote').className='note ex'; $('#exnote').innerHTML='<span>กำลังแสดงข้อมูลตัวอย่าง (สมมติ) กด “เริ่มใหม่” ท้ายหน้าเพื่อเริ่มกรอกจริง</span>';
 }
 document.addEventListener('input',e=>{ const k=e.target.dataset&&e.target.dataset.k; if(k){ S[k]=e.target.value; if(S.example&&(k==='name'||k==='hn')) S.example=false; refresh(); } });
 document.addEventListener('click',e=>{
   const t=e.target.closest('button'); if(!t) return;
-  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val; refresh(); if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
+  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val;
+    if(k==='exall'){ if(!S.exall) SYS.forEach(x=>{delete S['ex_'+x[0]];}); else if(S.exall==='n') SYS.forEach(x=>{S['ex_'+x[0]]='n';}); else SYS.forEach(x=>{ if(!S['ex_'+x[0]]) S['ex_'+x[0]]='n'; }); }
+    refresh(); if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
   if(t.dataset.chip){ const k=t.dataset.chip, a=(S[k]||[]).slice(), i=a.indexOf(t.dataset.val); if(i>-1) a.splice(i,1); else a.push(t.dataset.val); S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
   if(t.dataset.goto){ switchVisit(+t.dataset.goto); return; }
   if(t.dataset.setall==='dev'){ DEV[S.visit].forEach(d=>S['dev_'+S.visit+'_'+d[0]]='p'); refresh(); return; }
-  if(t.dataset.setall==='exam'){ SYS.forEach(s=>S['ex_'+s[0]]='n'); refresh(); return; }
+  if(t.dataset.setall==='exam'){ SYS.forEach(s=>S['ex_'+s[0]]='n'); S.exall='n'; refresh(); return; }
   switch(t.id){
     case 'tab-form': setView('form'); break;
     case 'tab-report': case 'btn-toreport': setView('report'); break;
