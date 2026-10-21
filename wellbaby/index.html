@@ -186,6 +186,11 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .copybox{width:100%;min-height:160px;margin-top:10px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:10px;font-size:13px}
 .foot{margin-top:22px;font-size:12px;color:var(--ink-2)}
 
+.prog .miss{flex:0 1 auto;min-width:0;max-width:62%;border:0;background:none;padding:2px 0;color:var(--accent);font-size:12.5px;font-weight:500;text-align:left;cursor:pointer;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-decoration:underline;text-underline-offset:2px}
+.jl{border:0;background:none;padding:2px 0;color:var(--accent);font:inherit;text-align:left;cursor:pointer;text-decoration:underline;text-underline-offset:2px;min-height:28px}
+.jl:focus-visible,.miss:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+.flash{animation:flash 1.4s ease-out}
+@keyframes flash{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}
 @media print{
   body{background:#fff;color:#000;padding:0}
   body::before,.hdr,.visits,#view-form,.rbar,.foot,.note,.copybox{display:none!important}
@@ -509,17 +514,17 @@ function card(title,small,inner){return `<section class="card"><h2><span>${title
 
 function progItems(){
   const v=S.visit, dv=DEV[v].every(d=>S['dev_'+v+'_'+d[0]]), ex=SYS.every(x=>S['ex_'+x[0]]);
-  const L=[['วันเกิด',!!S.dob],['เพศ',!!S.sex],['วันที่ตรวจ',!!S.vd],['น้ำหนัก',+S.wt>0],[v>=24?'ส่วนสูง':'ความยาว',+S.len>0],['รอบศีรษะ',+S.hc>0],
-    ['การประเมินครอบครัว',!!S.fam],['ชนิดนม',(S.milk||[]).length>0],['ปัญหาการกิน',!!S.nprob],['การขับถ่าย',!!S.elim],['ชั่วโมงนอน',(+S.sl_n>0)||(+S.sl_d>0)],['ปัญหาการนอน',!!S.sl_p],
-    ['พัฒนาการครบ 5 ด้าน',dv],['ตรวจร่างกายครบทุกระบบ',ex],['สรุปการเจริญเติบโต',!!S.geval]];
-  if(v<=6) L.push(['การได้ยิน',!!S.hear]);
-  if(v===9||v===48) L.push(['Hb',+S.hb>0]);
-  if(v===12) L.push(['คัดกรองภาวะซีด',!!S.anemia]);
-  if(v===48){ L.push(['สายตา',!!S.va]); L.push(['ความดันโลหิต',!!S.bp]); }
-  if([9,18,30,48].indexOf(v)>-1) L.push(['คัดกรองพัฒนาการด้วยเครื่องมือมาตรฐาน',!!S.devscr]);
-  if(v>=6) L.push(['การสัมผัสสารตะกั่ว',!!S.lead]);
-  if(v>=18) L.push(['ความเสี่ยงไขมัน/เบาหวาน',!!S.dm]);
-  L.push(['ผลการประเมินรวม',!!S.eval]);
+  const L=[['วันเกิด',!!S.dob,'dob'],['เพศ',!!S.sex,'sex'],['วันที่ตรวจ',!!S.vd,'vd'],['น้ำหนัก',+S.wt>0,'wt'],[v>=24?'ส่วนสูง':'ความยาว',+S.len>0,'len'],['รอบศีรษะ',+S.hc>0,'hc'],
+    ['การประเมินครอบครัว',!!S.fam,'fam'],['ชนิดนม',(S.milk||[]).length>0,'milk'],['ปัญหาการกิน',!!S.nprob,'nprob'],['การขับถ่าย',!!S.elim,'elim'],['ชั่วโมงนอน',(+S.sl_n>0)||(+S.sl_d>0),'sl_n'],['ปัญหาการนอน',!!S.sl_p,'sl_p'],
+    ['พัฒนาการครบ 5 ด้าน',dv,'dev_'],['ตรวจร่างกายครบทุกระบบ',ex,'ex_'],['สรุปการเจริญเติบโต',!!S.geval,'geval']];
+  if(v<=6) L.push(['การได้ยิน',!!S.hear,'hear']);
+  if(v===9||v===48) L.push(['Hb',+S.hb>0,'hb']);
+  if(v===12) L.push(['คัดกรองภาวะซีด',!!S.anemia,'anemia']);
+  if(v===48){ L.push(['สายตา',!!S.va,'va']); L.push(['ความดันโลหิต',!!S.bp,'bp']); }
+  if([9,18,30,48].indexOf(v)>-1) L.push(['คัดกรองพัฒนาการด้วยเครื่องมือมาตรฐาน',!!S.devscr,'devscr']);
+  if(v>=6) L.push(['การสัมผัสสารตะกั่ว',!!S.lead,'lead']);
+  if(v>=18) L.push(['ความเสี่ยงไขมัน/เบาหวาน',!!S.dm,'dm']);
+  L.push(['ผลการประเมินรวม',!!S.eval,'eval']);
   return L;
 }
 function allNormal(){
@@ -724,8 +729,8 @@ function refresh(){
     h+=`<p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · เส้น P3–P97 ตรงกับกราฟการเจริญเติบโตที่ใช้ในคลินิก</p>`;
     gt.innerHTML=h; }
   const pi=progItems(), dn=pi.filter(x=>x[1]).length, pct=Math.round(dn/pi.length*100);
-  const pe=$('#prog'); if(pe) pe.innerHTML=`<span class="bar"><i style="width:${pct}%"></i></span><b>${dn}/${pi.length} รายการ</b>`;
-  const td=$('#todo'); if(td){ const rest=pi.filter(x=>!x[1]); td.innerHTML=rest.length?`<ul class="todo">${rest.map(x=>`<li>${x[0]}</li>`).join('')}</ul>`:'<span class="pill ok">กรอกครบทุกรายการแล้ว</span>'; }
+  const miss=pi.filter(x=>!x[1]); const pe=$('#prog'); if(pe) pe.innerHTML=`<span class="bar"><i style="width:${pct}%"></i></span><b>${dn}/${pi.length}</b>`+(miss.length?`<button type="button" class="miss" data-jump="${miss[0][2]}" title="ไปยังช่องที่ยังไม่ได้กรอก">ขาด: ${miss.slice(0,2).map(x=>x[0]).join(', ')}${miss.length>2?' +'+(miss.length-2):''}</button>`:'<span class="pill ok">กรอกครบแล้ว</span>');
+  const td=$('#todo'); if(td){ const rest=pi.filter(x=>!x[1]); td.innerHTML=rest.length?`<ul class="todo">${rest.map(x=>`<li><button type="button" class="jl" data-jump="${x[2]}">${x[0]}</button></li>`).join('')}</ul>`:'<span class="pill ok">กรอกครบทุกรายการแล้ว</span>'; }
   const nm=$('#nrec-milk'); if(nm) nm.innerHTML=nrecMilkHTML(); const ne=$('#nrec-meal'); if(ne) ne.innerHTML=nrecMealHTML();
   renderReport();
 }
@@ -836,6 +841,22 @@ renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh();
 </script>
 <script>
 (function(){var h=document.querySelector('.hdr');if(!h)return;function set(){document.documentElement.style.setProperty('--hdr-h',h.offsetHeight+'px')}set();window.addEventListener('resize',set);window.addEventListener('load',set);if(window.ResizeObserver){try{new ResizeObserver(set).observe(h)}catch(e){}}})();
+(function(){
+  function fieldEl(key){
+    var pre=key.slice(-1)==='_', op=pre?'^=':'=', q=['data-k','data-seg','data-chip'].map(function(a){return '#view-form ['+a+op+'"'+key+'"]'}).join(',');
+    return document.querySelector(q);
+  }
+  window.jumpToField=function(key){
+    var form=document.getElementById('view-form');
+    if(form.hidden && typeof setView==='function') setView('form');
+    var el=fieldEl(key); if(!el) return;
+    var box=el.closest('.fld,.row,.card')||el;
+    box.scrollIntoView({block:'center',behavior:window.matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});
+    box.classList.remove('flash'); void box.offsetWidth; box.classList.add('flash');
+    if(el.tagName==='INPUT'){ try{el.focus({preventScroll:true})}catch(e){} }
+  };
+  document.addEventListener('click',function(e){var b=e.target.closest('[data-jump]'); if(b) window.jumpToField(b.getAttribute('data-jump'));});
+})();
 </script>
 
 </body></html>
