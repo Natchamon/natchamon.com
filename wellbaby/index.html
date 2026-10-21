@@ -116,6 +116,9 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .chips .opt[aria-pressed="true"]::before{background:var(--accent);border-color:var(--accent);box-shadow:inset 0 0 0 2px var(--accent-soft)}
 .line2{display:grid;grid-template-columns:auto 1fr;gap:8px;align-items:center}
 .line2 .inp{min-width:0}
+.g4{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:6px 8px}
+.g4 .lb{font-size:12.5px;line-height:1.25;white-space:nowrap}.g4 .lb small{display:block;color:var(--ink-2);font-size:11px;white-space:nowrap}
+.g4 .inp{min-height:38px;padding:0 6px}.g4 .inp input{padding:6px 0;text-align:center}
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
 .g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
 .keep2 .line2{grid-template-columns:auto 1fr!important}
@@ -630,7 +633,7 @@ function renderForm(){
     <details class="idbox"${(S.stoolcolor||S.stoolcons||S.stoolfreq)?' open':''}><summary>บันทึกรายละเอียดอุจจาระ (ไม่บังคับ)</summary><div class="grid">${v===2?txt('stoolcolor','สีอุจจาระ'):txt('stoolcons','ลักษณะอุจจาระ')}${txt('stoolfreq','ความถี่')}</div></details>`);
 
   h+=card('การนอนหลับ',`แนะนำ ${VN[v].sleep[0]}–${VN[v].sleep[1]} ชม./วัน รวมนอนกลางวัน`,`
-    <div class="g2">${num('sl_n','นอนกลางคืน','ชม./คืน','0.5')}${num('sl_nw','ตื่นกลางคืน','ครั้ง/คืน','1')}${num('sl_d','นอนกลางวัน','ชม./วัน','0.5')}${num('sl_dn','งีบกลางวัน','ครั้ง/วัน','1')}</div>
+    <div class="g4">${[['sl_n','นอนคืน','ชม.','0.5'],['sl_nw','ตื่นคืน','ครั้ง','1'],['sl_d','นอนวัน','ชม.','0.5'],['sl_dn','งีบ','ครั้ง','1']].map(x=>`<label class="fld"><span class="lb">${x[1]}<small> (${x[2]})</small></span><span class="inp"><input type="number" inputmode="decimal" step="${x[3]}" min="0" id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>
     ${tod&&v<48?`<div class="row"><span class="lb">ยังกินนมกลางคืน</span>${seg('nightfeed',[['n','ไม่','ok'],['y','ใช่','warn']])}</div>`:''}
     <div class="age" id="sleepinfo"></div><div class="keep2">${segTxt('sl_p','ปัญหาการนอน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา')}</div>`);
 
