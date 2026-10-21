@@ -198,6 +198,9 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .jl:focus-visible,.miss:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
 .flash{animation:flash 1.4s ease-out}
 @keyframes flash{0%{box-shadow:0 0 0 3px var(--accent)}100%{box-shadow:0 0 0 3px transparent}}
+.exmore{display:grid;gap:8px;margin-top:2px;padding:10px 12px;border-left:3px solid var(--bad);border-radius:0 10px 10px 0;background:var(--bad-bg)}
+.exmore .look{margin:0;font-size:13px;color:var(--ink)}
+.exmore .look b{color:var(--bad)}
 @media print{
   body{background:#fff;color:#000;padding:0}
   body::before,.hdr,.side,.visits,#view-form,.rbar,.foot,.note,.copybox{display:none!important}
@@ -374,6 +377,11 @@ const EXAMNOTE={
  30:'จุดตรวจเฉพาะวัย: ตาเหล่ตาเข · การเดิน · อวัยวะเพศ · คลำก้อนในท้อง · ฟันผุ/เหงือกอักเสบ · รอยฟกช้ำหรือบาดแผล',
  48:'จุดตรวจเฉพาะวัย: การเรียงตัวของตา · การออกเสียงชัดเจน (articulation) · ฟันผุ คราบฟัน สีของฟัน สุขภาพเหงือก · ความดันโลหิต'
 };
+function examPoints(v){ const out={}; const note=(EXAMNOTE[v]||'').replace(/^[^:]*:\s*/,'');
+  note.split(' · ').forEach(t=>{ t=t.trim(); if(!t) return; let k;
+    if(/BCG|ฟกช้ำ|บาดแผล/.test(t)) k='ga'; else if(/ความดัน/.test(t)) k='cv'; else if(/ท้อง/.test(t)) k='abd'; else if(/อัณฑะ|อวัยวะเพศ/.test(t)) k='gen';
+    else if(/sacral/i.test(t)) k='neuro'; else if(/สะโพก|ท่ายืน|ท่าเดิน|การเดิน/.test(t)) k='ext'; else k='heent';
+    (out[k]=out[k]||[]).push(t); }); return out; }
 const SYS=[['ga','ทั่วไป/ผิวหนัง (GA/Skin)'],['heent','ศีรษะ ตา หู คอ จมูก (HEENT)'],['cv','หัวใจ/ทรวงอก (Cardio/Chest)'],['abd','ท้อง (Abdomen)'],['gen','อวัยวะเพศ (Genitalia)'],['neuro','ระบบประสาท/หลัง (Neuro/Back)'],['ext','แขนขา (Extremities)']];
 const VAX={
  2:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp1','DTP-Hib-HBV 1','DTP-Hib-HBV 1 0.5 ml IM'],['ipv1','IPV 1','IPV 1 0.5 ml IM'],['opv1','OPV 1 (กิน)','OPV drop'],['rota1','โรต้า 1','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM']],
@@ -643,9 +651,11 @@ function renderForm(){
     ${segTxt('geval','สรุปการเจริญเติบโต',v>=12?GEV:NA)}`);
 
   // exam
-  h+=card('การตรวจร่างกาย','',`<p class="hint"><b>${EXAMNOTE[v]}</b></p>
+  const exp=examPoints(v);
+  h+=card('การตรวจร่างกาย','',`<details class="idbox"><summary>จุดตรวจเฉพาะวัย (${vl(v)})</summary><p class="hint"><b>${EXAMNOTE[v]}</b></p></details>
     <div class="row"><div><button type="button" class="btn ghost" data-setall="exam">ปกติทุกระบบ</button></div></div>
-    ${SYS.map(s=>`<div class="row"><span class="lb">${s[1]}</span><div class="line2">${seg('ex_'+s[0],NA)}<span class="inp"><input type="text" data-k="ex_${s[0]}_t" id="f_ex_${s[0]}_t" placeholder="ระบุ" value="${E(S['ex_'+s[0]+'_t'])}"></span></div></div>`).join('')}`);
+    ${SYS.map(s=>`<div class="row exrow"><span class="lb">${s[1]}</span>${seg('ex_'+s[0],NA)}
+      <div class="exmore" id="exm_${s[0]}" hidden><label class="fld"><span class="lb">ระบุความผิดปกติ</span><span class="inp"><input type="text" data-k="ex_${s[0]}_t" id="f_ex_${s[0]}_t" placeholder="ระบุ" value="${E(S['ex_'+s[0]+'_t'])}"></span></label>${exp[s[0]]?`<p class="look"><b>ตรวจดู:</b> ${exp[s[0]].join(' · ')}</p>`:''}</div></div>`).join('')}`);
 
   // screening
   let scr='';
@@ -735,6 +745,7 @@ function refresh(){
   // controls
   document.querySelectorAll('[data-seg]').forEach(b=>b.setAttribute('aria-pressed',S[b.dataset.seg]===b.dataset.val));
   document.querySelectorAll('[data-chip]').forEach(b=>{const a=S[b.dataset.chip]||[];b.setAttribute('aria-pressed',a.indexOf(b.dataset.val)>-1);});
+  SYS.forEach(x=>{ const m=document.getElementById('exm_'+x[0]); if(m) m.hidden=S['ex_'+x[0]]!=='a'; });
   // age
   const ai=$('#ageinfo');
   if(ai){ const a=ageInfo(); let h='';
@@ -781,7 +792,7 @@ function refresh(){
 /* ---------- report model ---------- */
 function sl(k){const o=(REG[k]||[]).find(x=>x[0]===S[k]); return o?o[1]:'';}
 function cl(k){const a=S[k]||[]; return (REG[k]||[]).filter(o=>a.indexOf(o[0])>-1).map(o=>o[1]).join(', ');}
-function st(k,tk){ const a=sl(k), t=S[tk||k+'_t']; return [a,t].filter(Boolean).join(' — '); }
+function st(k,tk){ const a=sl(k), t=(k.indexOf('ex_')===0&&S[k]!=='a')?'':S[tk||k+'_t']; return [a,t].filter(Boolean).join(' — '); }
 function unit(k,u){ return S[k]!==undefined&&S[k]!==''?S[k]+' '+u:''; }
 function model(){
   const v=S.visit, late=v>=6, tod=v>=18, out=[]; const add=(t,rows)=>{const r=rows.filter(x=>x[1]!==''&&x[1]!=null); out.push({t,rows:r.length?r:[['','ไม่ได้บันทึก']]});};
@@ -861,7 +872,7 @@ function example(){
 document.addEventListener('input',e=>{ const k=e.target.dataset&&e.target.dataset.k; if(k){ S[k]=e.target.value; if(S.example&&(k==='name'||k==='hn')) S.example=false; refresh(); } });
 document.addEventListener('click',e=>{
   const t=e.target.closest('button'); if(!t) return;
-  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val; refresh(); return; }
+  if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val) delete S[k]; else S[k]=t.dataset.val; refresh(); if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
   if(t.dataset.chip){ const k=t.dataset.chip, a=(S[k]||[]).slice(), i=a.indexOf(t.dataset.val); if(i>-1) a.splice(i,1); else a.push(t.dataset.val); S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
   if(t.dataset.goto){ switchVisit(+t.dataset.goto); return; }
