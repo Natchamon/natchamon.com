@@ -652,9 +652,9 @@ function renderForm(){
 
   // exam
   const exp=examPoints(v);
-  h+=card('การตรวจร่างกาย','',`<div class="row"><span class="lb">ผลการตรวจร่างกายโดยรวม</span>${seg('exall',NA)}</div>
-    <div id="exlist" hidden><details class="idbox"><summary>จุดตรวจเฉพาะวัย (${vl(v)})</summary><p class="hint"><b>${EXAMNOTE[v]}</b></p></details>
-    <p class="hint">ทุกระบบถูกตั้งเป็นปกติไว้ให้แล้ว — เลือกเฉพาะระบบที่ผิดปกติ</p>
+  h+=card('การตรวจร่างกาย','',`<p class="hint"><b>จุดตรวจเฉพาะวัย (${vl(v)})</b><br>${EXAMNOTE[v]}</p>
+    <div class="row"><span class="lb">ผลการตรวจร่างกายโดยรวม</span>${seg('exall',NA)}</div>
+    <div id="exlist" hidden>    <p class="hint">ทุกระบบถูกตั้งเป็นปกติไว้ให้แล้ว — เลือกเฉพาะระบบที่ผิดปกติ</p>
     ${SYS.map(s=>`<div class="row exrow"><span class="lb">${s[1]}</span>${seg('ex_'+s[0],NA)}
       <div class="exmore" id="exm_${s[0]}" hidden><label class="fld"><span class="lb">ระบุความผิดปกติ</span><span class="inp"><input type="text" data-k="ex_${s[0]}_t" id="f_ex_${s[0]}_t" placeholder="ระบุ" value="${E(S['ex_'+s[0]+'_t'])}"></span></label>${exp[s[0]]?`<p class="look"><b>ตรวจดู:</b> ${exp[s[0]].join(' · ')}</p>`:''}</div></div>`).join('')}</div>`);
 
