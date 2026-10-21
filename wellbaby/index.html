@@ -83,6 +83,13 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* banners */
 .note{margin-top:14px;padding:10px 14px;border-radius:10px;background:var(--soft);color:var(--ink-2);font-size:13.5px;display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
 .note.ex{background:var(--warn-bg);color:var(--warn)}
+.start{max-width:520px;margin:0 auto;padding:22px 16px 28px}
+.start h1{margin:0 0 6px;font:600 20px/1.3 var(--f-head)}
+.start p{margin:0 0 14px;color:var(--ink-2);font-size:14px;line-height:1.5}
+.st-v{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:4px 0 14px}
+.st-v .vbtn{width:100%}
+.st-note{font-size:12.5px!important;margin:0!important}
+.lnk{background:none;border:0;padding:0;color:var(--accent);text-decoration:underline;cursor:pointer;font:inherit}
 .infobtn{min-height:32px;padding:4px 10px;font-size:13px}
 #info-dlg{width:min(560px,calc(100% - 28px));max-height:calc(100% - 40px);overflow:auto;border:1px solid var(--line);border-radius:14px;background:var(--surface);color:var(--ink);padding:18px 20px;box-shadow:0 12px 40px rgba(0,0,0,.25)}
 #info-dlg::backdrop{background:rgba(20,24,40,.5)}
@@ -257,7 +264,13 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
     </ul>
     <div class="dlg-act"><button type="button" class="btn pri" id="btn-info-ok">รับทราบ</button></div>
   </dialog>
-  <div class="layout">
+  <section id="start" class="start" aria-labelledby="st-ttl">
+    <h1 id="st-ttl">บันทึกการตรวจสุขภาพเด็กดี</h1>
+    <p>แตะกดปุ่ม เลือกอายุ แล้วสร้างรายงานภาษาไทยสำหรับแปะลงเวชระเบียน คำนวณเปอร์เซ็นไทล์ให้อัตโนมัติ</p>
+    <div class="st-v" id="st-v"></div>
+    <p class="st-note">ข้อมูลอยู่ในหน้านี้เท่านั้น ไม่ถูกส่งหรือบันทึกที่ใด · <button type="button" class="lnk" id="st-info">ข้อจำกัดและแหล่งข้อมูล</button></p>
+  </section>
+  <div class="layout" id="mainlayout" hidden>
     <aside class="side">
       <nav class="visits" id="visits" aria-label="ครั้งที่ตรวจ"></nav>
       <div class="prog" id="prog" aria-live="polite"></div>
@@ -962,10 +975,19 @@ renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh();
 (function(){ const d=document.getElementById('info-dlg'); if(!d||!d.showModal) return;
   const open=()=>{ try{d.showModal();}catch(_){} };
   document.getElementById('btn-info').addEventListener('click',open);
-  document.getElementById('btn-info-ok').addEventListener('click',()=>{ d.close(); try{localStorage.setItem('wb_info_ack','1');}catch(_){} });
+  document.getElementById('btn-info-ok').addEventListener('click',()=>{ d.close(); });
   d.addEventListener('click',e=>{ if(e.target===d) d.close(); });
-  let seen=false; try{seen=localStorage.getItem('wb_info_ack')==='1';}catch(_){}
-  if(!seen) open();
+  document.getElementById('st-info').addEventListener('click',open);
+})();
+</script>
+<script>
+(function(){
+  const st=document.getElementById('start'), ml=document.getElementById('mainlayout'), fo=document.querySelector('.foot'), sv=document.getElementById('st-v');
+  if(!st||!ml||!sv) return;
+  if(fo) fo.hidden=true;
+  sv.innerHTML=VIS.map(v=>`<button type="button" class="vbtn" data-v="${v}"><b>${VB[v]}</b><span>${VSUB[v]}</span></button>`).join('');
+  function go(v){ st.hidden=true; ml.hidden=false; if(fo) fo.hidden=false; if(v!==S.visit) switchVisit(v); else { renderVisits(); } window.scrollTo(0,0); window.dispatchEvent(new Event('resize')); }
+  sv.addEventListener('click',e=>{ const b=e.target.closest('.vbtn'); if(b) go(+b.dataset.v); });
 })();
 </script>
 </body></html>
