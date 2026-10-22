@@ -57,6 +57,9 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
   <label class="f"><span class="lb">Loading dose / bolus (optional)</span><span class="inp"><input id="b" type="number" inputmode="decimal" min="0" step="1" value="0"><i>mL/kg</i></span></label>
  </div>
  <div class="seg" id="bp" aria-label="Loading dose presets"><button class="opt" data-v="0" aria-pressed="true">No bolus</button><button class="opt" data-v="10" aria-pressed="false">10 mL/kg</button><button class="opt" data-v="20" aria-pressed="false">20 mL/kg</button></div>
+ <div class="f"><span class="lb">Give deficit</span>
+  <div class="seg" id="md"><button class="opt" data-v="24" aria-pressed="true">Over 24 h (even rate)</button><button class="opt" data-v="8" aria-pressed="false">8 h / 16 h split</button></div>
+ </div>
  <div class="f"><span class="lb">Maintenance rate</span>
   <div class="seg" id="mp"><button class="opt" data-v="100" aria-pressed="true">100%</button><button class="opt" data-v="80" aria-pressed="false">80% (fluid-restricted)</button></div>
  </div>
@@ -68,7 +71,7 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 </div>
 <script>
 const $=id=>document.getElementById(id);
-let mp=100;
+let mp=100, md=24;
 const r1=x=>Math.round(x*10)/10, r0=Math.round;
 function maint(w){ // returns {day, hr}
   const a=Math.min(w,10), b=Math.min(Math.max(w-10,0),10), c=Math.max(w-20,0);
@@ -90,26 +93,44 @@ function calc(){
   if(bol>0&&defRaw<bol) h+=`<div class="note info" style="margin-top:14px">Loading dose is larger than the estimated deficit, so no deficit remains; maintenance only.</div>`;
   const mhC=(w>=40?Math.min(mh,100):mh)*mp/100;
   const first=mhC*8+def/2, rest=mhC*16+def/2, tot=first+rest;
-  h+=`<div class="card"><h2>Rate <small>${w} kg · maintenance${mp<100?' '+mp+'%':''} + deficit${bol?' − loading':''}</small></h2><div class="body">
+  const ev=mhC+def/24;
+  const hd=`${w} kg · maintenance${mp<100?' '+mp+'%':''} + deficit${bol?' − loading':''}`;
+  const defTxt=`${w} kg × ${dp}% × 10 = ${r0(defRaw)} mL${bol?` − loading ${bk} mL/kg (${r0(bol)} mL) = ${r0(def)} mL`:''}`;
+  const common=`<div><b>Maintenance</b> (4-2-1): ${m.a}×4${m.b?` + ${m.b}×2`:''}${m.c?` + ${m.c}×1`:''} = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}${mp<100?` × ${mp}% = ${r1(mhC)} mL/h`:''}</div>
+    <div><b>Per day</b> (100-50-20): ${m.a}×100${m.b?` + ${m.b}×50`:''}${m.c?` + ${m.c}×20`:''} = ${r0(m.day)} mL/day (the hourly 4-2-1 rule gives slightly less, ${r0(mh*24)} mL; both are accepted)</div>`;
+  if(md===24){
+   h+=`<div class="card"><h2>24 h rate <small>${hd}</small></h2><div class="body">
+   <div class="big"><div class="kpi main"><span>Total rate (even)</span><b>${r1(ev)}<small> mL/h</small></b></div>
+   <div class="kpi"><span>Maintenance only</span><b>${r1(mhC)}<small> mL/h</small></b></div></div>
+   <table><tr><th></th><th>mL / 24 h</th><th>mL/h</th></tr>
+   <tr><td>Maintenance</td><td>${r0(mhC*24)}</td><td>${r1(mhC)}</td></tr>
+   <tr><td>Deficit${bol?' − loading':''}</td><td>${r0(def)}</td><td>${r1(def/24)}</td></tr>
+   <tr><td><b>Total</b></td><td><b>${r0(tot)}</b></td><td><b>${r1(ev)}</b></td></tr></table>
+   <div class="work">${common}
+    <div><b>Deficit</b>: ${defTxt}${dp?` → ÷ 24 h = ${r1(def/24)} mL/h`:''}</div>
+    <div><b>Drip rate</b>: microdrip (60 gtt/mL) = ${r0(ev)} gtt/min · macrodrip (20 gtt/mL) = ${r0(ev/3)} gtt/min</div>
+   </div></div></div>`;
+  } else {
+   h+=`<div class="card"><h2>8 h / 16 h rate <small>${hd}</small></h2><div class="body">
    <div class="big"><div class="kpi main"><span>First 8 h</span><b>${r1(first/8)}<small> mL/h</small></b></div>
    <div class="kpi main"><span>Next 16 h</span><b>${r1(rest/16)}<small> mL/h</small></b></div></div>
    <table><tr><th>Phase</th><th>Maintenance</th><th>Deficit</th><th>Total</th></tr>
    <tr><td>First 8 h</td><td>${r0(mhC*8)}</td><td>${r0(def/2)}</td><td><b>${r0(first)} mL</b></td></tr>
    <tr><td>Next 16 h</td><td>${r0(mhC*16)}</td><td>${r0(def/2)}</td><td><b>${r0(rest)} mL</b></td></tr>
    <tr><td>24 h</td><td>${r0(mhC*24)}</td><td>${r0(def)}</td><td><b>${r0(tot)} mL</b></td></tr></table>
-   <div class="work">
-    <div><b>Maintenance</b> (4-2-1): ${m.a}×4${m.b?` + ${m.b}×2`:''}${m.c?` + ${m.c}×1`:''} = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}${mp<100?` × ${mp}% = ${r1(mhC)} mL/h`:''}</div>
-    <div><b>Per day</b> (100-50-20): ${m.a}×100${m.b?` + ${m.b}×50`:''}${m.c?` + ${m.c}×20`:''} = ${r0(m.day)} mL/day (the hourly 4-2-1 rule gives slightly less, ${r0(mh*24)} mL; both are accepted)</div>
-    <div><b>Deficit</b>: ${w} kg × ${dp}% × 10 = ${r0(defRaw)} mL${bol?` − loading ${bk} mL/kg (${r0(bol)} mL) = ${r0(def)} mL`:''}${dp?` → half (${r0(def/2)} mL) in the first 8 h, half in the next 16 h`:''}</div>
+   <div class="work">${common}
+    <div><b>Deficit</b>: ${defTxt}${dp?` → half (${r0(def/2)} mL) in the first 8 h, half in the next 16 h`:''}</div>
     <div><b>Drip rate</b> (first 8 h / next 16 h): microdrip (60 gtt/mL) = ${r0(first/8)} / ${r0(rest/16)} gtt/min · macrodrip (20 gtt/mL) = ${r0(first/24)} / ${r0(rest/48)} gtt/min</div>
    </div></div></div>`;
+  }
   if(bol>0){h+=`<div class="card"><h2>Loading dose <small>given first</small></h2><div class="body"><div class="kpi"><span>${bk} mL/kg × ${w} kg</span><b>${r0(bol)}<small> mL</small></b></div></div></div>`}
   out.innerHTML=h;
 }
 document.querySelectorAll('#pre .opt').forEach(b=>b.onclick=()=>{$('d').value=b.dataset.v;sync()});
 document.querySelectorAll('#bp .opt').forEach(b=>b.onclick=()=>{$('b').value=b.dataset.v;sync()});
+document.querySelectorAll('#md .opt').forEach(b=>b.onclick=()=>{md=+b.dataset.v;sync()});
 document.querySelectorAll('#mp .opt').forEach(b=>b.onclick=()=>{mp=+b.dataset.v;sync()});
-function sync(){seg('pre',parseFloat($('d').value)||0);seg('bp',parseFloat($('b').value)||0);seg('mp',mp);calc()}
+function sync(){seg('pre',parseFloat($('d').value)||0);seg('bp',parseFloat($('b').value)||0);seg('mp',mp);seg('md',md);calc()}
 ['w','d','b'].forEach(i=>$(i).addEventListener('input',sync));
 sync();
 </script></body></html>
