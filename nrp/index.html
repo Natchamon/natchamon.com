@@ -59,35 +59,29 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .tm.done{background:var(--warn-bg);border-color:var(--warn)}.tm.done b{color:var(--warn)}
 .tms{display:grid;gap:8px}
 .home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+.stick{position:sticky;top:0;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,.08)}.g3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}.g3 .inp{padding:0 8px}.g3 .inp i{font-size:11px}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Newborn resuscitation quick sheet<small>ขนาดอุปกรณ์ · ventilation setting · epinephrine · NCPR 2025 (AAP NRP 9th ed.)</small></h1></header>
 
-<div class="card"><h2>Baby</h2><div class="body">
- <div class="g2">
-  <label class="f"><span class="lb">Weight (estimated)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 1500"><i>g</i></span></label>
-  <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="0" max="45" step="1" placeholder="e.g. 32"><i>weeks</i></span></label>
- </div>
- <label class="f"><span class="lb">Nasal-tragus length (optional, measured)</span><span class="inp"><input id="ntl" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 7"><i>cm</i></span></label>
+<div class="card"><h2>Target preductal SpO₂ <small>right hand</small></h2><div class="body">
+ <div class="sp" id="sp"><div><b>2 min</b>65–70%</div><div><b>3 min</b>70–75%</div><div><b>4 min</b>75–80%</div><div><b>5 min</b>80–85%</div><div><b>10 min</b>85–95%</div></div>
 </div></div>
 
-<div class="card"><h2>Clock &amp; targets <small>tap Start at birth</small></h2><div class="body">
- <div class="row" style="justify-content:space-between"><div class="clk" id="clk">0:00</div><div class="row"><button class="btn solid" id="cs" type="button">Start</button><button class="btn" id="cr" type="button">Reset</button></div></div>
- <div class="lb">Target preductal SpO₂ (right hand)</div>
- <div class="sp" id="sp"><div data-m="2"><b>2 min</b>65–70%</div><div data-m="3"><b>3 min</b>70–75%</div><div data-m="4"><b>4 min</b>75–80%</div><div data-m="5"><b>5 min</b>80–85%</div><div data-m="10"><b>10 min</b>85–95%</div></div>
- <div class="lb">Timers</div>
- <div class="tms" id="tms">
-  <div class="tm" data-t="30"><div><span>Effective PPV, then check HR</span><b>0:30</b></div><button class="btn" type="button">Start</button></div>
-  <div class="tm" data-t="60"><div><span>Compressions 3:1 + FiO₂ 1.0, then check HR</span><b>1:00</b></div><button class="btn" type="button">Start</button></div>
-  <div class="tm" data-t="180"><div><span>Epinephrine: repeat every 3–5 min</span><b>3:00</b></div><button class="btn" type="button">Start</button></div>
-  <div class="tm" data-t="1200"><div><span>No heartbeat: consider stopping at 20 min</span><b>20:00</b></div><button class="btn" type="button">Start</button></div>
+<div class="card stick"><div class="body" style="padding:10px 12px">
+ <div class="g3">
+  <label class="f"><span class="lb">Weight</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="10" placeholder="1500"><i>g</i></span></label>
+  <label class="f"><span class="lb">GA</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="0" max="45" step="1" placeholder="32"><i>wk</i></span></label>
+  <label class="f"><span class="lb">NTL (opt.)</span><span class="inp"><input id="ntl" type="number" inputmode="decimal" min="0" step="0.1" placeholder="7"><i>cm</i></span></label>
  </div>
- <div class="lb">Heart rate from a 6-second count</div>
- <div class="g2"><label class="f"><span class="inp"><input id="hr6" type="number" inputmode="numeric" min="0" max="40" placeholder="beats in 6 s"><i>beats</i></span></label><div class="kpi" id="hrout"><span>Heart rate</span><b>–</b></div></div>
- <div class="note info" id="hrnote" style="display:none"></div>
 </div></div>
 
 <div id="out"></div>
+
+<div class="card"><h2>Heart rate <small>6-second count × 10</small></h2><div class="body">
+ <div class="g2"><label class="f"><span class="inp"><input id="hr6" type="number" inputmode="numeric" min="0" max="40" placeholder="beats in 6 s"><i>beats</i></span></label><div class="kpi" id="hrout"><span>Heart rate</span><b>–</b></div></div>
+ <div class="note info" id="hrnote" style="display:none"></div>
+</div></div>
 
 <p class="foot">Reference aid only. Settings are initial values; adjust to chest rise, heart rate and SpO2, and follow your unit protocol. Source: NCPR 2025 slide set (Thai), based on AAP/AHA Textbook of Neonatal Resuscitation, 9th ed. Blade and mask sizes and the &lt;1 kg size-00 mask follow the clinic's usual practice, not the slide set.</p>
 </div>
@@ -104,49 +98,48 @@ function fio2(ga){return ga<32?'0.3':ga<35?'0.21–0.3':'0.21'}
 function k(label,val,unit,sub,cls){return `<div class="kpi ${cls||''}"><span>${label}</span><b>${val}${unit?`<small> ${unit}</small>`:''}</b>${sub?`<small class="s">${sub}</small>`:''}</div>`}
 function calc(){
   const g=parseFloat($('w').value), ga=parseFloat($('ga').value), ntl=parseFloat($('ntl').value), out=$('out');
-  if(!(g>0)){out.innerHTML='<div class="note info" style="margin-top:14px">Enter the baby\'s estimated weight to begin.</div>';return}
-  const kg=g/1000, haveGA=ga>0, pre=haveGA&&ga<37;
+  const W=g>0, kg=W?g/1000:0, haveGA=ga>0, pre=haveGA&&ga<37;
+  const kw=(l,v,u,sb,c)=>W?k(l,v,u,sb,c):k(l,'–','',sb,c);
   let h='';
-  if(g<300||g>6000) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
-  if(!haveGA) h+=`<div class="note warn" style="margin-top:14px">Enter gestational age for blade, mask, depth and ventilator settings.</div>`;
+  if(W&&(g<300||g>6000)) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
   const term=haveGA&&!pre;
   // Airway
-  const bl=haveGA?(term?'1':'0'):'–', mk=g<1000?'00':(haveGA?(term?'1':'0'):'–');
-  const sz=ettSize(g), rule=ettRule(g);
+  const bl=haveGA?(term?'1':'0'):'–', mk=(W&&g<1000)?'00':(haveGA?(term?'1':'0'):'–');
+  const sz=W?ettSize(g):'–', rule=W?ettRule(g):'–';
   let depth='–', dsub='';
   if(ntl>0){depth=r1(ntl+1); dsub='nasal-tragus + 1 cm'}
   else if(haveGA){depth=depthByGA(ga); dsub='at the upper lip/gum, by GA'}
-  h+=`<div class="card"><h2>Airway <small>${g} g${haveGA?` · ${ga} wk · ${term?'term':'preterm'}`:''}</small></h2><div class="body">
-   <div class="big3">${k('ETT size',sz,'mm',g<800?'consider 2.0 as an option':'','main')}${k('ETT depth',depth,depth==='–'?'':'cm',dsub,'main')}${k('Blade',bl,'','','')}</div>
-   <div class="big3">${k('Face mask',mk,'',g<1000?'under 1 kg: size 00':'','')}</div>
-   ${g<1500?`<div class="note warn">LMA is too large for babies under 1,500 g; use an ETT.</div>`:''}
-   ${sz!==rule?`<div class="note info">Rule of thumb (1–2 kg → 3.0, ±0.5 per step) gives ${rule}; the NCPR slide set cut-offs (≤1,200 g → 2.5, 1,201–2,200 g → 3.0, &gt;2,200 g → 3.5) give ${sz}.</div>`:''}
+  h+=`<div class="card"><h2>Airway <small>${W?g+' g':''}${W&&haveGA?' · ':''}${haveGA?`${ga} wk · ${term?'term':'preterm'}`:''}</small></h2><div class="body">
+   <div class="big3">${k('ETT size',sz,W?'mm':'',(W&&g<800)?'consider 2.0 as an option':'','main')}${k('ETT depth',depth,depth==='–'?'':'cm',dsub,'main')}${k('Blade',bl,'','','')}</div>
+   <div class="big3">${k('Face mask',mk,'',(W&&g<1000)?'under 1 kg: size 00':'','')}</div>
+   ${(W&&g<1500)?`<div class="note warn">LMA is too large for babies under 1,500 g; use an ETT.</div>`:''}
+   ${W&&sz!==rule?`<div class="note info">Rule of thumb (1–2 kg → 3.0, ±0.5 per step) gives ${rule}; the NCPR slide set cut-offs (≤1,200 g → 2.5, 1,201–2,200 g → 3.0, &gt;2,200 g → 3.5) give ${sz}.</div>`:''}
    ${ntl>0&&haveGA?`<div class="note info">By GA the slide table gives ${depthByGA(ga)} cm at the upper gum; the nasal-tragus method is the more accurate one for term and preterm babies.</div>`:''}
   </div></div>`;
   // Ventilation
-  if(haveGA){
+  {
    h+=`<div class="card"><h2>PPV settings <small>T-piece (Neopuff)</small></h2><div class="body">
-   <div class="big3">${k('PIP','25','cmH₂O','initial','main')}${k('PEEP','5','cmH₂O','','main')}${k('FiO₂',fio2(ga),'','start; titrate to SpO₂','main')}</div>
+   <div class="big3">${k('PIP','25','cmH₂O','initial','main')}${k('PEEP','5','cmH₂O','','main')}${k('FiO₂',haveGA?fio2(ga):'–','','start; titrate to SpO₂ (by GA)','main')}</div>
    <div class="big3">${k('Gas flow','10','L/min')}${k('Rate','30–60','/min','"breathe-2-3"')}</div>
    <div class="note info">Self-inflating bag: pop-off valve set at 30–40 cmH₂O, FiO₂ 0.21 without O₂, about 0.4 at &lt;5 L/min, 0.9–1.0 with 10 L/min plus reservoir. If the heart rate stays under 60 after 30 s of effective PPV, go to ETT/LMA, compressions 3:1 (depth 1/3 of the chest AP diameter) and FiO₂ 1.0. Look for chest rise before raising the pressure.</div>
    </div></div>`;
   }
   // Drugs
-  h+=`<div class="card"><h2>Drugs <small>${g} g</small></h2><div class="body">
-   <div class="big3">${k('Epinephrine IV/IO',r2(0.2*kg),'mL','0.2 mL/kg of 1:10,000','main')}${k('Epinephrine via ETT',r2(1*kg),'mL','1 mL/kg of 1:10,000','')}${k('NSS flush','3','mL','after IV epinephrine, any weight','')}</div>
-   <div class="big3">${k('NSS bolus',r1(10*kg),'mL','10 mL/kg over 5–10 min','')}</div>
+  h+=`<div class="card"><h2>Drugs <small>${W?g+' g':''}</small></h2><div class="body">
+   <div class="big3">${kw('Epinephrine IV/IO',r2(0.2*kg),'mL','0.2 mL/kg of 1:10,000','main')}${kw('Epinephrine via ETT',r2(1*kg),'mL','1 mL/kg of 1:10,000','')}${k('NSS flush','3','mL','after IV epinephrine, any weight','')}</div>
+   <div class="big3">${kw('NSS bolus',r1(10*kg),'mL','10 mL/kg over 5–10 min','')}</div>
    <div class="note info">Epinephrine 1:10,000 = epinephrine 1 mg/mL, 1 mL + NSS 9 mL. Give rapidly; repeat every 3–5 min if HR stays under 60 after 60 s of PPV with FiO₂ 1.0 and compressions. Volume expander (NSS or group O Rh-neg PRC) for shock or acute blood loss, or if there's no response to resuscitation.</div>
   </div></div>`;
   // UVC
   const uh=1.5*kg+5.5;
-  h+=`<div class="card"><h2>UVC <small>${g} g</small></h2><div class="body">
-   <div class="big3">${k('Emergency access','3–5','cm','insert until blood flows back','main')}${k('Planned: high position',r1(uh),'cm','tip above diaphragm (T9–T10)','')}${k('Planned: low position',r1(uh/2),'cm','about half of the high value','')}</div>
-   <div class="note info">Emergency (NCPR): no depth calculation; place the catheter 3–5 cm into the umbilical vein, and use it once blood can be aspirated for epinephrine and NSS. IO alternative: 2 cm below and 1 cm medial to the tibial tuberosity, depth 0.5–1 cm.<br>Planned depth = 1.5 × ${kg} kg + 5.5 = ${r1(uh)} cm (Shukla–Ferrara, measured from the skin at the umbilicus, so add the cord stump length). Confirm the tip position on X-ray.</div>
+  h+=`<div class="card"><h2>UVC <small>${W?g+' g':''}</small></h2><div class="body">
+   <div class="big3">${k('Emergency access','3–5','cm','insert until blood flows back','main')}${kw('Planned: high position',r1(uh),'cm','tip above diaphragm (T9–T10)','')}${kw('Planned: low position',r1(uh/2),'cm','about half of the high value','')}</div>
+   <div class="note info">Emergency (NCPR): no depth calculation; place the catheter 3–5 cm into the umbilical vein, and use it once blood can be aspirated for epinephrine and NSS. IO alternative: 2 cm below and 1 cm medial to the tibial tuberosity, depth 0.5–1 cm.<br>Planned depth = 1.5 × ${W?kg+' kg':'weight (kg)'} + 5.5${W?' = '+r1(uh)+' cm':''} (Shukla–Ferrara, measured from the skin at the umbilicus, so add the cord stump length). Confirm the tip position on X-ray.</div>
   </div></div>`;
   // Glucose
   const gr=window.GIR||6, mlh=gr*kg*60/100;
   h+=`<div class="card"><h2>Glucose <small>hypoglycaemia · 10% dextrose</small></h2><div class="body">
-   <div class="big3">${k('D10W bolus',r1(2*kg),'mL','2 mL/kg IV, over 5–10 min','main')}${k('Infusion rate',r1(mlh),'mL/h','D10W at GIR '+gr+' mg/kg/min','main')}${k('Fluid',r0(gr*14.4),'mL/kg/day','from the infusion alone','')}</div>
+   <div class="big3">${kw('D10W bolus',r1(2*kg),'mL','2 mL/kg IV, over 5–10 min','main')}${kw('Infusion rate',r1(mlh),'mL/h','D10W at GIR '+gr+' mg/kg/min','main')}${k('Fluid',r0(gr*14.4),'mL/kg/day','from the infusion alone','')}</div>
    <div class="row" id="gir"><span class="lb">GIR</span>${[4,6,8,10,12].map(x=>`<button class="btn ${x===gr?'solid':''}" data-gir="${x}" type="button" style="min-height:34px;padding:3px 12px">${x}</button>`).join('')}<span class="lb">mg/kg/min</span></div>
    <div class="note info">Rate (mL/h) = GIR × weight (kg) × 60 ÷ 100, using D10W (100 mg/mL). Usual starting GIR about 5–8 mg/kg/min; check glucose again after the bolus and adjust. Not in the NCPR slide set; confirm against your unit's hypoglycaemia protocol.</div>
   </div></div>`;
@@ -156,31 +149,10 @@ function calc(){
 $('out').addEventListener('click',e=>{const b=e.target.closest('[data-gir]');if(b){window.GIR=+b.dataset.gir;calc()}});
 calc();
 
-// ---- clock, timers, HR ----
-const fm=t=>{t=Math.max(0,Math.floor(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
-let t0=null, acc=0;
-const el=()=>acc+(t0?(Date.now()-t0)/1000:0);
-const timers=[...document.querySelectorAll('#tms .tm')].map(d=>({d,total:+d.dataset.t,start:null,fired:false,btn:d.querySelector('button'),b:d.querySelector('b')}));
-function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
-function tick(){
-  const e=el(); $('clk').textContent=fm(e);
-  const m=e/60; let on=null; [2,3,4,5,10].forEach(x=>{if(m>=x)on=x});
-  document.querySelectorAll('#sp div').forEach(d=>d.classList.toggle('on',+d.dataset.m===on));
-  timers.forEach(T=>{ if(T.start==null)return; const r=T.total-(Date.now()-T.start)/1000;
-    T.b.textContent=r>0?fm(Math.ceil(r)):'+'+fm(-r);
-    if(r<=0&&!T.fired){T.fired=true;T.d.classList.add('done');buzz()} });
-}
-setInterval(tick,250);
-$('cs').onclick=()=>{ if(t0){acc=el();t0=null;$('cs').textContent='Resume'} else {t0=Date.now();$('cs').textContent='Pause'} tick() };
-$('cr').onclick=()=>{ t0=null;acc=0;$('cs').textContent='Start';tick() };
-timers.forEach(T=>T.btn.onclick=()=>{
-  if(T.start==null||T.fired){T.start=Date.now();T.fired=false;T.d.classList.remove('done');T.btn.textContent='Restart'}
-  else {T.start=null;T.d.classList.remove('done');T.b.textContent=fm(T.total);T.btn.textContent='Start'}
-  tick() });
+// ---- HR ----
 $('hr6').addEventListener('input',()=>{ const n=parseFloat($('hr6').value), o=$('hrout'), nt=$('hrnote');
   if(!(n>=0)||$('hr6').value===''){o.innerHTML='<span>Heart rate</span><b>–</b>';nt.style.display='none';return}
   const hr=n*10; o.innerHTML=`<span>Heart rate</span><b>${hr}<small> /min</small></b>`;
   nt.style.display='';nt.className='note '+(hr<60?'bad':hr<100?'warn':'info');
   nt.textContent=hr<60?'Under 60: if after at least 30 s of effective PPV (or ETT/LMA in place), start compressions with FiO₂ 1.0 and place a UVC/IO.':hr<100?'Under 100: start or continue PPV.':'100 or above: heart rate is adequate.'; });
-tick();
 </script></body></html>
