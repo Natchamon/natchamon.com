@@ -199,10 +199,11 @@ function calc(){
   }
   h2+='</div></div>';
   const dbv=parseFloat($('hct').value), dsig=sg(tsb-(risk?pR:pN)), thr=risk?pR:pN;
-  const rep=`Hct/TB at ${Math.round(h)} hr = ${dbv>=0?dbv:'___'}/${r1(tsb)} (phototherapy threshold ${risk?'with risk':'no risk'} ${thr}, delta ${dsig})`;
-  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word">${rep}${rateRep?'<br>'+rateRep:''}</div></div></div>`;
+  const rateTxt=rate==null?'___':(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100)+' mg/dL/h';
+  const rep=`Hct/TB at ${Math.round(h)} hr = ${dbv>=0?dbv:'___'}/${r1(tsb)} (phototherapy threshold${risk?'':' (no risk)'} ${thr}, delta ${dsig}, rate rising ${rateTxt})`;
+  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word">${rep}</div></div></div>`;
   out.innerHTML=h2;
-  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep+(rateRep?'\n'+rateRep:''));$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
+  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep);$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
   const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${(i===0&&ga<40)||(i===2&&rflag)?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
     const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
       let t; if(dP<2) t='On phototherapy.'; else if(dP<5.5) t=rk?'Follow up after 24–48 hours.':'Follow up after 48–72 hours.'; else t=rk?'Follow up after 72–96 hours.':(hb?'Follow up at age 1 month (mother has hepatitis B).':'Follow up at age 2 months.');
