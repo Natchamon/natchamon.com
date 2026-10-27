@@ -52,8 +52,10 @@ dialog{width:min(560px,calc(100% - 28px));max-height:calc(100% - 40px);overflow:
 dialog::backdrop{background:rgba(20,24,40,.5)}dialog h2{margin:0 0 8px;font:600 17px var(--f-head)}dialog h3{margin:14px 0 6px;font:600 14px var(--f-head);color:var(--ink-2)}
 dialog ul{margin:0;padding-left:20px;display:grid;gap:5px;font-size:14px}
 @media (max-width:520px){.mrow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
 </style></head><body>
 <div class="app">
+<a class="home" href="/#fun">← Just for fun</a>
 <header><div><h1>Fenton Preterm Growth Plotter</h1><small>พล็อตน้ำหนัก ความยาว รอบศีรษะ ลงกราฟ Fenton 2013 · 22–50 สัปดาห์</small></div>
 <button class="btn sm" id="btn-info" type="button">ⓘ ข้อจำกัดและแหล่งข้อมูล</button></header>
 
