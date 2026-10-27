@@ -1,0 +1,168 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Neonatal Jaundice</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
+--f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
+button,input{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto}
+header{padding:18px 0 4px}
+h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.body{padding:14px 16px;display:grid;gap:12px}
+.lb{font-size:13px;color:var(--ink-2)}
+.f{display:grid;gap:3px;min-width:0}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
+.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
+.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
+.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
+.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+
+.big3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi small.s{display:block;font:400 12px var(--f-body);margin-top:2px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+@media (max-width:420px){.big3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.days .opt{min-width:44px;padding:6px 0;text-align:center}
+
+.stat{border-radius:12px;padding:12px 14px;font-weight:600;font:600 16px/1.35 var(--f-head)}
+.stat small{display:block;font:400 13px var(--f-body);margin-top:3px}
+.stat.ok{background:var(--ok-bg);color:var(--ok)}.stat.warn{background:var(--warn-bg);color:var(--warn)}.stat.bad{background:var(--bad-bg);color:var(--bad)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:4px 0}
+.chk input{margin-top:3px;width:18px;height:18px;flex:0 0 auto}
+ul.act{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0}
+</style></head><body><div class="app">
+<a class="home" href="/tools/">← Ped tools</a>
+<header><h1>Neonatal jaundice<small>Phototherapy and exchange thresholds · follow-up · PCMC guideline v.I, 22/04/2026</small></h1></header>
+
+<div class="card"><h2>Baby</h2><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="22" max="44" step="1" placeholder="e.g. 38"><i>weeks</i></span></label>
+  <label class="f"><span class="lb">Age</span><span class="inp"><input id="age" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 60"><i>hours</i></span></label>
+ </div>
+ <div class="g2">
+  <label class="f"><span class="lb">TSB (or TcB)</span><span class="inp"><input id="tsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 14"><i>mg/dL</i></span></label>
+  <label class="f"><span class="lb">Weight (optional)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3"><i>kg</i></span></label>
+ </div>
+ <div class="lb" id="agenote"></div>
+</div></div>
+
+<div class="card"><h2>Risk factors for bilirubin neurotoxicity <small id="rfhint"></small></h2><div class="body" id="rf"></div></div>
+
+<div id="out"></div>
+
+<p class="foot">Reference aid only. Thresholds are transcribed from the PCMC (Pannanonda Bhikkhu Chaipradit Medical Center) guideline, adapted from the Thai Neonatal Society / Royal College of Pediatricians of Thailand clinical practice guideline (2026). Between the table's age columns the threshold is interpolated linearly. Always follow your unit protocol and clinical judgement.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const r1=x=>Math.round(x*10)/10;
+// columns: 6,12,...,84 h, 4-7 d, 8-14 d
+const T={
+ photoRisk:{35:[6,7,8,9,10,10.5,11.5,12,13,13.5,14,14.5,15,15.5,16,16.5],36:[6.5,7.5,8.5,9.5,10.5,11,12,13,13.5,14,15,15.5,16,16.5,17,17.5],37:[7,8,9,10,11,12,12.5,13.5,14,15,15.5,16,16.5,17,18,18],38:[7.5,8.5,9.5,10.5,11.5,12.5,13,14,14.5,15.5,16,16.5,17,17.5,18,18]},
+ exchRisk:{35:[14,14.5,15.5,16,17,17.5,18,18.5,19,19.5,20,20,20.5,20.5,21,22],36:[14.5,15,16,16.5,17.5,18,18.5,19,19.5,20,20.5,21,21,21.5,22,23],37:[15,15.5,16.5,17,18,18.5,19,19.5,20,20.5,21,21.5,22,22.5,23,23.5],38:[15.5,16.5,17,17.5,18.5,19,19.5,20,20.5,21,21.5,22,22.5,23,23.5,23.5]},
+ photoNo:{35:[7.5,8.5,9.5,10.5,11.5,12.5,13.5,14,14.5,15.5,16,17,17.5,18,18.5,19],36:[8,9,10,11,12,13,14,15,15.5,16,17,17.5,18,18.5,19.5,19.5],37:[8.5,9.5,10.5,11.5,12.5,13.5,14.5,15.5,16,17,17.5,18,18.5,19,20,20.5],38:[9,10,11,12.5,13.5,14,15,16,17,17.5,18,19,19.5,20,20.5,21],39:[9.5,10.5,12,13,14,15,15.5,16.5,17.5,18,19,19.5,20,20.5,21.5,22],40:[10,11,12,13.5,14.5,15.5,16,17,18,18.5,19,20,20.5,21,22,22]},
+ exchNo:{35:[15.5,16.5,17,18,18.5,19.5,20,20.5,21.5,22,22.5,23,23.5,24,24.5,25.5],36:[16.5,17.5,18.5,19,20,20.5,21.5,22,22.5,23,23.5,24,24.5,25,25.5,26],37:[18,18.5,19.5,20.5,21,22,22.5,23,23.5,24.5,25,25,25.5,26,26.5,27],38:[19,19.5,20.5,21.5,22,23,23.5,24,24.5,25,25.5,26,26.5,26.5,27,27]}
+};
+function look(tab,ga,h,cap){const row=T[tab][Math.min(Math.max(Math.floor(ga),35),cap)];
+  if(h<=6)return row[0];
+  if(h<=84){const i=Math.floor(h/6)-1,f=(h-6*(i+1))/6;return i>=13?row[13]:row[i]+(row[i+1]-row[i])*f}
+  if(h<96)return row[13]+(row[14]-row[13])*(h-84)/12;
+  if(h<192)return row[14];
+  return row[15]}
+// table 3: no follow-up TSB needed (age 48..96 h)
+const T3=[9,9.5,10,10.2,10.5,11,11.2,11.5,12];
+function t3(h){if(h<48||h>96)return null;const i=Math.min(Math.floor((h-48)/6),7),f=(h-48-6*i)/6;return h>=96?12:T3[i]+(T3[i+1]-T3[i])*f}
+// preterm <35 wk by PMA: [photo lo, hi, exch lo, hi]
+function pre(pma){return pma<28?[5,6,11,14]:pma<30?[6,8,12,14]:pma<32?[8,10,13,16]:pma<34?[10,12,15,18]:[12,14,17,19]}
+const RF35=['Isoimmune hemolytic disease (e.g. DAT positive)','G6PD deficiency','Other hemolytic condition','Sepsis','Significant clinical instability in the last 24 h'];
+const RF34=['Lower gestation','Albumin &lt; 2.5 g/dL','TSB rising fast / suspected hemolytic disease','Clinical instability: pH &lt; 7.15, ventilated, proven sepsis, apnea (on positive pressure), hypotension needing inotropes'];
+const RFF=['Gestational age &lt; 40 weeks','Jaundice in the first 24 h','Hemolysis or suspected (TSB/TcB rise ≥ 0.3 mg/dL/h in the first 24 h, ≥ 0.2 mg/dL/h after)','Parent or sibling had phototherapy or exchange transfusion','Family history of inherited RBC disorder / G6PD deficiency','Exclusively breastfed with inadequate intake','Head bleed (cephalohematoma) or bruising','Down syndrome','Diabetic mother and birth weight &gt; 4000 g'];
+let rfMode=null;
+function buildRF(m){ if(rfMode===m)return; rfMode=m; const L=m==='pre'?RF34:RF35;
+  $('rf').innerHTML=L.map((t,i)=>`<label class="chk"><input type="checkbox" data-rf="${i}"><span>${t}</span></label>`).join('');
+  $('rfhint').textContent=m==='pre'?'lower range if any':'any → higher-risk tables';
+  $('rf').querySelectorAll('input').forEach(c=>c.addEventListener('input',calc)); }
+function box(l,v,u,s,c){return `<div class="kpi ${c||''}"><span>${l}</span><b>${v}${u?`<small> ${u}</small>`:''}</b>${s?`<small class="s">${s}</small>`:''}</div>`}
+function calc(){
+  const ga=parseFloat($('ga').value), h=parseFloat($('age').value), tsb=parseFloat($('tsb').value), kg=parseFloat($('w').value)||0;
+  const mode=ga>0&&ga<35?'pre':'term'; buildRF(mode);
+  const risk=[...document.querySelectorAll('#rf input')].some(c=>c.checked);
+  $('agenote').textContent=h>=0?`= ${Math.floor(h/24)} d ${Math.round(h%24)} h`:'';
+  const out=$('out');
+  if(!(ga>0)||!(h>=0)||!(tsb>0)){out.innerHTML='<div class="note info" style="margin-top:14px">Enter gestational age, age in hours and TSB (or TcB) to see the result.</div>';return}
+  let h2='', photo, exch, tag;
+  if(ga<22||ga>44) h2+='<div class="note bad" style="margin-top:14px">Gestational age looks out of range.</div>';
+  if(mode==='term'){
+    if(h<6) h2+='<div class="note warn" style="margin-top:14px">Under 6 h: the tables start at 6 h, so the 6 h value is used.</div>';
+    if(h>336) h2+='<div class="note warn" style="margin-top:14px">Over 14 days: outside the table; the 8–14 day value is used.</div>';
+    photo=look(risk?'photoRisk':'photoNo',ga,h,risk?38:40); exch=look(risk?'exchRisk':'exchNo',ga,h,38);
+    tag=risk?'with neurotoxicity risk factor (Tables 1, 2)':'no neurotoxicity risk factor (Tables 5, 6)';
+  } else {
+    const pma=ga+h/168, p=pre(pma);
+    photo=risk?p[0]:p[1]; exch=risk?p[2]:p[3];
+    tag=`PMA ${r1(pma)} wk · ${risk?'lower':'upper'} end of the range`;
+    h2+=`<div class="note info" style="margin-top:14px">GA under 35 weeks: thresholds are ranges by postmenstrual age (${p[0]}–${p[1]} phototherapy, ${p[2]}–${p[3]} exchange). Lower end used if any risk factor is ticked, upper end otherwise. Clinical judgement applies.${ga<26?' GA under 26 weeks: consider prophylactic phototherapy after birth.':''}</div>`;
+  }
+  photo=r1(photo); exch=r1(exch);
+  const dP=r1(photo-tsb), dE=r1(exch-tsb);
+  let cls,msg,sub,acts;
+  const wkg=kg>0;
+  if(tsb>=exch){cls='bad';msg='At or above the exchange transfusion threshold';sub='Escalation of care and exchange planning';}
+  else if(dE<2){cls='bad';msg='Escalation of care (within 2 mg/dL of the exchange threshold)';sub='Double / 360° phototherapy, NICU';}
+  else if(tsb>=photo){cls='warn';msg='Reached phototherapy threshold';sub='Intensive (single) phototherapy';}
+  else {cls=dP<2?'warn':'ok';msg=dP<2?'Within 2 mg/dL below the phototherapy threshold':'Below the phototherapy threshold';sub=dP<2?'Guideline Table 4: threshold − TSB under 2 → on phototherapy':'Plan follow-up below';}
+  h2+=`<div class="card"><h2>Result <small>${tag}</small></h2><div class="body">
+    <div class="stat ${cls}">${msg}<small>${sub}</small></div>
+    <div class="big3">${box('Phototherapy at',photo,'mg/dL',(dP>0?dP+' below':dP===0?'at threshold':(-dP)+' above'),'main')}${box('Exchange at',exch,'mg/dL',(dE>0?dE+' below':dE===0?'at threshold':(-dE)+' above'),'main')}${box('TSB/TcB',r1(tsb),'mg/dL','at '+(h>=48?Math.floor(h/24)+' d '+Math.round(h%24)+' h':h+' h'),'')}</div>`;
+  if(cls==='bad'){
+    h2+=`<ul class="act"><li>Move to the sick newborn unit; blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD, albumin</li><li>Double / 360° phototherapy; repeat TSB after 2 h</li><li>NPO, IV fluid</li><li>Group-match blood: 2 × (80 × weight) mL, split FFP group AB ⅓ and PRC group O ⅔</li><li>Exchange immediately once blood is matched if signs of acute bilirubin encephalopathy</li></ul>`;
+    if(wkg){const tot=2*80*kg;h2+=`<div class="big3">${box('Total blood',Math.round(tot),'mL','2 × 80 × '+kg+' kg','')}${box('FFP (AB)',Math.round(tot/3),'mL','⅓','')}${box('PRC (O)',Math.round(tot*2/3),'mL','⅔','')}</div>`}
+  } else if(cls==='warn'&&tsb>=photo){
+    h2+=`<ul class="act"><li>Blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD${mode==='pre'?', albumin':''}</li><li>Intensive (single) phototherapy</li><li>Repeat TSB ${mode==='pre'?'12–24 h':'12–24 h, more often if isoimmune hemolysis, G6PD, sepsis or instability'} after starting</li></ul>`;
+  }
+  if(tsb>=photo){
+    h2+=`<div class="note info">Stop phototherapy when TSB is at least 2 mg/dL below the threshold for the current age: under <b>${r1(photo-2)}</b> mg/dL now.${mode==='term'?' Rebound risk (GA &lt; 38 wk, phototherapy started before 48 h, hemolytic disease): repeat TSB 6–12 h after stopping; go home if below threshold or rising under 0.2 mg/dL/h, follow up at 48 h. Without rebound risk: go home, follow up at 48 h.':' After stopping, repeat TSB at 24–48 h.'}</div>`;
+  }
+  if(cls==='ok'||(cls==='warn'&&tsb<photo)){
+    if(mode==='term'){
+      const n3=t3(h);
+      if(cls==='ok'&&n3!=null&&tsb<=n3) h2+=`<div class="note info"><b>Table 3:</b> TSB/TcB at ${Math.round(h)} h is at or below ${r1(n3)} mg/dL, so no follow-up bilirubin is required.</div>`;
+      else {
+        h2+=`<details><summary>Follow-up risk factors (Table 4)</summary><div id="fr"></div></details><div id="fu"></div>`;
+      }
+    } else h2+=`<div class="note info">Under 35 weeks: follow TSB according to the risk of a rising TSB (clinical judgement).</div>`;
+  }
+  h2+='</div></div>';
+  out.innerHTML=h2;
+  const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${i===0&&ga<40?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
+    const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
+      let t; if(dP<2) t='On phototherapy.'; else if(dP<5.5) t=rk?'Follow up after 24–48 hours.':'Follow up after 48–72 hours.'; else t=rk?'Follow up after 72–96 hours.':(hb?'Follow up at age 1 month (mother has hepatitis B).':'Follow up at age 2 months.');
+      $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
+    fr.addEventListener('input',upd); upd(); }
+}
+['ga','age','tsb','w'].forEach(i=>$(i).addEventListener('input',calc));
+buildRF('term'); calc();
+</script></body></html>
