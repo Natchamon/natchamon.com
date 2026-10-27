@@ -78,6 +78,7 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
   <label class="f"><span class="lb">Previous TSB (or TcB)</span><span class="inp"><input id="ptsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>mg/dL</i></span></label>
   <label class="f"><span class="lb">Its age</span><span class="inp"><input id="page" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 36"><i>hours</i></span></label>
  </div>
+ <label class="f"><span class="lb">Hematocrit then (optional)</span><span class="inp"><input id="phct" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 52"><i>%</i></span></label>
  <label class="chk"><input type="checkbox" id="postpt"><span>This is the repeat TSB after stopping phototherapy</span></label>
 </div></div>
 
@@ -200,8 +201,13 @@ function calc(){
   h2+='</div></div>';
   const dbv=parseFloat($('hct').value), dsig=sg(tsb-(risk?pR:pN)), thr=risk?pR:pN;
   const rateTxt=rate==null?'___':(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100)+' mg/dL/h';
-  const rep=`Hct/TB at ${Math.round(h)} hr = ${dbv>=0?dbv:'___'}/${r1(tsb)} (phototherapy threshold${risk?'':' (no risk)'} ${thr}, delta ${dsig}, rate rising ${rateTxt})`;
-  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word">${rep}</div></div></div>`;
+  const thrAt=hh=>r1(mode==='term'?look(risk?'photoRisk':'photoNo',ga,hh,risk?38:40):pre(ga+hh/168)[risk?0:1]);
+  const nr=risk?'':' (no risk)', hv=v=>v>=0?v:'___';
+  const lines=[];
+  if(pt>0&&pa>=0&&pa<h){const tp=thrAt(pa);lines.push(`Hct/TB at ${Math.round(pa)} hr = ${hv(parseFloat($('phct').value))}/${r1(pt)} (phototherapy threshold${nr} ${tp}, delta ${sg(pt-tp)})`)}
+  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}, delta ${dsig}, rate rising ${rateTxt})`);
+  const rep=lines.join('\n');
+  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word;white-space:pre-line">${rep}</div></div></div>`;
   out.innerHTML=h2;
   $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep);$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
   const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${(i===0&&ga<40)||(i===2&&rflag)?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
@@ -210,7 +216,7 @@ function calc(){
       $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
     fr.addEventListener('input',upd); upd(); }
 }
-['ga','age','tsb','w','hct','ptsb','page'].forEach(i=>$(i).addEventListener('input',calc));
+['ga','age','tsb','w','hct','ptsb','page','phct'].forEach(i=>$(i).addEventListener('input',calc));
 $('postpt').addEventListener('input',calc);
 buildRF('term'); calc();
 </script></body></html>
