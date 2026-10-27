@@ -52,7 +52,7 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 
 <div class="card"><h2>Baby</h2><div class="body">
  <div class="g2">
-  <label class="f"><span class="lb">Weight</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3"><i>kg</i></span></label>
+  <label class="f"><span class="lb">Weight</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 3000"><i>g</i></span></label>
   <div class="f"><span class="lb">Gestation</span><div class="seg" id="gest"><button class="opt" data-v="term" aria-pressed="true">Term</button><button class="opt" data-v="pre" aria-pressed="false">Preterm</button></div></div>
  </div>
  <div class="f"><span class="lb">Day of life</span>
@@ -84,7 +84,7 @@ let gest='term', day=3;
 function k(label,val,unit,sub,cls){return `<div class="kpi ${cls||''}"><span>${label}</span><b>${val}${unit?`<small> ${unit}</small>`:''}</b>${sub?`<small class="s">${sub}</small>`:''}</div>`}
 function seg(id,fn){document.querySelectorAll('#'+id+' .opt').forEach(x=>x.setAttribute('aria-pressed',String(fn(x.dataset.v))))}
 function calc(){
-  const kg=parseFloat($('w').value)||0, W=kg>0;
+  const kg=(parseFloat($('w').value)||0)/1000, W=kg>0;
   const en=Math.max(0,parseFloat($('en').value)||0), nf=Math.max(1,parseFloat($('nf').value)||8);
   const kc=parseFloat($('kc').value)||0, dx=parseFloat($('dx').value)||10;
   const mlkg=TBL[gest][day-1], tot=mlkg*kg, kcalMl=kc/30;
@@ -96,7 +96,7 @@ function calc(){
   const rateLo=g[0]*6*kg/dx, rateHi=g[1]*6*kg/dx;
   const milkK=enV*kcalMl, dexK=gir*1.44*3.4*kg;   // gir mg/kg/min*1440 = mg/kg/day; /1000 g; *3.4 kcal
   let h='';
-  if(W&&(kg<0.4||kg>6)) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (kg).</div>`;
+  if(W&&(kg<0.4||kg>6)) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
   if(en>mlkg) h+=`<div class="note warn" style="margin-top:14px">Enteral volume is more than the total fluid for this day; counted as ${mlkg} mL/kg/day.</div>`;
   const dash=v=>W?v:'–';
   h+=`<div class="card"><h2>Total fluid <small>${gest==='term'?'term':'preterm'} · day ${day}${day===7?'+':''}</small></h2><div class="body">
