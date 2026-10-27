@@ -65,6 +65,9 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
  </div>
  <div class="g2">
   <label class="f"><span class="lb">TSB (or TcB)</span><span class="inp"><input id="tsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 14"><i>mg/dL</i></span></label>
+  <label class="f"><span class="lb">Direct bilirubin (optional)</span><span class="inp"><input id="db" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 0.6"><i>mg/dL</i></span></label>
+ </div>
+ <div class="g2">
   <label class="f"><span class="lb">Weight (optional)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3"><i>kg</i></span></label>
  </div>
  <div class="lb" id="agenote"></div>
@@ -163,13 +166,17 @@ function calc(){
     } else h2+=`<div class="note info">Under 35 weeks: follow TSB according to the risk of a rising TSB (clinical judgement).</div>`;
   }
   h2+='</div></div>';
+  const dbv=parseFloat($('db').value), dsig=sg(tsb-(risk?pR:pN)), thr=risk?pR:pN;
+  const rep=`DB/TB at ${Math.round(h)} hr = ${dbv>=0?dbv:'___'}/${r1(tsb)} (phototherapy threshold ${risk?'with risk':'no risk'} ${thr}, delta ${dsig})`;
+  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word">${rep}</div></div></div>`;
   out.innerHTML=h2;
+  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep);$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
   const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${i===0&&ga<40?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
     const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
       let t; if(dP<2) t='On phototherapy.'; else if(dP<5.5) t=rk?'Follow up after 24–48 hours.':'Follow up after 48–72 hours.'; else t=rk?'Follow up after 72–96 hours.':(hb?'Follow up at age 1 month (mother has hepatitis B).':'Follow up at age 2 months.');
       $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
     fr.addEventListener('input',upd); upd(); }
 }
-['ga','age','tsb','w'].forEach(i=>$(i).addEventListener('input',calc));
+['ga','age','tsb','w','db'].forEach(i=>$(i).addEventListener('input',calc));
 buildRF('term'); calc();
 </script></body></html>
