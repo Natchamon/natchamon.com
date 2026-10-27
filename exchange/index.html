@@ -1,147 +1,114 @@
 <!doctype html>
-<html lang="en">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Exchange Transfusion Calculator</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
 <style>
-  :root{
-    --bg:#f5f7fa; --card:#ffffff; --text:#1c2733; --muted:#5f6f7f; --line:#dde3ea;
-    --accent:#2a8db8; --accent-soft:#e3f2f9; --warn:#b3261e; --warn-soft:#fdecea;
-    --ok-soft:#eaf6ec; --purple-soft:#efe9f8;
-  }
-  @media (prefers-color-scheme: dark){
-    :root{ --bg:#10161c; --card:#19222b; --text:#e8eef4; --muted:#93a3b3; --line:#2b3745;
-      --accent:#5bb8dd; --accent-soft:#1b3340; --warn:#ff8a80; --warn-soft:#3a1f1d;
-      --ok-soft:#1c3123; --purple-soft:#2a2339; }
-  }
-  *{box-sizing:border-box}
-  body{margin:0;background:var(--bg);color:var(--text);
-    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans Thai",Roboto,sans-serif;
-    line-height:1.45;padding:16px}
-  .wrap{max-width:640px;margin:0 auto}
-  h1{font-size:1.35rem;margin:4px 0 2px}
-  .sub{color:var(--muted);font-size:.9rem;margin-bottom:14px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:14px}
-  label{display:block;font-size:.85rem;color:var(--muted);margin:10px 0 4px}
-  input,select{width:100%;font-size:1rem;padding:10px 12px;border-radius:10px;
-    border:1px solid var(--line);background:var(--bg);color:var(--text)}
-  input:focus,select:focus{outline:2px solid var(--accent);border-color:transparent}
-  .row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .seg{display:grid;grid-template-columns:repeat(3,1fr);gap:6px}
-  .seg button{padding:10px 6px;font-size:.82rem;border:1px solid var(--line);background:var(--bg);
-    color:var(--text);border-radius:10px;cursor:pointer;line-height:1.2}
-  .seg button.on{background:var(--accent);border-color:var(--accent);color:#fff;font-weight:600}
-  .big{font-size:1.8rem;font-weight:700;letter-spacing:-.5px}
-  .unit{font-size:.9rem;color:var(--muted);font-weight:500;margin-left:4px}
-  .res{border-radius:12px;padding:12px 14px;margin-top:10px;background:var(--accent-soft)}
-  .res.purple{background:var(--purple-soft)} .res.green{background:var(--ok-soft)}
-  .res .k{font-size:.8rem;color:var(--muted)}
-  .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-  .err{background:var(--warn-soft);color:var(--warn);padding:10px 12px;border-radius:10px;font-size:.9rem;margin-top:10px}
-  .note{font-size:.8rem;color:var(--muted);margin-top:10px}
-  .formula{font-family:ui-monospace,Menlo,monospace;font-size:.78rem;color:var(--muted);margin-top:8px;word-break:break-word}
-  .hide{display:none}
-  .foot{font-size:.75rem;color:var(--muted);text-align:center;margin:18px 0 8px}
-</style>
-</head>
-<body>
-<div class="wrap">
-  <h1>Exchange Transfusion Calculator</h1>
-  <div class="sub">เครื่องคิดเลขเปลี่ยนถ่ายเลือด · neonatal · based on PCMC guideline</div>
+:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
+--f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
+button,input{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto}
+header{padding:18px 0 4px}
+h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.body{padding:14px 16px;display:grid;gap:12px}
+.lb{font-size:13px;color:var(--ink-2)}
+.f{display:grid;gap:3px;min-width:0}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
+.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
+.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
+.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
+.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
 
-  <div class="card">
-    <label>Type</label>
-    <div class="seg" id="mode">
-      <button data-m="total" class="on">Total exchange<br>(double volume)</button>
-      <button data-m="poly">Partial:<br>Polycythemia</button>
-      <button data-m="anemia">Partial:<br>Severe anemia</button>
-    </div>
+.kpi.purple{background:var(--accent-soft);border-color:var(--accent)}.kpi.green{background:var(--ok-bg);border-color:var(--ok)}
+.kpi b small{margin-left:4px}
+.formula{font:12px ui-monospace,Menlo,monospace;color:var(--ink-2);word-break:break-word}
+.hide{display:none}
+.seg3 .opt{flex:1;line-height:1.25;text-align:center;font-size:13.5px}
+.inp select{border:0;background:transparent;width:100%;min-height:40px;outline:0;font-size:16px;color:var(--ink)}
+ul.rem{margin:0;padding-left:18px;color:var(--ink-2);font-size:13.5px;display:grid;gap:4px}
+</style></head><body><div class="app">
+<header><h1>Exchange transfusion calculator<small>เครื่องคิดเลขเปลี่ยนถ่ายเลือด · neonatal · based on PCMC guideline</small></h1></header>
 
-    <div class="row">
-      <div>
-        <label for="wt">Weight (kg)</label>
-        <input id="wt" type="number" inputmode="decimal" step="0.01" min="0" value="3">
-      </div>
-      <div>
-        <label for="ga">Gestation</label>
-        <select id="ga">
-          <option value="80">Full term (80 mL/kg)</option>
-          <option value="90">Preterm (90 mL/kg)</option>
-        </select>
-      </div>
-    </div>
-
-    <div id="totalIn">
-      <div class="row">
-        <div>
-          <label for="cyc">Volume per cycle (mL/kg) <span style="opacity:.7">· 3–5</span></label>
-          <input id="cyc" type="number" inputmode="decimal" step="0.5" min="3" max="5" value="5">
-        </div>
-        <div>
-          <label for="cmin">Minutes per cycle <span style="opacity:.7">· 2–2.5</span></label>
-          <input id="cmin" type="number" inputmode="decimal" step="0.5" min="2" max="2.5" value="2">
-        </div>
-      </div>
-    </div>
-
-    <div id="partialIn" class="hide">
-      <div class="row">
-        <div>
-          <label for="hobs">Hct observed (%)</label>
-          <input id="hobs" type="number" inputmode="decimal" step="0.1" min="0" max="100">
-        </div>
-        <div>
-          <label for="hdes">Hct desired (%) <span style="opacity:.7">· 50–55</span></label>
-          <input id="hdes" type="number" inputmode="decimal" step="0.1" min="0" max="100" value="55">
-        </div>
-      </div>
-      <div id="lpbiWrap" class="hide">
-        <label for="hlpbi">Hct of LPBI (%) <span style="opacity:.7">· usually 70</span></label>
-        <input id="hlpbi" type="number" inputmode="decimal" step="0.1" min="0" max="100" value="70">
-      </div>
-    </div>
+<div class="card"><h2>Patient</h2><div class="body">
+ <div class="f"><span class="lb">Type</span>
+  <div class="seg seg3" id="mode">
+   <button class="opt" data-m="total" aria-pressed="true">Total exchange<br>(double volume)</button>
+   <button class="opt" data-m="poly" aria-pressed="false">Partial:<br>Polycythemia</button>
+   <button class="opt" data-m="anemia" aria-pressed="false">Partial:<br>Severe anemia</button>
+  </div></div>
+ <div class="g2">
+  <label class="f"><span class="lb">Weight</span><span class="inp"><input id="wt" type="number" inputmode="decimal" step="0.01" min="0" value="3"><i>kg</i></span></label>
+  <label class="f"><span class="lb">Gestation</span><span class="inp"><select id="ga"><option value="80">Term · 80 mL/kg</option><option value="90">Preterm · 90 mL/kg</option></select></span></label>
+ </div>
+ <div id="totalIn" class="g2">
+  <label class="f"><span class="lb">Volume per cycle (3–5)</span><span class="inp"><input id="cyc" type="number" inputmode="decimal" step="0.5" min="3" max="5" value="5"><i>mL/kg</i></span></label>
+  <label class="f"><span class="lb">Time per cycle (2–2.5)</span><span class="inp"><input id="cmin" type="number" inputmode="decimal" step="0.5" min="2" max="2.5" value="2"><i>min</i></span></label>
+ </div>
+ <div id="partialIn" class="hide" style="display:grid;gap:12px">
+  <div class="g2">
+   <label class="f"><span class="lb">Hct observed</span><span class="inp"><input id="hobs" type="number" inputmode="decimal" step="0.1" min="0" max="100"><i>%</i></span></label>
+   <label class="f"><span class="lb">Hct desired (50–55)</span><span class="inp"><input id="hdes" type="number" inputmode="decimal" step="0.1" min="0" max="100" value="55"><i>%</i></span></label>
   </div>
+  <label id="lpbiWrap" class="f hide"><span class="lb">Hct of LPBI (usually 70)</span><span class="inp"><input id="hlpbi" type="number" inputmode="decimal" step="0.1" min="0" max="100" value="70"><i>%</i></span></label>
+ </div>
+</div></div>
 
-  <div class="card" id="out"></div>
+<div class="card"><h2>Result</h2><div class="body" id="out"></div></div>
 
-  <div class="card" style="font-size:.85rem">
-    <b>Reminders</b>
-    <ul style="margin:6px 0 0;padding-left:18px;color:var(--muted)">
-      <li>Use leukocyte-poor PRC with filtration (CMV prevention) &amp; irradiation (GVHD prevention).</li>
-      <li>LPBI = leukocyte-poor blood with filtration and irradiation.</li>
-      <li>Total exchange: LPBI group O + FFP group AB, or per blood bank cross-match. Route: via UVC to withdraw. LPBI : FFP = 2/3 : 1/3 (mix for Hct ~60%).</li>
-    </ul>
-  </div>
+<div class="card"><h2>Reminders</h2><div class="body"><ul class="rem">
+ <li>Use leukocyte-poor PRC with filtration (CMV prevention) &amp; irradiation (GVHD prevention).</li>
+ <li>LPBI = leukocyte-poor blood with filtration and irradiation.</li>
+ <li>Total exchange: LPBI group O + FFP group AB, or per blood bank cross-match. Route: via UVC to withdraw. LPBI : FFP = 2/3 : 1/3 (mix for Hct ~60%).</li>
+</ul></div></div>
 
-  <div class="foot">Reference aid only. Always verify against your unit protocol and the clinical picture.</div>
+<p class="foot">Reference aid only. Always verify against your unit protocol and the clinical picture.</p>
 </div>
-
 <script>
 const $ = id => document.getElementById(id);
 let mode = 'total';
 const fmt = (n, d=0) => Number.isFinite(n) ? n.toLocaleString('en-US',{maximumFractionDigits:d}) : '–';
 
 document.querySelectorAll('#mode button').forEach(b => b.addEventListener('click', () => {
-  document.querySelectorAll('#mode button').forEach(x => x.classList.remove('on'));
-  b.classList.add('on'); mode = b.dataset.m; render();
+  document.querySelectorAll('#mode button').forEach(x => x.setAttribute('aria-pressed','false'));
+  b.setAttribute('aria-pressed','true'); mode = b.dataset.m; render();
 }));
 ['wt','ga','cyc','cmin','hobs','hdes','hlpbi'].forEach(id => $(id).addEventListener('input', render));
 
 function box(cls, k, v, u){
-  return `<div class="res ${cls}"><div class="k">${k}</div><div class="big">${v}<span class="unit">${u||''}</span></div></div>`;
+  return `<div class="kpi ${cls}"><span>${k}</span><b>${v}<small>${u||''}</small></b></div>`;
 }
 
 function render(){
   $('totalIn').classList.toggle('hide', mode !== 'total');
-  $('partialIn').classList.toggle('hide', mode === 'total');
+  $('partialIn').style.display = mode === 'total' ? 'none' : 'grid';
   $('lpbiWrap').classList.toggle('hide', mode !== 'anemia');
 
   const wt = parseFloat($('wt').value), perKg = parseFloat($('ga').value);
   const out = $('out');
-  if (!(wt > 0)) { out.innerHTML = '<div class="note">Enter the baby\'s weight to begin.</div>'; return; }
+  if (!(wt > 0)) { out.innerHTML = '<div class="note info">Enter the baby\'s weight to begin.</div>'; return; }
   const bv = wt * perKg;
-  let html = `<div class="grid2">
+  let html = `<div class="g2">
       ${box('', 'Blood volume', fmt(bv,0), 'mL')}
       ${box('', 'Basis', perKg + '', 'mL/kg')}
     </div>`;
@@ -154,32 +121,32 @@ function render(){
     const cycles = cycVol > 0 ? Math.ceil(total / cycVol) : NaN;
     const tmin = cycles * cmin, tmax = cycles * 2.5, tmin3 = cycles * 2;
     html += box('purple','Total blood needed (double volume)', fmt(total,0), 'mL');
-    html += `<div class="grid2">
+    html += `<div class="g2">
       ${box('green','LPBI (2/3)', fmt(lpbi,0), 'mL')}
       ${box('green','FFP (1/3)', fmt(ffp,0), 'mL')}
     </div>`;
-    html += `<div class="grid2">
+    html += `<div class="g2">
       ${box('', 'Per cycle', fmt(cycVol,1), 'mL')}
       ${box('', 'Number of cycles', fmt(cycles,0), '')}
     </div>`;
     html += box('', 'Estimated duration', `${fmt(cycles*cmin,0)}`, 'min (at ' + cmin + ' min/cycle)');
-    html += `<div class="note">Range at 2–2.5 min/cycle: ${fmt(tmin3,0)}–${fmt(tmax,0)} min. Guideline duration: 60–90 min.`;
-    if (cycKg < 3 || cycKg > 5) html += `<br><b style="color:var(--warn)">Per-cycle volume is outside the guideline range of 3–5 mL/kg.</b>`;
+    html += `<div class="note info">Range at 2–2.5 min/cycle: ${fmt(tmin3,0)}–${fmt(tmax,0)} min. Guideline duration: 60–90 min.`;
+    if (cycKg < 3 || cycKg > 5) html += `<br><b>Per-cycle volume is outside the guideline range of 3–5 mL/kg.</b>`;
     html += `</div>`;
     html += `<div class="formula">Total = BV × 2 · BV = wt × ${perKg} · cycles = ⌈total ÷ (wt × mL/kg per cycle)⌉</div>`;
   } else {
     const ho = parseFloat($('hobs').value), hd = parseFloat($('hdes').value);
-    if (!(ho > 0) || !(hd > 0)) { out.innerHTML = html + '<div class="note">Enter Hct observed and Hct desired.</div>'; return; }
+    if (!(ho > 0) || !(hd > 0)) { out.innerHTML = html + '<div class="note info">Enter Hct observed and Hct desired.</div>'; return; }
     if (mode === 'poly'){
-      if (ho <= hd){ out.innerHTML = html + `<div class="err">Hct observed must be higher than Hct desired for a polycythemia partial exchange.</div>`; return; }
+      if (ho <= hd){ out.innerHTML = html + `<div class="note bad">Hct observed must be higher than Hct desired for a polycythemia partial exchange.</div>`; return; }
       const v = (ho - hd) / ho * bv;
       html += box('purple','Volume of NSS to exchange', fmt(v,0), 'mL');
       html += `<div class="formula">NSS (mL) = (Hct obs − Hct desired) ÷ Hct obs × blood volume</div>`;
     } else {
       const hl = parseFloat($('hlpbi').value);
-      if (!(hl > 0)) { out.innerHTML = html + '<div class="note">Enter Hct of LPBI.</div>'; return; }
-      if (ho >= hd){ out.innerHTML = html + `<div class="err">Hct desired must be higher than Hct observed for an anemia partial exchange.</div>`; return; }
-      if (hl <= ho){ out.innerHTML = html + `<div class="err">Hct of LPBI must be higher than Hct observed.</div>`; return; }
+      if (!(hl > 0)) { out.innerHTML = html + '<div class="note info">Enter Hct of LPBI.</div>'; return; }
+      if (ho >= hd){ out.innerHTML = html + `<div class="note bad">Hct desired must be higher than Hct observed for an anemia partial exchange.</div>`; return; }
+      if (hl <= ho){ out.innerHTML = html + `<div class="note bad">Hct of LPBI must be higher than Hct observed.</div>`; return; }
       const v = (hd - ho) / (hl - ho) * bv;
       html += box('purple','Volume of LPBI to exchange', fmt(v,0), 'mL');
       html += `<div class="formula">LPBI (mL) = (Hct desired − Hct obs) ÷ (Hct LPBI − Hct obs) × blood volume</div>`;
