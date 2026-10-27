@@ -78,10 +78,6 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 
 <div id="out"></div>
 
-<div class="card"><h2>Heart rate <small>6-second count × 10</small></h2><div class="body">
- <div class="g2"><label class="f"><span class="inp"><input id="hr6" type="number" inputmode="numeric" min="0" max="40" placeholder="beats in 6 s"><i>beats</i></span></label><div class="kpi" id="hrout"><span>Heart rate</span><b>–</b></div></div>
- <div class="note info" id="hrnote" style="display:none"></div>
-</div></div>
 
 <p class="foot">Reference aid only. Settings are initial values; adjust to chest rise, heart rate and SpO2, and follow your unit protocol. Source: NCPR 2025 slide set (Thai), based on AAP/AHA Textbook of Neonatal Resuscitation, 9th ed. Blade and mask sizes and the &lt;1 kg size-00 mask follow the clinic's usual practice, not the slide set.</p>
 </div>
@@ -149,10 +145,4 @@ function calc(){
 $('out').addEventListener('click',e=>{const b=e.target.closest('[data-gir]');if(b){window.GIR=+b.dataset.gir;calc()}});
 calc();
 
-// ---- HR ----
-$('hr6').addEventListener('input',()=>{ const n=parseFloat($('hr6').value), o=$('hrout'), nt=$('hrnote');
-  if(!(n>=0)||$('hr6').value===''){o.innerHTML='<span>Heart rate</span><b>–</b>';nt.style.display='none';return}
-  const hr=n*10; o.innerHTML=`<span>Heart rate</span><b>${hr}<small> /min</small></b>`;
-  nt.style.display='';nt.className='note '+(hr<60?'bad':hr<100?'warn':'info');
-  nt.textContent=hr<60?'Under 60: if after at least 30 s of effective PPV (or ETT/LMA in place), start compressions with FiO₂ 1.0 and place a UVC/IO.':hr<100?'Under 100: start or continue PPV.':'100 or above: heart rate is adequate.'; });
 </script></body></html>
