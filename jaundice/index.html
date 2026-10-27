@@ -127,6 +127,13 @@ function calc(){
     h2+=`<div class="note info" style="margin-top:14px">GA under 35 weeks: thresholds are ranges by postmenstrual age (${p[0]}–${p[1]} phototherapy, ${p[2]}–${p[3]} exchange). Lower end used if any risk factor is ticked, upper end otherwise. Clinical judgement applies.${ga<26?' GA under 26 weeks: consider prophylactic phototherapy after birth.':''}</div>`;
   }
   photo=r1(photo); exch=r1(exch);
+  let pR,eR,pN,eN;
+  if(mode==='term'){pR=look('photoRisk',ga,h,38);eR=look('exchRisk',ga,h,38);pN=look('photoNo',ga,h,40);eN=look('exchNo',ga,h,38)}
+  else{const q=pre(ga+h/168);pR=q[0];eR=q[2];pN=q[1];eN=q[3]}
+  pR=r1(pR);eR=r1(eR);pN=r1(pN);eN=r1(eN);
+  const sg=x=>{x=r1(x);return (x>0?'+':x<0?'−':'±')+Math.abs(x)};
+  const cell=(thr,sel)=>`<td${sel?' style="font-weight:600;background:var(--accent-soft)"':''}>${thr}<br><small>${sg(tsb-thr)}</small></td>`;
+  const deltaTbl=`<div class="lb" style="margin-top:4px">Difference: TSB − threshold (negative = below the threshold)</div><table><tr><th></th><th>Risk factor</th><th>No risk factor</th></tr><tr><td>Phototherapy</td>${cell(pR,risk)}${cell(pN,!risk)}</tr><tr><td>Exchange</td>${cell(eR,risk)}${cell(eN,!risk)}</tr></table>`;
   const dP=r1(photo-tsb), dE=r1(exch-tsb);
   let cls,msg,sub,acts;
   const wkg=kg>0;
@@ -136,7 +143,7 @@ function calc(){
   else {cls=dP<2?'warn':'ok';msg=dP<2?'Within 2 mg/dL below the phototherapy threshold':'Below the phototherapy threshold';sub=dP<2?'Guideline Table 4: threshold − TSB under 2 → on phototherapy':'Plan follow-up below';}
   h2+=`<div class="card"><h2>Result <small>${tag}</small></h2><div class="body">
     <div class="stat ${cls}">${msg}<small>${sub}</small></div>
-    <div class="big3">${box('Phototherapy at',photo,'mg/dL',(dP>0?dP+' below':dP===0?'at threshold':(-dP)+' above'),'main')}${box('Exchange at',exch,'mg/dL',(dE>0?dE+' below':dE===0?'at threshold':(-dE)+' above'),'main')}${box('TSB/TcB',r1(tsb),'mg/dL','at '+(h>=48?Math.floor(h/24)+' d '+Math.round(h%24)+' h':h+' h'),'')}</div>`;
+    <div class="big3">${box('Phototherapy at',photo,'mg/dL',(dP>0?dP+' below':dP===0?'at threshold':(-dP)+' above'),'main')}${box('Exchange at',exch,'mg/dL',(dE>0?dE+' below':dE===0?'at threshold':(-dE)+' above'),'main')}${box('TSB/TcB',r1(tsb),'mg/dL','at '+(h>=48?Math.floor(h/24)+' d '+Math.round(h%24)+' h':h+' h'),'')}</div>${deltaTbl}`;
   if(cls==='bad'){
     h2+=`<ul class="act"><li>Move to the sick newborn unit; blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD, albumin</li><li>Double / 360° phototherapy; repeat TSB after 2 h</li><li>NPO, IV fluid</li><li>Group-match blood: 2 × (80 × weight) mL, split FFP group AB ⅓ and PRC group O ⅔</li><li>Exchange immediately once blood is matched if signs of acute bilirubin encephalopathy</li></ul>`;
     if(wkg){const tot=2*80*kg;h2+=`<div class="big3">${box('Total blood',Math.round(tot),'mL','2 × 80 × '+kg+' kg','')}${box('FFP (AB)',Math.round(tot/3),'mL','⅓','')}${box('PRC (O)',Math.round(tot*2/3),'mL','⅔','')}</div>`}
