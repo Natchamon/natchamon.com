@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Newborn Resuscitation Quick Sheet</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
+--f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
+button,input{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto}
+header{padding:18px 0 4px}
+h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.body{padding:14px 16px;display:grid;gap:12px}
+.lb{font-size:13px;color:var(--ink-2)}
+.f{display:grid;gap:3px;min-width:0}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
+.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
+.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
+.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
+.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
+
+.tags{display:flex;flex-wrap:wrap;gap:6px}
+.big3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi small.s{display:block;font:400 12px var(--f-body);margin-top:2px}
+.hide{display:none}
+@media (max-width:420px){.big3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+</style></head><body><div class="app">
+<header><h1>Newborn resuscitation quick sheet<small>ขนาดอุปกรณ์ · ventilation setting · epinephrine · NCPR 2025 (AAP NRP 9th ed.)</small></h1></header>
+
+<div class="card"><h2>Baby</h2><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">Weight (estimated)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 1500"><i>g</i></span></label>
+  <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="0" max="45" step="1" placeholder="e.g. 32"><i>weeks</i></span></label>
+ </div>
+ <label class="f"><span class="lb">Nasal-tragus length (optional, measured)</span><span class="inp"><input id="ntl" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 7"><i>cm</i></span></label>
+</div></div>
+
+<div id="out"></div>
+
+<p class="foot">Reference aid only. Settings are initial values; adjust to chest rise, heart rate and SpO2, and follow your unit protocol. Source: NCPR 2025 slide set (Thai), based on AAP/AHA Textbook of Neonatal Resuscitation, 9th ed. Blade and mask sizes and the &lt;1 kg size-00 mask follow the clinic's usual practice, not the slide set.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const r1=x=>Math.round(x*10)/10, r2=x=>Math.round(x*100)/100;
+const DEPTH=[[23,'5–5.5'],[25,'5.5'],[27,'6.0'],[30,'6.5'],[33,'7.0'],[35,'7.5'],[38,'8.0'],[41,'8.5'],[999,'9.0']];
+// slide table: <23:5-5.5, 23-24:5.5, 25-26:6.0, 27-29:6.5, 30-32:7.0, 33-34:7.5, 35-37:8.0, 38-40:8.5, 41-43:9.0
+const DEPTH_T=[[22.999,'5–5.5'],[24.999,'5.5'],[26.999,'6.0'],[29.999,'6.5'],[32.999,'7.0'],[34.999,'7.5'],[37.999,'8.0'],[40.999,'8.5'],[Infinity,'9.0']];
+function depthByGA(ga){ga=Math.floor(ga);for(const[t,v]of[[22,'5–5.5'],[24,'5.5'],[26,'6.0'],[29,'6.5'],[32,'7.0'],[34,'7.5'],[37,'8.0'],[40,'8.5']])if(ga<=t)return v;return '9.0'}
+function ettSize(g){return g<=1200?'2.5':g<=2200?'3.0':'3.5'}
+function ettRule(g){return g<1000?'2.5':g<=2000?'3.0':'3.5'}
+function fio2(ga){return ga<32?'0.3':ga<35?'0.21–0.3':'0.21'}
+function k(label,val,unit,sub,cls){return `<div class="kpi ${cls||''}"><span>${label}</span><b>${val}${unit?`<small> ${unit}</small>`:''}</b>${sub?`<small class="s">${sub}</small>`:''}</div>`}
+function calc(){
+  const g=parseFloat($('w').value), ga=parseFloat($('ga').value), ntl=parseFloat($('ntl').value), out=$('out');
+  if(!(g>0)){out.innerHTML='<div class="note info" style="margin-top:14px">Enter the baby\'s estimated weight to begin.</div>';return}
+  const kg=g/1000, haveGA=ga>0, pre=haveGA&&ga<37;
+  let h='';
+  if(g<300||g>6000) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
+  if(!haveGA) h+=`<div class="note warn" style="margin-top:14px">Enter gestational age for blade, mask, depth and ventilator settings.</div>`;
+  const term=haveGA&&!pre;
+  // Airway
+  const bl=haveGA?(term?'1':'0'):'–', mk=g<1000?'00':(haveGA?(term?'1':'0'):'–');
+  const sz=ettSize(g), rule=ettRule(g);
+  let depth='–', dsub='';
+  if(ntl>0){depth=r1(ntl+1); dsub='nasal-tragus + 1 cm'}
+  else if(haveGA){depth=depthByGA(ga); dsub='at the upper lip/gum, by GA'}
+  h+=`<div class="card"><h2>Airway <small>${g} g${haveGA?` · ${ga} wk · ${term?'term':'preterm'}`:''}</small></h2><div class="body">
+   <div class="big3">${k('ETT size',sz,'mm',g<800?'consider 2.0 as an option':'','main')}${k('ETT depth',depth,depth==='–'?'':'cm',dsub,'main')}${k('Blade',bl,'','','')}</div>
+   <div class="big3">${k('Face mask',mk,'',g<1000?'under 1 kg: size 00':'','')}</div>
+   ${g<1500?`<div class="note warn">LMA is too large for babies under 1,500 g; use an ETT.</div>`:''}
+   ${sz!==rule?`<div class="note info">Rule of thumb (1–2 kg → 3.0, ±0.5 per step) gives ${rule}; the NCPR slide set cut-offs (≤1,200 g → 2.5, 1,201–2,200 g → 3.0, &gt;2,200 g → 3.5) give ${sz}.</div>`:''}
+   ${ntl>0&&haveGA?`<div class="note info">By GA the slide table gives ${depthByGA(ga)} cm at the upper gum; the nasal-tragus method is the more accurate one for term and preterm babies.</div>`:''}
+  </div></div>`;
+  // Ventilation
+  if(haveGA){
+   h+=`<div class="card"><h2>PPV settings <small>T-piece (Neopuff)</small></h2><div class="body">
+   <div class="big3">${k('PIP','25','cmH₂O','initial','main')}${k('PEEP','5','cmH₂O','','main')}${k('FiO₂',fio2(ga),'','start; titrate to SpO₂','main')}</div>
+   <div class="big3">${k('Gas flow','10','L/min')}${k('Rate','30–60','/min','"breathe-2-3"')}</div>
+   <div class="note info">Self-inflating bag: pop-off valve set at 30–40 cmH₂O, FiO₂ 0.21 without O₂, about 0.4 at &lt;5 L/min, 0.9–1.0 with 10 L/min plus reservoir. If the heart rate stays under 60 after 30 s of effective PPV, go to ETT/LMA, compressions 3:1 (depth 1/3 of the chest AP diameter) and FiO₂ 1.0. Look for chest rise before raising the pressure.</div>
+   </div></div>`;
+  }
+  // Drugs
+  h+=`<div class="card"><h2>Drugs <small>${g} g</small></h2><div class="body">
+   <div class="big3">${k('Epinephrine IV/IO',r2(0.2*kg),'mL','0.2 mL/kg of 1:10,000','main')}${k('Epinephrine via ETT',r2(1*kg),'mL','1 mL/kg of 1:10,000','')}${k('NSS flush','3','mL','after IV epinephrine, any weight','')}</div>
+   <div class="big3">${k('NSS bolus',r1(10*kg),'mL','10 mL/kg over 5–10 min','')}</div>
+   <div class="note info">Epinephrine 1:10,000 = epinephrine 1 mg/mL, 1 mL + NSS 9 mL. Give rapidly; repeat every 3–5 min if HR stays under 60 after 60 s of PPV with FiO₂ 1.0 and compressions. Volume expander (NSS or group O Rh-neg PRC) for shock or acute blood loss, or if there's no response to resuscitation.</div>
+  </div></div>`;
+  out.innerHTML=h;
+}
+['w','ga','ntl'].forEach(i=>$(i).addEventListener('input',calc));
+calc();
+</script></body></html>
