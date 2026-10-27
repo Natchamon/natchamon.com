@@ -73,7 +73,10 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
  <div class="lb" id="agenote"></div>
 </div></div>
 
-<div class="card"><h2>Risk factors for bilirubin neurotoxicity <small id="rfhint"></small></h2><div class="body" id="rf"></div></div>
+<div class="card"><h2>Threshold table</h2><div class="body">
+ <div class="seg" id="tb"><button class="opt" data-v="risk" aria-pressed="true">With risk factor (default)</button><button class="opt" data-v="no" aria-pressed="false">No risk factor</button></div>
+ <details><summary>Neurotoxicity risk factors (ticking any uses the risk table)</summary><div id="rf"></div></details>
+</div></div>
 
 <div id="out"></div>
 
@@ -103,16 +106,17 @@ function pre(pma){return pma<28?[5,6,11,14]:pma<30?[6,8,12,14]:pma<32?[8,10,13,1
 const RF35=['Isoimmune hemolytic disease (e.g. DAT positive)','G6PD deficiency','Other hemolytic condition','Sepsis','Significant clinical instability in the last 24 h'];
 const RF34=['Lower gestation','Albumin &lt; 2.5 g/dL','TSB rising fast / suspected hemolytic disease','Clinical instability: pH &lt; 7.15, ventilated, proven sepsis, apnea (on positive pressure), hypotension needing inotropes'];
 const RFF=['Gestational age &lt; 40 weeks','Jaundice in the first 24 h','Hemolysis or suspected (TSB/TcB rise ≥ 0.3 mg/dL/h in the first 24 h, ≥ 0.2 mg/dL/h after)','Parent or sibling had phototherapy or exchange transfusion','Family history of inherited RBC disorder / G6PD deficiency','Exclusively breastfed with inadequate intake','Head bleed (cephalohematoma) or bruising','Down syndrome','Diabetic mother and birth weight &gt; 4000 g'];
-let rfMode=null;
+let rfMode=null, tbm='risk';
+document.querySelectorAll('#tb .opt').forEach(b=>b.onclick=()=>{tbm=b.dataset.v;document.querySelectorAll('#tb .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));calc()});
 function buildRF(m){ if(rfMode===m)return; rfMode=m; const L=m==='pre'?RF34:RF35;
   $('rf').innerHTML=L.map((t,i)=>`<label class="chk"><input type="checkbox" data-rf="${i}"><span>${t}</span></label>`).join('');
-  $('rfhint').textContent=m==='pre'?'lower range if any':'any → higher-risk tables';
+  
   $('rf').querySelectorAll('input').forEach(c=>c.addEventListener('input',calc)); }
 function box(l,v,u,s,c){return `<div class="kpi ${c||''}"><span>${l}</span><b>${v}${u?`<small> ${u}</small>`:''}</b>${s?`<small class="s">${s}</small>`:''}</div>`}
 function calc(){
   const ga=parseFloat($('ga').value), h=parseFloat($('age').value), tsb=parseFloat($('tsb').value), kg=parseFloat($('w').value)||0;
   const mode=ga>0&&ga<35?'pre':'term'; buildRF(mode);
-  const risk=[...document.querySelectorAll('#rf input')].some(c=>c.checked);
+  const risk=tbm==='risk'||[...document.querySelectorAll('#rf input')].some(c=>c.checked);
   $('agenote').textContent=h>=0?`= ${Math.floor(h/24)} d ${Math.round(h%24)} h`:'';
   const out=$('out');
   if(!(ga>0)||!(h>=0)||!(tsb>0)){out.innerHTML='<div class="note info" style="margin-top:14px">Enter gestational age, age in hours and TSB (or TcB) to see the result.</div>';return}
