@@ -73,6 +73,14 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
  <div class="lb" id="agenote"></div>
 </div></div>
 
+<div class="card"><h2>Rate of rise <small>optional, from a previous TSB</small></h2><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">Previous TSB (or TcB)</span><span class="inp"><input id="ptsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>mg/dL</i></span></label>
+  <label class="f"><span class="lb">Its age</span><span class="inp"><input id="page" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 36"><i>hours</i></span></label>
+ </div>
+ <label class="chk"><input type="checkbox" id="postpt"><span>This is the repeat TSB after stopping phototherapy</span></label>
+</div></div>
+
 <div class="card"><h2>Threshold table</h2><div class="body">
  <div class="seg" id="tb"><button class="opt" data-v="risk" aria-pressed="true">With risk factor (default)</button><button class="opt" data-v="no" aria-pressed="false">No risk factor</button></div>
  <details><summary>Neurotoxicity risk factors (ticking any uses the risk table)</summary><div id="rf"></div></details>
@@ -134,6 +142,16 @@ function calc(){
     h2+=`<div class="note info" style="margin-top:14px">GA under 35 weeks: thresholds are ranges by postmenstrual age (${p[0]}–${p[1]} phototherapy, ${p[2]}–${p[3]} exchange). Lower end used if any risk factor is ticked, upper end otherwise. Clinical judgement applies.${ga<26?' GA under 26 weeks: consider prophylactic phototherapy after birth.':''}</div>`;
   }
   photo=r1(photo); exch=r1(exch);
+  const pt=parseFloat($('ptsb').value), pa=parseFloat($('page').value);
+  let rate=null, rflag=false, rateHTML='', rateRep='';
+  if(pt>0&&pa>=0){
+    if(!(pa<h)) rateHTML='<div class="note warn">Previous age must be earlier than the current age.</div>';
+    else {
+      rate=(tsb-pt)/(h-pa); const lim=h<=24?0.3:0.2; rflag=rate>=lim;
+      rateHTML=`<div class="big3">${box('Rate of rise',(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100),'mg/dL/h',`${r1(tsb)} − ${r1(pt)} over ${Math.round(h-pa)} h`,rflag?'':'')}</div><div class="note ${rflag?'bad':'info'}">${rflag?`Rising fast: at least ${lim} mg/dL/h (${h<=24?'first 24 h':'after 24 h'}). Suspect hemolysis; counts as a follow-up risk factor.`:`Below ${lim} mg/dL/h (${h<=24?'first 24 h':'after 24 h'} limit): not rising fast.`}</div>`;
+      rateRep=`TB rate of rise ${(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100)} mg/dL/h (${r1(pt)} at ${Math.round(pa)} hr to ${r1(tsb)} at ${Math.round(h)} hr)`;
+    }
+  }
   let pR,eR,pN,eN;
   if(mode==='term'){pR=look('photoRisk',ga,h,38);eR=look('exchRisk',ga,h,38);pN=look('photoNo',ga,h,40);eN=look('exchNo',ga,h,38)}
   else{const q=pre(ga+h/168);pR=q[0];eR=q[2];pN=q[1];eN=q[3]}
@@ -150,12 +168,22 @@ function calc(){
   else {cls=dP<2?'warn':'ok';msg=dP<2?'Within 2 mg/dL below the phototherapy threshold':'Below the phototherapy threshold';sub=dP<2?'Guideline Table 4: threshold − TSB under 2 → on phototherapy':'Plan follow-up below';}
   h2+=`<div class="card"><h2>Result <small>${tag}</small></h2><div class="body">
     <div class="stat ${cls}">${msg}<small>${sub}</small></div>
-    <div class="big3">${box('Phototherapy at',photo,'mg/dL',(dP>0?dP+' below':dP===0?'at threshold':(-dP)+' above'),'main')}${box('Exchange at',exch,'mg/dL',(dE>0?dE+' below':dE===0?'at threshold':(-dE)+' above'),'main')}${box('TSB/TcB',r1(tsb),'mg/dL','at '+(h>=48?Math.floor(h/24)+' d '+Math.round(h%24)+' h':h+' h'),'')}</div>${deltaTbl}`;
+    <div class="big3">${box('Phototherapy at',photo,'mg/dL',(dP>0?dP+' below':dP===0?'at threshold':(-dP)+' above'),'main')}${box('Exchange at',exch,'mg/dL',(dE>0?dE+' below':dE===0?'at threshold':(-dE)+' above'),'main')}${box('TSB/TcB',r1(tsb),'mg/dL','at '+(h>=48?Math.floor(h/24)+' d '+Math.round(h%24)+' h':h+' h'),'')}</div>${deltaTbl}${rateHTML}`;
   if(cls==='bad'){
     h2+=`<ul class="act"><li>Move to the sick newborn unit; blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD, albumin</li><li>Double / 360° phototherapy; repeat TSB after 2 h</li><li>NPO, IV fluid</li><li>Group-match blood: 2 × (80 × weight) mL, split FFP group AB ⅓ and PRC group O ⅔</li><li>Exchange immediately once blood is matched if signs of acute bilirubin encephalopathy</li></ul>`;
     if(wkg){const tot=2*80*kg;h2+=`<div class="big3">${box('Total blood',Math.round(tot),'mL','2 × 80 × '+kg+' kg','')}${box('FFP (AB)',Math.round(tot/3),'mL','⅓','')}${box('PRC (O)',Math.round(tot*2/3),'mL','⅔','')}</div>`}
   } else if(cls==='warn'&&tsb>=photo){
     h2+=`<ul class="act"><li>Blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD${mode==='pre'?', albumin':''}</li><li>Intensive (single) phototherapy</li><li>Repeat TSB ${mode==='pre'?'12–24 h':'12–24 h, more often if isoimmune hemolysis, G6PD, sepsis or instability'} after starting</li></ul>`;
+  }
+  if($('postpt').checked){
+    if(mode==='term'){
+      let m2;
+      if(tsb>=photo) m2='TSB is at or above the phototherapy threshold: resume phototherapy.';
+      else if(rate==null) m2='Enter the previous TSB and its age to check the rate of rise (needs to be under 0.2 mg/dL/h to go home).';
+      else if(rate<0.2) m2='Below the phototherapy threshold and rate of rise under 0.2 mg/dL/h: can go home, follow up at 48 h.';
+      else m2='Below the threshold but rate of rise is 0.2 mg/dL/h or more: does not meet the go-home criteria; repeat TSB and use clinical judgement.';
+      h2+=`<div class="note ${tsb<photo&&rate!=null&&rate<0.2?'info':'warn'}"><b>After phototherapy (rebound check):</b> ${m2}</div>`;
+    } else h2+=`<div class="note info"><b>After phototherapy:</b> under 35 weeks, repeat TSB 24–48 h after stopping.</div>`;
   }
   if(tsb>=photo){
     h2+=`<div class="note info">Stop phototherapy when TSB is at least 2 mg/dL below the threshold for the current age: under <b>${r1(photo-2)}</b> mg/dL now.${mode==='term'?' Rebound risk (GA &lt; 38 wk, phototherapy started before 48 h, hemolytic disease): repeat TSB 6–12 h after stopping; go home if below threshold or rising under 0.2 mg/dL/h, follow up at 48 h. Without rebound risk: go home, follow up at 48 h.':' After stopping, repeat TSB at 24–48 h.'}</div>`;
@@ -172,15 +200,16 @@ function calc(){
   h2+='</div></div>';
   const dbv=parseFloat($('hct').value), dsig=sg(tsb-(risk?pR:pN)), thr=risk?pR:pN;
   const rep=`Hct/TB at ${Math.round(h)} hr = ${dbv>=0?dbv:'___'}/${r1(tsb)} (phototherapy threshold ${risk?'with risk':'no risk'} ${thr}, delta ${dsig})`;
-  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word">${rep}</div></div></div>`;
+  h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word">${rep}${rateRep?'<br>'+rateRep:''}</div></div></div>`;
   out.innerHTML=h2;
-  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep);$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
-  const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${i===0&&ga<40?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
+  $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep+(rateRep?'\n'+rateRep:''));$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
+  const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${(i===0&&ga<40)||(i===2&&rflag)?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
     const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
       let t; if(dP<2) t='On phototherapy.'; else if(dP<5.5) t=rk?'Follow up after 24–48 hours.':'Follow up after 48–72 hours.'; else t=rk?'Follow up after 72–96 hours.':(hb?'Follow up at age 1 month (mother has hepatitis B).':'Follow up at age 2 months.');
       $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
     fr.addEventListener('input',upd); upd(); }
 }
-['ga','age','tsb','w','hct'].forEach(i=>$(i).addEventListener('input',calc));
+['ga','age','tsb','w','hct','ptsb','page'].forEach(i=>$(i).addEventListener('input',calc));
+$('postpt').addEventListener('input',calc);
 buildRF('term'); calc();
 </script></body></html>
