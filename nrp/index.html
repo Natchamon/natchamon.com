@@ -45,6 +45,19 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .kpi small.s{display:block;font:400 12px var(--f-body);margin-top:2px}
 .hide{display:none}
 @media (max-width:420px){.big3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+
+.clk{font:600 34px/1 var(--f-head);font-variant-numeric:tabular-nums}
+.row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 14px;border-radius:9px;cursor:pointer;font-weight:500;min-height:40px}
+.btn.solid{background:var(--accent);color:#fff}
+.sp{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;text-align:center}
+.sp div{border:1px solid var(--line);border-radius:9px;padding:6px 2px;font-size:13px;background:var(--soft);font-variant-numeric:tabular-nums}
+.sp div b{display:block;font:600 14px var(--f-head)}
+.sp div.on{background:var(--accent-soft);border-color:var(--accent);outline:2px solid var(--accent)}
+.tm{border:1px solid var(--line);border-radius:11px;padding:8px 12px;display:flex;justify-content:space-between;align-items:center;gap:10px;background:var(--soft)}
+.tm span{font-size:13px;color:var(--ink-2);display:block}.tm b{font:600 20px var(--f-head);font-variant-numeric:tabular-nums}
+.tm.done{background:var(--warn-bg);border-color:var(--warn)}.tm.done b{color:var(--warn)}
+.tms{display:grid;gap:8px}
 </style></head><body><div class="app">
 <header><h1>Newborn resuscitation quick sheet<small>ขนาดอุปกรณ์ · ventilation setting · epinephrine · NCPR 2025 (AAP NRP 9th ed.)</small></h1></header>
 
@@ -54,6 +67,22 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
   <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="0" max="45" step="1" placeholder="e.g. 32"><i>weeks</i></span></label>
  </div>
  <label class="f"><span class="lb">Nasal-tragus length (optional, measured)</span><span class="inp"><input id="ntl" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 7"><i>cm</i></span></label>
+</div></div>
+
+<div class="card"><h2>Clock &amp; targets <small>tap Start at birth</small></h2><div class="body">
+ <div class="row" style="justify-content:space-between"><div class="clk" id="clk">0:00</div><div class="row"><button class="btn solid" id="cs" type="button">Start</button><button class="btn" id="cr" type="button">Reset</button></div></div>
+ <div class="lb">Target preductal SpO₂ (right hand)</div>
+ <div class="sp" id="sp"><div data-m="2"><b>2 min</b>65–70%</div><div data-m="3"><b>3 min</b>70–75%</div><div data-m="4"><b>4 min</b>75–80%</div><div data-m="5"><b>5 min</b>80–85%</div><div data-m="10"><b>10 min</b>85–95%</div></div>
+ <div class="lb">Timers</div>
+ <div class="tms" id="tms">
+  <div class="tm" data-t="30"><div><span>Effective PPV, then check HR</span><b>0:30</b></div><button class="btn" type="button">Start</button></div>
+  <div class="tm" data-t="60"><div><span>Compressions 3:1 + FiO₂ 1.0, then check HR</span><b>1:00</b></div><button class="btn" type="button">Start</button></div>
+  <div class="tm" data-t="180"><div><span>Epinephrine: repeat every 3–5 min</span><b>3:00</b></div><button class="btn" type="button">Start</button></div>
+  <div class="tm" data-t="1200"><div><span>No heartbeat: consider stopping at 20 min</span><b>20:00</b></div><button class="btn" type="button">Start</button></div>
+ </div>
+ <div class="lb">Heart rate from a 6-second count</div>
+ <div class="g2"><label class="f"><span class="inp"><input id="hr6" type="number" inputmode="numeric" min="0" max="40" placeholder="beats in 6 s"><i>beats</i></span></label><div class="kpi" id="hrout"><span>Heart rate</span><b>–</b></div></div>
+ <div class="note info" id="hrnote" style="display:none"></div>
 </div></div>
 
 <div id="out"></div>
@@ -110,4 +139,32 @@ function calc(){
 }
 ['w','ga','ntl'].forEach(i=>$(i).addEventListener('input',calc));
 calc();
+
+// ---- clock, timers, HR ----
+const fm=t=>{t=Math.max(0,Math.floor(t));return Math.floor(t/60)+':'+String(t%60).padStart(2,'0')};
+let t0=null, acc=0;
+const el=()=>acc+(t0?(Date.now()-t0)/1000:0);
+const timers=[...document.querySelectorAll('#tms .tm')].map(d=>({d,total:+d.dataset.t,start:null,fired:false,btn:d.querySelector('button'),b:d.querySelector('b')}));
+function buzz(){try{navigator.vibrate&&navigator.vibrate([200,100,200])}catch(e){}}
+function tick(){
+  const e=el(); $('clk').textContent=fm(e);
+  const m=e/60; let on=null; [2,3,4,5,10].forEach(x=>{if(m>=x)on=x});
+  document.querySelectorAll('#sp div').forEach(d=>d.classList.toggle('on',+d.dataset.m===on));
+  timers.forEach(T=>{ if(T.start==null)return; const r=T.total-(Date.now()-T.start)/1000;
+    T.b.textContent=r>0?fm(Math.ceil(r)):'+'+fm(-r);
+    if(r<=0&&!T.fired){T.fired=true;T.d.classList.add('done');buzz()} });
+}
+setInterval(tick,250);
+$('cs').onclick=()=>{ if(t0){acc=el();t0=null;$('cs').textContent='Resume'} else {t0=Date.now();$('cs').textContent='Pause'} tick() };
+$('cr').onclick=()=>{ t0=null;acc=0;$('cs').textContent='Start';tick() };
+timers.forEach(T=>T.btn.onclick=()=>{
+  if(T.start==null||T.fired){T.start=Date.now();T.fired=false;T.d.classList.remove('done');T.btn.textContent='Restart'}
+  else {T.start=null;T.d.classList.remove('done');T.b.textContent=fm(T.total);T.btn.textContent='Start'}
+  tick() });
+$('hr6').addEventListener('input',()=>{ const n=parseFloat($('hr6').value), o=$('hrout'), nt=$('hrnote');
+  if(!(n>=0)||$('hr6').value===''){o.innerHTML='<span>Heart rate</span><b>–</b>';nt.style.display='none';return}
+  const hr=n*10; o.innerHTML=`<span>Heart rate</span><b>${hr}<small> /min</small></b>`;
+  nt.style.display='';nt.className='note '+(hr<60?'bad':hr<100?'warn':'info');
+  nt.textContent=hr<60?'Under 60: if after at least 30 s of effective PPV (or ETT/LMA in place), start compressions with FiO₂ 1.0 and place a UVC/IO.':hr<100?'Under 100: start or continue PPV.':'100 or above: heart rate is adequate.'; });
+tick();
 </script></body></html>
