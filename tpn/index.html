@@ -91,6 +91,18 @@ tr.sel td:first-child{font-weight:600}
  </div>
 </div></div>
 
+<details class="card" id="opt"><summary style="cursor:pointer;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head)">Optional additions <small style="font:400 12px var(--f-body);color:var(--ink-2)">Mg · zinc · Soluvit · Peditrace · Glycophos · Na acetate</small></summary><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">Magnesium (50% MgSO₄)</span><span class="inp"><input id="mg" type="number" inputmode="decimal" step="0.05" min="0" value="0"><i>mEq/kg</i></span><span class="hint">0.25–0.5 · 4 mEq/mL</span></label>
+  <label class="f"><span class="lb">Zinc (ZnSO₄ 1 mg/mL)</span><span class="inp"><input id="zn" type="number" inputmode="decimal" step="50" min="0" value="0"><i>µg/kg</i></span><span class="hint">preterm 400 · term 250 (&lt; 3 mo)</span></label>
+  <label class="f"><span class="lb">Soluvit N (MTV)</span><span class="inp"><input id="sol" type="number" inputmode="decimal" step="0.5" min="0" value="0"><i>mL/kg</i></span><span class="hint">1 mL/kg</span></label>
+  <label class="f"><span class="lb">Peditrace</span><span class="inp"><input id="ped" type="number" inputmode="decimal" step="0.5" min="0" value="0"><i>mL/kg</i></span><span class="hint">1 mL/kg, instead of Addamel</span></label>
+  <label class="f"><span class="lb">Glycophos (Na 2 mEq, P 1 mmol/mL)</span><span class="inp"><input id="gly" type="number" inputmode="decimal" step="0.25" min="0" value="0"><i>P mmol/kg</i></span><span class="hint">1.5 central · 1 peripheral · counted before NaCl</span></label>
+  <label class="f"><span class="lb">Na acetate (2 mEq/mL)</span><span class="inp"><input id="nac" type="number" inputmode="decimal" step="0.5" min="0" value="0"><i>mEq/kg</i></span><span class="hint">part of total sodium</span></label>
+ </div>
+ <span class="hint">All are off at 0. Glycophos and Na acetate sodium count toward the total sodium above; 3% NaCl makes up the rest. Entering Peditrace turns Addamel off.</span>
+</div></details>
+
 <div id="out"></div>
 
 <p class="foot">Calculation aid only. Doses, conversions (10% Aminoven g × 10, 50% dextrose g × 2, 3% NaCl mEq × 2, KCl mEq ÷ 2, K₂PO₄ mL = mEq, 10% Ca gluconate mmol × 4, 20% SMOF g × 5) and the final glucose formula come from the PCMC revised neonatal protocol and its parenteral nutrition order sheet. Osmolarity uses mOsm/mL per product from the unit's TPN calculator (50% dextrose 2.52, Aminoven 0.885, 3% NaCl 1.03, KCl 4, K₂HPO₄ 7.4, Ca gluconate 0.308, trace 0.1); limits are 900 peripheral and 1,200 central. Check against your pharmacy and the baby's labs before ordering.</p>
@@ -129,15 +141,18 @@ function calc(){
   const lipG=lip*kg, lipV=lipG*5, tpnV=ivV-lipV, rate=tpnV/24, lipRate=lipV/24;
   const aaG=aa*kg, aaV=aaG*10;
   const glG=gir*kg*1.44, d50=glG*2, fin=tpnV>0?glG/tpnV*100:0;
-  const naE=na*kg, naV=naE*2;
+  const mg=num('mg'), zn=num('zn'), sol=num('sol'), ped=num('ped'), gly=num('gly'), nac=num('nac');
+  const glyV=gly*kg, glyNa=glyV*2, nacE=Math.min(nac*kg,Math.max(0,na*kg-glyNa)), nacV=nacE/2;
+  const naE=na*kg, naNaCl=Math.max(0,naE-glyNa-nacE), naV=naNaCl*2;
+  const mgE=mg*kg, mgV=mgE/4, znV=zn*kg/1000, solV=sol*kg, pedV=ped*kg;
   const kE=kt*kg, kpE=kpe*kg, kclE=kE-kpE, kclV=kclE/2;
   const caM=ca*kg, caV=caM*4;
-  const omvi=2, add=0.2*kg, hepU=hep*tpnV;
-  const water=tpnV-(aaV+d50+naV+kclV+kpE+caV+omvi+add);
+  const omvi=2, add=ped>0?0:0.2*kg, hepU=hep*tpnV;
+  const water=tpnV-(aaV+d50+naV+kclV+kpE+caV+omvi+add+glyV+nacV+mgV+znV+solV+pedV);
   const eDex=gir*1.44*3.4, eAA=aa*4, eLip=lip*10, eMilk=mk*kc/30, eTot=eDex+eAA+eLip+eMilk;
-  const osmSum=d50*2.52+aaV*0.885+naV*1.03+kclV*4+kpE*7.4+caV*0.308+add*0.1;
+  const osmSum=d50*2.52+aaV*0.885+naV*1.03+kclV*4+kpE*7.4+caV*0.308+add*0.1+glyV*10.3+nacV*2+mgV*4.06+znV*0.1+solV*4+pedV*0.1;
   const osm=tpnV>0?osmSum*1000/tpnV:0, osmMax=line==='C'?1200:900;
-  const npc=aa>0?(eDex+eLip)/aa:0, pmm=kpE*0.5;
+  const npc=aa>0?(eDex+eLip)/aa:0, pmm=kpE*0.5+gly*kg;
   const dash=v=>W?v:'–', u=s=>W?s:'';
   let h='';
   if(W&&(kg<0.4||kg>6)) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range, check the value (grams).</div>`;
@@ -146,12 +161,18 @@ function calc(){
    ['Sterile water','fills the rest',water,'mL'],
    ['10% Aminoven',`${r2(aa)} g/kg · ${r1(aaG)} g × 10`,aaV,'mL'],
    ['50% dextrose in water',`GIR ${r1(gir)} · ${r1(glG)} g × 2`,d50,'mL'],
-   ['3% NaCl',`${r1(na)} mEq/kg · ${r1(naE)} mEq × 2`,naV,'mL'],
+   ['3% NaCl',`${r1(naNaCl)} mEq × 2 (of ${r1(na)} mEq/kg total)`,naV,'mL'],
    ['KCl',`${r1(kclE)} mEq ÷ 2`,kclV,'mL'],
    ['K₂PO₄',`${r1(kpE)} mEq (mL = mEq)`,kpE,'mL'],
    ['10% Ca gluconate',`${r1(ca)} mmol/kg · ${r1(caM)} mmol × 4`,caV,'mL'],
    ['OMVI','2 mL/day',omvi,'mL'],
    ['Addamel N','0.2 mL/kg/day',add,'mL'],
+   ...(ped>0?[['Peditrace',`${r1(ped)} mL/kg`,pedV,'mL']]:[]),
+   ...(sol>0?[['Soluvit N',`${r1(sol)} mL/kg`,solV,'mL']]:[]),
+   ...(mg>0?[['50% MgSO₄',`${r2(mg)} mEq/kg · ${r2(mgE)} mEq ÷ 4`,mgV,'mL']]:[]),
+   ...(zn>0?[['ZnSO₄ 1 mg/mL',`${r0(zn)} µg/kg`,znV,'mL']]:[]),
+   ...(gly>0?[['Glycophos',`${r2(gly)} mmol/kg · Na ${r1(glyNa)} mEq`,glyV,'mL']]:[]),
+   ...(nac>0?[['Na acetate',`${r1(nacE)} mEq ÷ 2`,nacV,'mL']]:[]),
    ['Heparin',`${hep} U/mL × ${r0(tpnV)} mL`,hepU,'U']];
   h+=`<div class="card"><h2>TPN bag <small>${line==='C'?'central':'peripheral'} line · 24 h</small></h2><div class="body">
    <div class="big3">${k('TPN rate',dash(r1(rate)),u('mL/h'),W?r0(tpnV)+' mL / 24 h':'','main')}${k('Lipid rate',dash(r1(lipRate)),u('mL/h'),W?r1(lipV)+' mL of 20% SMOF':'','main')}${k('Final glucose',dash(r1(fin)),'%','GIR × kg × 6 ÷ rate','main')}</div>
@@ -174,6 +195,8 @@ function calc(){
   const C=[];
   const bad=(t)=>C.push(`<div class="note bad">${t}</div>`), warn=t=>C.push(`<div class="note warn">${t}</div>`), info=t=>C.push(`<div class="note info">${t}</div>`);
   if(kpE>0&&ca>0) warn('K₂PO₄ and calcium gluconate in the same bag: the PCMC order sheet says no calcium gluconate if K₂PO₄ is added (precipitation risk). Confirm with pharmacy.');
+  if(nac*kg>0&&nac*kg>Math.max(0,na*kg-glyNa)+0.001) warn('Na acetate is more than the sodium left after Glycophos, so it was capped. Raise total sodium.');
+  if(glyNa>naE+0.001) warn('Glycophos alone gives more sodium than the total sodium dose. Raise total sodium or lower Glycophos.');
   if(W&&osm>osmMax) bad(`Osmolarity ${r0(osm)} mOsm/L is above ${osmMax} for a ${line==='C'?'central':'peripheral'} line. Use a larger volume or lower the dextrose / electrolytes.`);
   if(lip/24>=0.2) bad(`Lipid rate ${r2(lip/24)} g/kg/h, protocol limit is under 0.2 g/kg/h.`);
   if(kt/24>0.2) bad(`K rate ${r2(kt/24)} mEq/kg/h, limit is 0.2 mEq/kg/h.`);
@@ -197,11 +220,17 @@ function calc(){
   L.push(`TPN rate ${W?r1(rate):'__'} ml/hr (${W?r0(tpnV):'__'} ml/24 h), final glucose ${W?r1(fin):'__'}%, GIR ${r1(gir)} mg/kg/min`);
   L.push(`Sterile water ${W?r1(water):'__'} ml, 10% Aminoven ${W?r1(aaV):'__'} ml (${r2(aa)} g/kg), 50% dextrose ${W?r1(d50):'__'} ml`);
   const m=[];
-  if(na>0) m.push(`3% NaCl ${W?r1(naV):'__'} ml`);
+  if(naNaCl>0) m.push(`3% NaCl ${W?r1(naV):'__'} ml`);
   if(kclE>0) m.push(`KCl ${W?r1(kclV):'__'} ml`);
   if(kpE>0) m.push(`K2PO4 ${W?r1(kpE):'__'} ml`);
   if(ca>0) m.push(`10% Ca gluconate ${W?r1(caV):'__'} ml`);
-  m.push('OMVI 2 ml',`Addamel ${W?r1(add):'__'} ml`,`Heparin ${W?r1(hepU):'__'} U`);
+  if(gly>0) m.push(`Glycophos ${r1(glyV)} ml`);
+  if(nac>0) m.push(`Na acetate ${r1(nacV)} ml`);
+  if(mg>0) m.push(`50% MgSO4 ${r1(mgV)} ml`);
+  if(zn>0) m.push(`ZnSO4 ${r1(znV)} ml`);
+  if(sol>0) m.push(`Soluvit N ${r1(solV)} ml`);
+  if(ped>0) m.push(`Peditrace ${r1(pedV)} ml`);
+  m.push('OMVI 2 ml',...(ped>0?[]:[`Addamel ${W?r1(add):'__'} ml`]),`Heparin ${W?r1(hepU):'__'} U`);
   L.push(m.join(', '));
   if(lip>0) L.push(`20% SMOF ${W?r1(lipV):'__'} ml drip 24 h (${W?r1(lipRate):'__'} ml/hr, ${r2(lip)} g/kg)`);
   if(mk>0) L.push(`Milk ${r0(mk)} ml/kg/day`);
@@ -216,6 +245,6 @@ document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset
 document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{day=+b.dataset.v;seg('day',v=>+v===day);suggest()});
 document.querySelectorAll('#ln .opt').forEach(b=>b.onclick=()=>{line=b.dataset.v;seg('ln',v=>v===line);calc()});
 document.querySelectorAll('#rk .opt').forEach(b=>b.onclick=()=>{risk[b.dataset.v]=!risk[b.dataset.v];b.setAttribute('aria-pressed',String(risk[b.dataset.v]));suggest()});
-['w','tf','mk','kc','aa','gir','lip','na','k','kp','ca','hep'].forEach(i=>$(i).addEventListener('input',calc));
+['w','tf','mk','kc','mg','zn','sol','ped','gly','nac','aa','gir','lip','na','k','kp','ca','hep'].forEach(i=>$(i).addEventListener('input',calc));
 suggest();
 </script></body></html>
