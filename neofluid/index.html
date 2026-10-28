@@ -136,8 +136,8 @@ function calc(){
   </div></div>`;
   // order summary
   const L=[];
-  L.push(enkg>0?`Milk BM/IF (${kc} kcal) ${W?r1(perFeed):'__'} ml x ${nf} feeds (TV ${r1(enkg)}, TC ${r1(tc)})`:'NPO');
-  if(iv>0||!W) L.push(`IV D${dx}W ${W?r1(rate):'__'} ml/hr, GIR ${W?r1(gir):'__'} mg/kg/min`);
+  L.push(enkg>0?`BM/PF (${kc} kcal/oz) sig ${W?r1(perFeed):'__'} ml x ${nf} feeds vai TF (TV ${r2(enkg)}, TC ${r2(tc)})`:'NPO');
+  if(iv>0||!W) L.push(`D-${dx}-S/5 (${dx}%DN/5) หยดเข้าหลอดเลือดดำ drip rate ${W?r1(rate):'__'} ml/hr x 24 hr (TV ${r2(ivKg)}, GIR ${W?r1(gir):'__'})`);
   lastRep=L.join('\n');
   h+=`<div class="card"><h2>Order <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div class="rep" id="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   $('out').innerHTML=h;

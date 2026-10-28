@@ -76,7 +76,7 @@ tr.sel td:first-child{font-weight:600}
   <label class="f"><span class="lb">Total fluid</span><span class="inp"><input id="tf" type="number" inputmode="decimal" min="0" step="5"><i>mL/kg/d</i></span><span class="hint" id="tfh"></span></label>
   <label class="f"><span class="lb">Enteral milk</span><span class="inp"><input id="mk" type="number" inputmode="decimal" min="0" step="5" value="0"><i>mL/kg/d</i></span><span class="hint">Taken off the TPN volume</span></label>
  </div>
- <label class="f" id="kcw" style="display:none"><span class="lb">Milk energy</span><span class="inp"><input id="kc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label>
+ <div class="g2" id="kcw" style="display:none"><label class="f"><span class="lb">Milk energy</span><span class="inp"><input id="kc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label><label class="f"><span class="lb">Feeds per day</span><span class="inp"><input id="nf" type="number" inputmode="numeric" min="1" max="24" step="1" value="8"><i>feeds</i></span></label></div>
 </div></div>
 
 <div class="card"><h2>Doses <small>per kg per day · protocol suggestion for this day</small></h2><div class="body">
@@ -139,7 +139,8 @@ function calc(){
   $('kcw').style.display=mk>0?'':'none';
   const aa=num('aa'), gir=num('gir'), lip=num('lip'), na=num('na'), kt=num('k'), ca=num('ca'), kpe=Math.min(num('kp'),kt), hep=num('hep');
   const ivKg=tf-mk, ivV=ivKg*kg;
-  const lipG=lip*kg, lipV=lipG*5, tpnV=ivV-lipV, rate=tpnV/24, lipRate=lipV/24;
+  const lipG=lip*kg, lipV=lipG*5, tpnRaw=ivV-lipV, rate=tpnRaw>0?Math.floor(tpnRaw/24*10+1e-9)/10:0, tpnV=rate*24, lipRate=lipV/24;
+  const nf=Math.max(1,num('nf')||8), milkV=mk*kg;
   const aaG=aa*kg, aaV=aaG*10;
   const glG=gir*kg*1.44, d50=glG*2, fin=tpnV>0?glG/tpnV*100:0;
   const mg=num('mg'), zn=num('zn'), sol=num('sol'), ped=num('ped'), gly=num('gly'), nac=num('nac');
@@ -237,10 +238,14 @@ function calc(){
   L.push(`Heparin ${W?r0(hepU):'__'} U ${tail}`);
   if(lip>0) L.push(`20%SMOF ${f(lipV)} ml IV drip in 24 hours (${r2(lip)} g/kg/day)`);
   L.push('DTX 1 hr หลังจากเปลี่ยน TPN; keep 60-150');
+  if(mk>0) L.push(`BM/PF (${kc} kcal/oz) sig ${f(milkV/nf)} ml x ${nf} feeds vai TF (TV ${r2(mk)}, TC ${r2(eMilk)})`);
+  const nt=[`TV ${r0(tf)} ml/kg/day = ${f(tf*kg)} ml/day`,
+    `หัก lipid ${f(lipV)} ml${mk>0?` และนม ${f(milkV)} ml`:''}`,
+    `เหลือสำหรับ TPN ${f(tpnRaw)} ml คิดเป็น rate ${f(rate)} ml/hr`].join('\n');
   const txt=L.join('\n');
   const S=[
    ['Line',line==='C'?'Central':'Peripheral'],
-   ['TPN',`${f(rate)} ml/hr · ${f(tpnV)} ml/24 h`],
+   ['TPN',`${f(rate)} ml/hr · ${f(tpnV)} ml/24 h (rate rounded down to 0.1)`],
    ['Lipid',lip>0?`${f(lipRate)} ml/hr · ${f(lipV)} ml/24 h`:'none'],
    ['Total volume',`${r0(ivKg)} ml/kg/d (TPN + lipid)${mk>0?` + milk ${r0(mk)}`:''}`],
    ['GIR / final glucose',`${r1(gir)} mg/kg/min · ${f(fin)}%`],
@@ -250,14 +255,15 @@ function calc(){
    ['Osmolarity',`${W?r0(osm):'__'} mOsm/L (limit ${osmMax})`]];
   const stxt=`TPN DOL ${day}${day===7?'+':''}${W?', '+r0(kg*1000)+' g':''}\n`+S.map(x=>x[0]+': '+x[1]).join('\n');
   h+=`<div class="card"><h2>Summary <small><button class="btn" id="cp2">Copy</button></small></h2><div class="body"><table class="sm">${S.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div></div>`;
+  h+=`<div class="card"><h2>Volume note <small><button class="btn" id="cp3">Copy</button></small></h2><div class="body"><div class="rep">${nt.split('\n').map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   h+=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body"><div class="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   $('out').innerHTML=h;
-  [['cp',txt],['cp2',stxt]].forEach(([i,t])=>{$(i).onclick=()=>{try{navigator.clipboard.writeText(t);$(i).textContent='Copied'}catch(e){}setTimeout(()=>{if($(i))$(i).textContent='Copy'},1200)}});
+  [['cp',txt],['cp2',stxt],['cp3',nt]].forEach(([i,t])=>{$(i).onclick=()=>{try{navigator.clipboard.writeText(t);$(i).textContent='Copied'}catch(e){}setTimeout(()=>{if($(i))$(i).textContent='Copy'},1200)}});
 }
 document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;seg('gest',v=>v===gest);suggest()});
 document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{day=+b.dataset.v;seg('day',v=>+v===day);suggest()});
 document.querySelectorAll('#ln .opt').forEach(b=>b.onclick=()=>{line=b.dataset.v;seg('ln',v=>v===line);calc()});
 document.querySelectorAll('#rk .opt').forEach(b=>b.onclick=()=>{risk[b.dataset.v]=!risk[b.dataset.v];b.setAttribute('aria-pressed',String(risk[b.dataset.v]));suggest()});
-['w','tf','mk','kc','mg','zn','sol','ped','gly','nac','aa','gir','lip','na','k','kp','ca','hep'].forEach(i=>$(i).addEventListener('input',calc));
+['w','tf','mk','kc','nf','mg','zn','sol','ped','gly','nac','aa','gir','lip','na','k','kp','ca','hep'].forEach(i=>$(i).addEventListener('input',calc));
 suggest();
 </script></body></html>
