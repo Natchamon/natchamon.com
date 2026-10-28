@@ -75,6 +75,9 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 .now::before{content:"";position:absolute;left:-18px;top:50%;width:14px;height:14px;margin-top:-7px;border-radius:50%;background:var(--bad);border:2px solid var(--surface)}
 .sumrow{font-size:14px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
 .sumrow i{width:10px;height:10px;border-radius:50%;background:var(--c);display:inline-block;flex:0 0 auto}
+.abn{display:flex;gap:8px;align-items:center;margin:4px 0 0 26px;font-size:13px;color:var(--bad)}.abn input{width:16px;height:16px}
+.kids{margin:6px 0 0 18px;padding-left:12px;border-left:2px dashed var(--bad);display:grid;gap:8px}
+.ev.sub::before{display:none}
 .grp{font:600 13px var(--f-head);color:var(--ink-2);margin:2px 0 4px}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
@@ -93,13 +96,6 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 </div></div>
 
 <div class="card"><h2>Conditions</h2><div class="body" id="conds"></div></div>
-
-<div class="card"><h2>Not passed / abnormal <small>adds the follow-up to the timeline</small></h2><div class="body">
- <label class="chk"><input type="checkbox" data-f="hear"><span>Hearing screen not passed</span></label>
- <label class="chk"><input type="checkbox" data-f="tsh"><span>Heel-prick TSH &gt; 25 mU/L</span></label>
- <label class="chk"><input type="checkbox" data-f="oop"><span>Calcium / phosphate / ALP abnormal</span></label>
- <label class="chk"><input type="checkbox" data-f="ivh"><span>Head ultrasound abnormal</span></label>
-</div></div>
 
 <div class="seg" id="vw" style="margin-top:14px"><button class="opt" data-v="tl" aria-pressed="true">Timeline</button><button class="opt" data-v="test" aria-pressed="false">By test</button></div>
 
@@ -130,7 +126,6 @@ const HEAR=['Family history of congenital hearing loss','NICU stay > 5 days','Ot
 $('conds').innerHTML=CONDS.map(([k,t])=>`<label class="chk"><input type="checkbox" data-c="${k}"><span>${t}</span></label>`).join('')
  +`<details><summary>Hearing risk factors (JCIH 2007)</summary>${HEAR.map((t,i)=>`<label class="chk"><input type="checkbox" data-h="${i}"><span>${t}</span></label>`).join('')}</details>`;
 const C=k=>document.querySelector(`[data-c="${k}"]`).checked;
-const F=k=>document.querySelector(`[data-f="${k}"]`).checked;
 const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
 function parseDob(){const v=$('dob').value;if(!v)return null;const [y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d)}
 function addDays(b,n){const d=new Date(b);d.setDate(d.getDate()+Math.round(n));return d}
@@ -217,13 +212,7 @@ function events(ga,bw,cw){
     if(pre){const d=Math.round((37-ga)*7);E.push({id:'thy3',k:'thy',title:'Serum FT4 + TSH (3rd, PMA 37 weeks)',a:d,b:d})}}
   else E.push({id:'thy0',k:'thy',title:'National TSH screening (heel prick)',x:'48–96 h after birth',a:2,b:4});
   if(C('mat')) E.push({id:'thym',k:'thy',title:'Serum FT4 + TSH at 72 h',x:'Maternal autoimmune thyroid disease',a:3,b:3});
-  // hearing 1-3-6: screening always; diagnosis and treatment only if not passed
   E.push({id:'h1',k:'hear',title:'Hearing screening done (1 month)',a:mdays(1),b:mdays(1),by:true});
-  if(F('hear')){E.push({id:'h3',k:'hear',title:'Hearing diagnosis, audiology (3 months)',a:mdays(3),b:mdays(3),by:true});E.push({id:'h6',k:'hear',title:'Treatment / hearing aids (6 months)',a:mdays(6),b:mdays(6),by:true})}
-  const nowD=Math.max(DOL==null?0:DOL,0);
-  if(F('tsh')) E.push({id:'tshx',k:'thy',title:'Recall: serum FT4 + TSH to confirm',x:'Heel-prick TSH > 25 mU/L',a:nowD,b:nowD});
-  if(F('oop')) E.push({id:'oopx',k:'oop',title:'25(OH)D, PTH and films',x:'Calcium / phosphate / ALP abnormal',a:nowD,b:nowD});
-  if(F('ivh')) E.push({id:'ivhx',k:'ivh',title:'Follow-up head ultrasound by the findings',a:nowD,b:nowD});
   // ROP
   if(bw<1500||ga<30||(bw<=2000&&C('ropr'))){const d=ga<27?Math.max(28,Math.round((31-ga)*7)):28;E.push({id:'rop',k:'rop',title:'ROP eye exam (ophthalmologist)',x:ga<27?'GA < 27 weeks: PMA 31 weeks':'GA ≥ 27 weeks: DOL 28',a:d,b:d})}
   if(bw<1500||ga<32){E.push({id:'ivh1',k:'ivh',title:'Head ultrasound (1st)',a:1,b:3});E.push({id:'ivh2',k:'ivh',title:'Head ultrasound (repeat)',a:7,b:10})}
@@ -236,6 +225,16 @@ function events(ga,bw,cw){
   E.sort((p,q)=>p.a-q.a||p.b-q.b);
   return {E,L};
 }
+const HOSTS={oae:'Not passed',thy0:'TSH > 25 mU/L',oop:'Abnormal',ivh1:'Abnormal',ivh2:'Abnormal'};
+let flags={};
+function kidsOf(id){
+  if(!flags[id])return [];
+  const nowD=Math.max(DOL==null?0:DOL,0);
+  if(id==='oae')return [{id:'h3',k:'hear',title:'Hearing diagnosis, audiology (3 months)',a:mdays(3),b:mdays(3),by:true},{id:'h6',k:'hear',title:'Treatment / hearing aids (6 months)',a:mdays(6),b:mdays(6),by:true}];
+  if(id==='thy0')return [{id:'tshx',k:'thy',title:'Recall: serum FT4 + TSH to confirm',a:nowD,b:nowD}];
+  if(id==='oop')return [{id:'oopx',k:'oop',title:'25(OH)D, PTH and films',a:nowD,b:nowD}];
+  return [{id:id+'x',k:'ivh',title:'Follow-up head ultrasound by the findings',a:nowD,b:nowD}];
+}
 function stat(e){
   if(DOL==null)return '';
   if(e.by||e.from){ if(DOL>e.a)return e.by?'<span class="chip late">window passed</span>':'<span class="chip due">started</span>'; return e.a-DOL<=14?'<span class="chip due">due soon</span>':`<span class="chip soon">in ${e.a-DOL} d</span>`}
@@ -245,12 +244,14 @@ function dateTxt(e){
   const w=e.by?'by ':e.from?'from ':'';
   if(!DOB)return w+dl;
   return w+(e.a===e.b?fmt(addDays(DOB,e.a)):fmt(addDays(DOB,e.a))+' – '+fmt(addDays(DOB,e.b)))+` · ${dl}`}
-function evHTML(e){const c=COL[e.k];return `<div class="ev ${done[e.id]?'done':''}" style="--c:${c[0]}">${e.a!=null?`<div class="d">${dateTxt(e)} ${stat(e)}</div>`:''}<label class="t"><input type="checkbox" data-d="${e.id}" ${done[e.id]?'checked':''}><span><span class="tag">${c[1]}</span><b>${e.title}</b></span></label>${e.x?`<div class="x">${e.x}</div>`:''}</div>`}
+function evHTML(e,sub){const c=COL[e.k], hostLbl=HOSTS[e.id], ks=kidsOf(e.id);
+  return `<div class="ev ${sub?'sub':''} ${done[e.id]?'done':''}" style="--c:${c[0]}">${e.a!=null?`<div class="d">${dateTxt(e)} ${stat(e)}</div>`:''}<label class="t"><input type="checkbox" data-d="${e.id}" ${done[e.id]?'checked':''}><span><span class="tag">${c[1]}</span><b>${e.title}</b></span></label>${e.x?`<div class="x">${e.x}</div>`:''}${hostLbl?`<label class="abn"><input type="checkbox" data-a="${e.id}" ${flags[e.id]?'checked':''}><span>${hostLbl}</span></label>`:''}${ks.length?`<div class="kids">${ks.map(k=>evHTML(k,true)).join('')}</div>`:''}</div>`}
 function timelineHTML(ga,bw,cw){
   const {E,L}=events(ga,bw,cw); let h='';
+  const ALL=[...E,...L.flatMap(l=>kidsOf(l.id)),...E.flatMap(e=>kidsOf(e.id))].sort((p,q)=>(p.a-q.a)||(p.b-q.b));
   const isNow=e=>DOL!=null&&!done[e.id]&&(e.by||e.from?(e.a>=DOL&&e.a-DOL<=14):(DOL>=e.a&&DOL<=e.b));
   if(DOL!=null&&DOL>=0){
-    const now=E.filter(isNow), next=E.filter(e=>!done[e.id]&&e.a>DOL&&!isNow(e)).slice(0,3);
+    const now=ALL.filter(isNow), next=ALL.filter(e=>!done[e.id]&&e.a>DOL&&!isNow(e)).slice(0,3);
     const row=e=>`<div class="sumrow" style="--c:${COL[e.k][0]}"><i></i><b>${e.title}</b> <span style="color:var(--ink-2)">${dateTxt(e)}</span></div>`;
     h+=`<div class="card"><h2>Today <small>day of life ${DOL}</small></h2><div class="body"><div class="grp">Due now</div>${now.length?now.map(row).join(''):'<div class="sumrow" style="color:var(--ink-2)">Nothing in a window today.</div>'}<div class="grp" style="margin-top:6px">Next up</div>${next.length?next.map(row).join(''):'<div class="sumrow" style="color:var(--ink-2)">Nothing further scheduled.</div>'}</div></div>`;
   } else h+='<div class="note info" style="margin-top:14px">Add the date of birth to see real dates, a Today marker and what is due now.</div>';
@@ -271,7 +272,7 @@ function cchd(){
   o.innerHTML=`<div class="stat ${c}">${t}<small>${s}</small></div>`;
 }
 document.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{calc();cchd()}));
-$('out').addEventListener('change',e=>{const id=e.target.dataset&&e.target.dataset.d;if(id){done[id]=e.target.checked;calc()}});
+$('out').addEventListener('change',e=>{const d=e.target.dataset||{};if(d.d){done[d.d]=e.target.checked;calc()}else if(d.a){flags[d.a]=e.target.checked;calc()}});
 document.querySelectorAll('#vw .opt').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.querySelectorAll('#vw .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));calc()});
 calc();
 </script></body></html>
