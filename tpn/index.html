@@ -62,6 +62,7 @@ tr.sel td:first-child{font-weight:600}
 .ord td:first-child{border-radius:10px 0 0 10px;border-left:4px solid var(--accent)}
 .ord td:last-child{text-align:right;border-radius:0 10px 10px 0;white-space:nowrap;font:600 18px var(--f-head);color:var(--accent)}
 .ord td:last-child b{background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px;padding:4px 10px;font-weight:600}
+.how{font:400 12.5px/1.4 var(--f-body);color:var(--ink-2);margin-top:3px}
 .oth{display:grid;gap:12px}.oth div{border-left:4px solid var(--accent);background:var(--soft);border-radius:0 10px 10px 0;padding:12px 12px;font-size:15px;font-weight:500}
 .sm td:first-child{color:var(--ink-2);width:40%}.sm td:last-child{text-align:left;font-weight:500}.sm td{text-align:left;vertical-align:top}
 </style></head><body><div class="app">
@@ -263,8 +264,8 @@ function calc(){
   const stxt=`TPN DOL ${day}${day===7?'+':''}${W?', '+r0(kg*1000)+' g':''}\n`+S.map(x=>x[0]+': '+x[1]).join('\n');
   // on-screen layout: ingredients as a table, other orders as plain lines
   const bag=[], oth=[];
-  L.forEach(x=>{const m=x.match(/^(.*?) ([\d.]+|__) (ml|U) in TPN volume .*?(\(GIR [^)]*\))?$/);
-    if(m) bag.push([m[1]+(m[4]?' <span class="hint">'+m[4]+'</span>':''),m[2]+' '+m[3]]); else oth.push(x)});
+  L.forEach(x=>{const m=x.match(/^(.*?) ([\d.]+|__) (ml|U) (in TPN volume [^(]*?)\s*(\(GIR [^)]*\))?$/);
+    if(m) bag.push([m[1]+(m[5]?' <span class="hint">'+m[5]+'</span>':'')+'<div class="how">'+m[4]+'</div>',m[2]+' '+m[3]]); else oth.push(x)});
   const orderCard=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body">
    <div class="bagh"><div><span>TPN volume</span><b>${f(tpnV)} ml</b></div><div><span>Rate</span><b>${f(rate)} ml/hr</b></div><div><span>Duration</span><b>24 hr</b></div></div>
    <table class="ord">${bag.map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join('')}</table>
