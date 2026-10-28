@@ -93,7 +93,7 @@ tr.sel td:first-child{font-weight:600}
 
 <div id="out"></div>
 
-<p class="foot">Calculation aid only. Doses, conversions (10% Aminoven g × 10, 50% dextrose g × 2, 3% NaCl mEq × 2, KCl mEq ÷ 2, K₂PO₄ mL = mEq, 10% Ca gluconate mmol × 4, 20% SMOF g × 5) and the final glucose formula come from the PCMC revised neonatal protocol and its parenteral nutrition order sheet. Check against your pharmacy and the baby's labs before ordering.</p>
+<p class="foot">Calculation aid only. Doses, conversions (10% Aminoven g × 10, 50% dextrose g × 2, 3% NaCl mEq × 2, KCl mEq ÷ 2, K₂PO₄ mL = mEq, 10% Ca gluconate mmol × 4, 20% SMOF g × 5) and the final glucose formula come from the PCMC revised neonatal protocol and its parenteral nutrition order sheet. Osmolarity uses mOsm/mL per product from the unit's TPN calculator (50% dextrose 2.52, Aminoven 0.885, 3% NaCl 1.03, KCl 4, K₂HPO₄ 7.4, Ca gluconate 0.308, trace 0.1); limits are 900 peripheral and 1,200 central. Check against your pharmacy and the baby's labs before ordering.</p>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -135,6 +135,9 @@ function calc(){
   const omvi=2, add=0.2*kg, hepU=hep*tpnV;
   const water=tpnV-(aaV+d50+naV+kclV+kpE+caV+omvi+add);
   const eDex=gir*1.44*3.4, eAA=aa*4, eLip=lip*10, eMilk=mk*kc/30, eTot=eDex+eAA+eLip+eMilk;
+  const osmSum=d50*2.52+aaV*0.885+naV*1.03+kclV*4+kpE*7.4+caV*0.308+add*0.1;
+  const osm=tpnV>0?osmSum*1000/tpnV:0, osmMax=line==='C'?1200:900;
+  const npc=aa>0?(eDex+eLip)/aa:0, pmm=kpE*0.5;
   const dash=v=>W?v:'–', u=s=>W?s:'';
   let h='';
   if(W&&(kg<0.4||kg>6)) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range, check the value (grams).</div>`;
@@ -152,6 +155,7 @@ function calc(){
    ['Heparin',`${hep} U/mL × ${r0(tpnV)} mL`,hepU,'U']];
   h+=`<div class="card"><h2>TPN bag <small>${line==='C'?'central':'peripheral'} line · 24 h</small></h2><div class="body">
    <div class="big3">${k('TPN rate',dash(r1(rate)),u('mL/h'),W?r0(tpnV)+' mL / 24 h':'','main')}${k('Lipid rate',dash(r1(lipRate)),u('mL/h'),W?r1(lipV)+' mL of 20% SMOF':'','main')}${k('Final glucose',dash(r1(fin)),'%','GIR × kg × 6 ÷ rate','main')}</div>
+   <div class="big3">${k('Osmolarity',dash(r0(osm)),u('mOsm/L'),`keep < ${osmMax} (${line==='C'?'central':'peripheral'})`,'')}${k('NPC : AA',aa>0?r0(npc):'–','kcal/g AA','dextrose + lipid kcal ÷ g protein','')}${k('Phosphate',dash(r2(pmm/(kg||1))),u('mmol/kg/d'),'K₂HPO₄ 0.5 mmol/mL','')}</div>
    <table class="ing"><tr><th>Ingredient</th><th>Calc</th><th>Amount</th></tr>`+
    rows.map(r=>{const v=r[2];const neg=v<-0.005;return `<tr><td>${r[0]}</td><td>${W?r[1]:''}</td><td${neg?' style="color:var(--bad)"':''}>${dash(r1(v)+' '+r[3])}</td></tr>`}).join('')+
    `<tr class="tot"><td><b>TPN total</b></td><td></td><td>${dash(r0(tpnV)+' mL')}</td></tr></table>
@@ -169,11 +173,12 @@ function calc(){
   // checks
   const C=[];
   const bad=(t)=>C.push(`<div class="note bad">${t}</div>`), warn=t=>C.push(`<div class="note warn">${t}</div>`), info=t=>C.push(`<div class="note info">${t}</div>`);
-  if(kpE>0&&ca>0) bad('K₂PO₄ and calcium gluconate in the same bag: the order sheet says if K₂PO₄ is added, no calcium gluconate (precipitation).');
+  if(kpE>0&&ca>0) warn('K₂PO₄ and calcium gluconate in the same bag: the PCMC order sheet says no calcium gluconate if K₂PO₄ is added (precipitation risk). Confirm with pharmacy.');
+  if(W&&osm>osmMax) bad(`Osmolarity ${r0(osm)} mOsm/L is above ${osmMax} for a ${line==='C'?'central':'peripheral'} line. Use a larger volume or lower the dextrose / electrolytes.`);
   if(lip/24>=0.2) bad(`Lipid rate ${r2(lip/24)} g/kg/h, protocol limit is under 0.2 g/kg/h.`);
   if(kt/24>0.2) bad(`K rate ${r2(kt/24)} mEq/kg/h, limit is 0.2 mEq/kg/h.`);
   if(hepU/(kg||1)>100&&W) bad(`Heparin ${r0(hepU/kg)} U/kg/day, max is 100 U/kg/day.`);
-  if(line==='P'&&fin>12.5) warn(`Final glucose ${r1(fin)}% is high for a peripheral line (commonly kept ≤ 12.5%; not from the PCMC page, check your unit).`);
+  if(line==='P'&&fin>12.5) warn(`Final glucose ${r1(fin)}% is high for a peripheral line (keep < 12.5% for peripheral, per the osmolarity sheet).`);
   if(gir>12) warn('GIR above 12 mg/kg/min (protocol 10–12).');
   if(lip>3) warn('Lipid above 3 g/kg/day.');
   if(lip>=2) info('Lipid 2 g/kg/day or more: check triglyceride, keep TG < 265 mg/dL. If TG > 265, stop lipid for 1 day, then restart at half the previous dose and recheck TG in 24 h.');
@@ -200,6 +205,7 @@ function calc(){
   L.push(m.join(', '));
   if(lip>0) L.push(`20% SMOF ${W?r1(lipV):'__'} ml drip 24 h (${W?r1(lipRate):'__'} ml/hr, ${r2(lip)} g/kg)`);
   if(mk>0) L.push(`Milk ${r0(mk)} ml/kg/day`);
+  L.push(`Osmolarity ${W?r0(osm):'__'} mOsm/L, NPC:AA ${aa>0?r0(npc):'–'}`);
   L.push(`Total volume ${r0(ivKg)} ml/kg/d (TPN+lipid), energy ${r1(eTot)} kcal/kg/d`);
   const txt=L.join('\n');
   h+=`<div class="card"><h2>Order <small><button class="btn" id="cp">Copy</button></small></h2><div class="body"><div class="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
