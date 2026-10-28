@@ -1,0 +1,190 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Newborn Screening</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
+--f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
+button,input{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto}
+header{padding:18px 0 4px}
+h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.body{padding:14px 16px;display:grid;gap:12px}
+.lb{font-size:13px;color:var(--ink-2)}
+.f{display:grid;gap:3px;min-width:0}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
+.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
+.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
+.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
+table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
+.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+
+.big3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi small.s{display:block;font:400 12px var(--f-body);margin-top:2px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+@media (max-width:420px){.big3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.days .opt{min-width:44px;padding:6px 0;text-align:center}
+
+.stat{border-radius:12px;padding:12px 14px;font-weight:600;font:600 16px/1.35 var(--f-head)}
+.stat small{display:block;font:400 13px var(--f-body);margin-top:3px}
+.stat.ok{background:var(--ok-bg);color:var(--ok)}.stat.warn{background:var(--warn-bg);color:var(--warn)}.stat.bad{background:var(--bad-bg);color:var(--bad)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:4px 0}
+.chk input{margin-top:3px;width:18px;height:18px;flex:0 0 auto}
+ul.act{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0}
+
+.chip{display:inline-block;font:500 11.5px var(--f-body);border-radius:999px;padding:1px 9px;margin-left:6px;vertical-align:middle}
+.chip.yes{background:var(--accent-soft);color:var(--accent)}.chip.no{background:var(--soft);color:var(--ink-2)}
+.chip.due{background:var(--warn-bg);color:var(--warn)}.chip.late{background:var(--bad-bg);color:var(--bad)}.chip.soon{background:var(--ok-bg);color:var(--ok)}
+.item{display:grid;gap:3px;padding:8px 0;border-top:1px solid var(--line);font-size:14px}.item:first-child{border-top:0}
+.item b{font-weight:600}.item .s{color:var(--ink-2);font-size:13px}
+.sub{font:600 13px var(--f-head);color:var(--ink-2);margin-top:2px}
+.opt.sm{min-height:34px;padding:4px 10px;font-size:13px}
+</style></head><body><div class="app">
+<a class="home" href="/tools/">← Ped tools</a>
+<header><h1>Newborn screening<small>Thyroid · hearing · CCHD · ROP · IVH · osteopenia · anemia of prematurity · what applies and when</small></h1></header>
+
+<div class="card"><h2>Baby</h2><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="22" max="44" step="1" placeholder="e.g. 30"><i>weeks</i></span></label>
+  <label class="f"><span class="lb">Birth weight</span><span class="inp"><input id="bw" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 1400"><i>g</i></span></label>
+ </div>
+ <div class="g2">
+  <label class="f"><span class="lb">Date of birth (optional)</span><span class="inp"><input id="dob" type="date" style="text-align:left"></span></label>
+  <label class="f"><span class="lb">Current weight (optional)</span><span class="inp"><input id="cw" type="number" inputmode="decimal" min="0" step="10" placeholder="for iron dose"><i>g</i></span></label>
+ </div>
+ <div class="lb" id="dolnote"></div>
+</div></div>
+
+<div class="card"><h2>Conditions</h2><div class="body" id="conds"></div></div>
+
+<div id="out"></div>
+
+<div class="card"><h2>CCHD pulse oximetry <small>right hand and foot</small></h2><div class="body">
+ <div class="g2">
+  <label class="f"><span class="lb">SpO₂ right hand</span><span class="inp"><input id="sh" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="e.g. 97"><i>%</i></span></label>
+  <label class="f"><span class="lb">SpO₂ foot</span><span class="inp"><input id="sf" type="number" inputmode="numeric" min="0" max="100" step="1" placeholder="e.g. 96"><i>%</i></span></label>
+ </div>
+ <div id="cchd"></div>
+</div></div>
+
+<p class="foot">Reference aid only. Adapted from a newborn screening checklist infographic and teaching notes (Thai); check against your hospital's protocol. Dates are counted from the date of birth you enter, with 1 month taken as a calendar month.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const CONDS=[
+ ['sick','Sick newborn (long NICU stay, critically ill)'],
+ ['mono','Monozygotic twin'],
+ ['dopa','Received dopamine'],
+ ['mat','Maternal autoimmune thyroid disease'],
+ ['ropr','Risk for ROP (sick, long oxygen exposure), for BW 1500–2000 g'],
+ ['tpn','On TPN for more than 4 weeks'],
+ ['fort','Unable to reach full fortified feeds'],
+ ['bone','Bone-active medication (e.g. furosemide, long-term)']];
+const HEAR=['Family history of congenital hearing loss','NICU stay > 5 days','Ototoxic drugs (gentamicin, furosemide)','Hyperbilirubinemia needing exchange transfusion','TORCH infection','Craniofacial anomalies / neurodegenerative disorder','Syndrome known to include hearing loss','Confirmed bacterial or viral meningitis','Head trauma needing hospitalization','Chemotherapy'];
+$('conds').innerHTML=CONDS.map(([k,t])=>`<label class="chk"><input type="checkbox" data-c="${k}"><span>${t}</span></label>`).join('')
+ +`<details><summary>Hearing risk factors (JCIH 2007)</summary>${HEAR.map((t,i)=>`<label class="chk"><input type="checkbox" data-h="${i}"><span>${t}</span></label>`).join('')}</details>`;
+const C=k=>document.querySelector(`[data-c="${k}"]`).checked;
+const fmt=d=>d.toLocaleDateString('en-GB',{day:'numeric',month:'short',year:'numeric'});
+function parseDob(){const v=$('dob').value;if(!v)return null;const [y,m,d]=v.split('-').map(Number);return new Date(y,m-1,d)}
+function addDays(b,n){const d=new Date(b);d.setDate(d.getDate()+Math.round(n));return d}
+function addMonths(b,n){const d=new Date(b);d.setMonth(d.getMonth()+n);return d}
+function today(){const t=new Date();return new Date(t.getFullYear(),t.getMonth(),t.getDate())}
+let DOB=null, DOL=null;
+function status(a,b){ // days from birth window
+  if(DOL==null)return '';
+  if(DOL<a)return `<span class="chip soon">in ${a-DOL} d</span>`;
+  if(DOL<=b)return '<span class="chip due">due now</span>';
+  return '<span class="chip late">window passed</span>'}
+function win(a,b,label){ // returns text for a day window
+  const dol=a===b?`DOL ${a}`:`DOL ${a}–${b}`;
+  if(!DOB)return `${label?label+': ':''}${dol}`;
+  return `${label?label+': ':''}${dol} (${fmt(addDays(DOB,a))}${a===b?'':' – '+fmt(addDays(DOB,b))})`}
+function winM(m,label,w){ w=w||'by'; // by month
+  if(!DOB)return `${label}: ${w} age ${m} month${m>1?'s':''}`;
+  return `${label}: ${w} ${fmt(addMonths(DOB,m))} (age ${m} month${m>1?'s':''})`}
+function item(name,applies,lines,chip){return `<div class="item"><div><b>${name}</b><span class="chip ${applies?'yes':'no'}">${applies?'applies':'not indicated'}</span>${chip||''}</div>${lines.map(l=>`<div class="s">${l}</div>`).join('')}</div>`}
+function calc(){
+  const ga=parseFloat($('ga').value), bw=parseFloat($('bw').value), cw=parseFloat($('cw').value);
+  DOB=parseDob(); DOL=DOB?Math.round((today()-DOB)/864e5):null;
+  $('dolnote').textContent=DOB?(DOL>=0?`Today is day of life ${DOL}${ga>0?` · PMA ${(ga+DOL/7).toFixed(1)} wk`:''}`:'Date of birth is in the future'):'Add a date of birth to see calendar dates and what is due now.';
+  const out=$('out');
+  if(!(ga>0)||!(bw>0)){out.innerHTML='<div class="note info" style="margin-top:14px">Enter gestational age and birth weight to see what applies.</div>';return}
+  const pre=ga<37, lbw=bw<2500, vlbw=bw<1500;
+  const special=pre||lbw||C('sick')||C('mono');
+  const hearRisk=[...document.querySelectorAll('[data-h]')].some(c=>c.checked);
+  let h='<div class="card"><h2>Checklist <small>'+(pre?'preterm':'term')+` · ${ga} wk · ${bw} g`+'</small></h2><div class="body">';
+  // Thyroid
+  let th=[];
+  if(special){
+    th.push('<b>Serum FT4 + TSH</b> (not the heel-prick card): preterm, low birth weight, sick newborn or monozygotic twin');
+    th.push(win(14,21,'1st (2–3 weeks)'));
+    th.push(win(28,28,'2nd (4 weeks)'));
+    if(pre) th.push(win(Math.round((37-ga)*7),Math.round((37-ga)*7),'3rd (PMA 37 weeks)'));
+  } else {
+    th.push('<b>National TSH screening</b> (heel prick on filter paper, sent to the Dept. of Medical Sciences)');
+    th.push(win(2,4,'48–96 hours after birth'));
+    th.push('TSH &gt; 25 mU/L: recall for serum FT4 + TSH to confirm');
+  }
+  if(C('mat')){th.push('<b>Maternal autoimmune thyroid disease:</b> serum FT4 + TSH at <b>72 hours</b> after birth, instead of waiting for the card result');th.push(win(3,3,'72 hours'))}
+  if(C('dopa')) th.push('<b>Dopamine:</b> wait 48–72 hours after stopping dopamine (the notes say at least 24–48 h)');
+  th.push('Reference serum values: 1–2 wk FT4 1.6–3.8 ng/dL, TSH 1.7–9.1 mU/L; 2–4 wk FT4 0.9–2.2 ng/dL, TSH 1.7–9.1 mU/L');
+  h+=item('Congenital hypothyroidism',true,th,special?status(14,21):status(2,4));
+  // Hearing
+  h+=item('Hearing',true,[hearRisk?'<b>Risk group (JCIH 2007):</b> OAE ± ABR before discharge':'<b>OAE</b> before discharge (all newborns)',DOB?winM(1,'1 · Screening'):'<b>1-3-6:</b> screening by 1 month',DOB?winM(3,'3 · Diagnosis'):'diagnosis by 3 months',DOB?winM(6,'6 · Treatment / hearing aids'):'treatment by 6 months'],'');
+  // CCHD
+  h+=item('Critical congenital heart disease',true,['<b>Pulse oximetry</b> before discharge (all newborns), right hand and foot. Use the box below.'],'');
+  // ROP
+  const rop=bw<1500||ga<30||(bw>=1500&&bw<=2000&&C('ropr'));
+  let rl=[];
+  if(rop){const d=ga<27?Math.max(28,Math.round((31-ga)*7)):28;rl.push(ga<27?`GA under 27 weeks: examine at <b>PMA 31 weeks</b>`:`GA 27 weeks or more: examine at <b>DOL 28</b>`);rl.push(win(d,d,'Eye exam by an ophthalmologist'))}
+  else rl.push('Criteria: BW &lt; 1500 g, GA &lt; 30 weeks, or BW 1500–2000 g with risk for ROP');
+  h+=item('Retinopathy of prematurity',rop,rl,rop?status(ga<27?Math.max(28,Math.round((31-ga)*7)):28,ga<27?Math.max(28,Math.round((31-ga)*7))+7:35):'');
+  // IVH
+  const ivh=bw<1500||ga<32;
+  h+=item('Intraventricular hemorrhage',ivh,ivh?['<b>Head ultrasound</b>',win(1,3,'1st'),win(7,10,'Repeat'),'After that, follow up according to the findings']:['Criteria: BW &lt; 1500 g or GA &lt; 32 weeks'],ivh?status(1,3):'');
+  // OOP
+  const oop=bw<1500||ga<28||C('tpn')||C('fort')||C('bone');
+  h+=item('Osteopenia of prematurity',oop,oop?['<b>Calcium, phosphate, ALP</b>',win(28,42,'4–6 weeks'),'If abnormal (high ALP, normal Ca, low phosphate): work up with 25(OH)D, PTH and films']:['Criteria: BW &lt; 1500 g, GA &lt; 28 weeks, TPN &gt; 4 weeks, cannot reach full fortified feeds, or bone-active medication'],oop?status(28,42):'');
+  // Anemia
+  const nad=pre?[28,56]:[56,84];
+  const iron=cw>0?`${Math.round(cw/1000*2*10)/10} mg/day at ${cw} g`:'enter the current weight for the dose';
+  h+=item('Anemia of prematurity / iron deficiency',true,[`<b>Hematocrit and reticulocyte count</b> around the physiologic nadir: ${pre?'preterm 4–8 weeks':'term 8–12 weeks'}`,win(nad[0],nad[1],'Nadir window'),`<b>Iron 2 mg/kg/day</b> (${iron})`,pre?(DOB?winM(1,'Start iron, preterm','from'):'Start iron at age 1 month (preterm), continue to 12 months'):(DOB?winM(4,'Start iron, term','from'):'Start iron at age 4 months (term)'),DOB?winM(12,'Screen for IDA','at'):'Screen for IDA at 12 months'],status(nad[0],nad[1]));
+  h+='</div></div>';
+  out.innerHTML=h;
+}
+function cchd(){
+  const a=parseFloat($('sh').value), b=parseFloat($('sf').value), o=$('cchd');
+  if(!(a>=0)||!(b>=0)||$('sh').value===''||$('sf').value===''){o.innerHTML='';return}
+  const mn=Math.min(a,b), diff=Math.abs(a-b);
+  let c,t,s;
+  if(mn<90){c='bad';t='Fail';s='SpO₂ under 90%: evaluate now (echo).'}
+  else if(mn>95&&diff<=3){c='ok';t='Pass';s=`Both above 95% and the difference is ${diff}% (3% or less).`}
+  else {c='warn';t='Repeat';s=`${mn<=95?'SpO₂ 90–95%':'Difference over 3%'}${mn<=95&&diff>3?' and difference over 3%':''}: repeat up to 2 times, 1 hour apart. If it still does not pass, treat as fail and evaluate (echo).`}
+  o.innerHTML=`<div class="stat ${c}">${t}<small>${s}</small></div>`;
+}
+document.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{calc();cchd()}));
+calc();
+</script></body></html>
