@@ -93,6 +93,8 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
   <label class="f"><span class="lb">or day of life</span><span class="inp"><input id="dolin" type="number" inputmode="numeric" min="0" max="400" step="1" placeholder="e.g. 15"><i>days</i></span></label>
  </div>
  <label class="f"><span class="lb">Current weight (optional)</span><span class="inp"><input id="cw" type="number" inputmode="decimal" min="0" step="10" placeholder="for iron dose"><i>g</i></span></label>
+ <label class="f"><span class="lb">Day full feeds reached (optional)</span><span class="inp"><input id="ffd" type="number" inputmode="numeric" min="0" step="1" placeholder="day of life"><i>DOL</i></span></label>
+ <div class="f"><span class="lb">Protocol</span><div class="seg" id="pr"><button class="opt" data-v="pcmc" aria-pressed="true">PCMC (hospital)</button><button class="opt" data-v="info" aria-pressed="false">Infographic</button></div></div>
  <div class="lb" id="dolnote"></div>
 </div></div>
 
@@ -110,7 +112,7 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
  <div id="cchd"></div>
 </div></div>
 
-<p class="foot">Reference aid only. Adapted from a newborn screening checklist infographic and teaching notes (Thai); check against your hospital's protocol. Dates are counted from the date of birth you enter, with 1 month taken as a calendar month.</p>
+<p class="foot">Reference aid only. PCMC protocol (revised neonatal guideline, p. 54) is the default; the infographic protocol is adapted from a newborn screening checklist and teaching notes (Thai). Check against your hospital protocol. Dates are counted from the date of birth you enter, with 1 month taken as a calendar month.</p>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -159,7 +161,13 @@ function calc(){
   let h='<div class="card"><h2>Checklist <small>'+(pre?'preterm':'term')+` · ${ga} wk · ${bw} g`+'</small></h2><div class="body">';
   // Thyroid
   let th=[];
-  if(special){
+  if(special&&PC()){
+    th.push('<b>TSH screening</b> at 48–72 hours (preterm, low birth weight, sick newborn or monozygotic twin)');
+    th.push(win(2,3,'48–72 hours'));
+    th.push('<b>Serum TSH + FT4</b> in the 3rd week');
+    th.push(win(14,21,'3rd week'));
+    if(pre&&bw<1000) th.push(win(Math.round((37-ga)*7),Math.round((37-ga)*7),'TSH + FT4 at PMA 37 weeks (ELBW)'));
+  } else if(special){
     th.push('<b>Serum FT4 + TSH</b> (not the heel-prick card): preterm, low birth weight, sick newborn or monozygotic twin');
     th.push(win(14,21,'1st (2–3 weeks)'));
     th.push(win(28,28,'2nd (4 weeks)'));
@@ -172,7 +180,7 @@ function calc(){
   if(C('mat')){th.push('<b>Maternal autoimmune thyroid disease:</b> serum FT4 + TSH at <b>72 hours</b> after birth, instead of waiting for the card result');th.push(win(3,3,'72 hours'))}
   if(C('dopa')) th.push('<b>Dopamine:</b> wait 48–72 hours after stopping dopamine (the notes say at least 24–48 h)');
   th.push('Reference serum values: 1–2 wk FT4 1.6–3.8 ng/dL, TSH 1.7–9.1 mU/L; 2–4 wk FT4 0.9–2.2 ng/dL, TSH 1.7–9.1 mU/L');
-  h+=item('Congenital hypothyroidism',true,th,special?status(14,21):status(2,4));
+  h+=item('Congenital hypothyroidism',true,th,special?(PC()?status(2,3):status(14,21)):status(2,4));
   // Hearing
   h+=item('Hearing',true,[hearRisk?'<b>Risk group (JCIH 2007):</b> OAE ± ABR before discharge':'<b>OAE</b> before discharge (all newborns)',DOB?winM(1,'1 · Screening'):'<b>1-3-6:</b> screening by 1 month',DOB?winM(3,'3 · Diagnosis'):'diagnosis by 3 months',DOB?winM(6,'6 · Treatment / hearing aids'):'treatment by 6 months'],'');
   // CCHD
@@ -180,26 +188,28 @@ function calc(){
   // ROP
   const rop=bw<1500||ga<30||(bw>=1500&&bw<=2000&&C('ropr'));
   let rl=[];
-  if(rop){const d=ga<27?Math.max(28,Math.round((31-ga)*7)):28;rl.push(ga<27?`GA under 27 weeks: examine at <b>PMA 31 weeks</b>`:`GA 27 weeks or more: examine at <b>DOL 28</b>`);rl.push(win(d,d,'Eye exam by an ophthalmologist'))}
+  if(rop){const d=ga<27?Math.max(28,Math.round((31-ga)*7)):28;rl.push(PC()?'<b>DOL 28 or PMA ≥ 31 weeks</b>, whichever is later':(ga<27?`GA under 27 weeks: examine at <b>PMA 31 weeks</b>`:`GA 27 weeks or more: examine at <b>DOL 28</b>`));rl.push(win(d,d,'Eye exam by an ophthalmologist'))}
   else rl.push('Criteria: BW &lt; 1500 g, GA &lt; 30 weeks, or BW 1500–2000 g with risk for ROP');
   h+=item('Retinopathy of prematurity',rop,rl,rop?status(ga<27?Math.max(28,Math.round((31-ga)*7)):28,ga<27?Math.max(28,Math.round((31-ga)*7))+7:35):'');
   // IVH
   const ivh=bw<1500||ga<32;
-  h+=item('Intraventricular hemorrhage',ivh,ivh?['<b>Head ultrasound</b>',win(1,3,'1st'),win(7,10,'Repeat'),'After that, follow up according to the findings']:['Criteria: BW &lt; 1500 g or GA &lt; 32 weeks'],ivh?status(1,3):'');
+  h+=item('Intraventricular hemorrhage',ivh,ivh?(PC()?['<b>Head ultrasound</b>',win(0,3,'DOL 0–3 (IVH)'),win(7,10,'DOL 7–10 (IVH)'),win(28,30,'DOL 28–30 (PVL)')]:['<b>Head ultrasound</b>',win(1,3,'1st'),win(7,10,'Repeat'),'After that, follow up according to the findings']):['Criteria: BW &lt; 1500 g or GA &lt; 32 weeks'],ivh?(PC()?status(0,3):status(1,3)):'');
   // OOP
   const oop=bw<1500||ga<28||C('tpn')||C('fort')||C('bone');
-  h+=item('Osteopenia of prematurity',oop,oop?['<b>Calcium, phosphate, ALP</b>',win(28,42,'4–6 weeks'),'If abnormal (high ALP, normal Ca, low phosphate): work up with 25(OH)D, PTH and films']:['Criteria: BW &lt; 1500 g, GA &lt; 28 weeks, TPN &gt; 4 weeks, cannot reach full fortified feeds, or bone-active medication'],oop?status(28,42):'');
+  h+=item('Osteopenia of prematurity',oop,oop?(PC()?['<b>Calcium, phosphate, ALP</b> 1 week after full feeds (about week 3 of life)',(()=>{const f=FFD();return f!=null?win(f+7,f+7,'Full feeds on DOL '+f+' + 1 week'):win(14,21,'About week 3')})(),'Normal twice (ALP &lt; 500, Ca 8–10, PO₄ 4–8): no more labs','Abnormal (ALP &gt; 500): recalculate the milk and add Ca (milk + Ca tab) 180–220 mg/kg/day'+(cw>0?` = ${Math.round(cw/1000*180)}–${Math.round(cw/1000*220)} mg/day at ${cw} g`:'')]:['<b>Calcium, phosphate, ALP</b>',win(28,42,'4–6 weeks'),'If abnormal (high ALP, normal Ca, low phosphate): work up with 25(OH)D, PTH and films']):['Criteria: BW &lt; 1500 g, GA &lt; 28 weeks, TPN &gt; 4 weeks, cannot reach full fortified feeds, or bone-active medication'],oop?(PC()?(FFD()!=null?status(FFD()+7,FFD()+7):status(14,21)):status(28,42)):'');
   // Anemia
-  const nad=pre?[28,56]:[56,84];
+  const nad=pre?(PC()?[21,28]:[28,56]):[56,84];
   const iron=cw>0?`${Math.round(cw/1000*2*10)/10} mg/day at ${cw} g`:'enter the current weight for the dose';
-  h+=item('Anemia of prematurity / iron deficiency',true,[`<b>Hematocrit and reticulocyte count</b> around the physiologic nadir: ${pre?'preterm 4–8 weeks':'term 8–12 weeks'}`,win(nad[0],nad[1],'Nadir window'),`<b>Iron 2 mg/kg/day</b> (${iron})`,pre?(DOB?winM(1,'Start iron, preterm','from'):'Start iron at age 1 month (preterm), continue to 12 months'):(DOB?winM(4,'Start iron, term','from'):'Start iron at age 4 months (term)'),DOB?winM(12,'Screen for IDA','at'):'Screen for IDA at 12 months'],status(nad[0],nad[1]));
+  h+=item('Anemia of prematurity / iron deficiency',true,[`<b>Hematocrit and reticulocyte count</b> ${pre&&PC()?'at 3–4 weeks of life':`around the physiologic nadir: ${pre?'preterm 4–8 weeks':'term 8–12 weeks'}`}`,win(nad[0],nad[1],pre&&PC()?'Window':'Nadir window'),`<b>Iron 2 mg/kg/day</b> (${iron})`,pre?(DOB?winM(1,'Start iron, preterm','from'):'Start iron at age 1 month (preterm), continue to 12 months'):(DOB?winM(4,'Start iron, term','from'):'Start iron at age 4 months (term)'),DOB?winM(12,'Screen for IDA','at'):'Screen for IDA at 12 months'],status(nad[0],nad[1]));
   h+='</div></div>';
   out.innerHTML=view==='tl'?timelineHTML(ga,bw,cw):h;
 }
 
 // ---- timeline ----
 const COL={thy:['#E8833A','Thyroid'],hear:['#8E44AD','Hearing'],cchd:['#D6336C','Heart'],rop:['#2F9E44','Eye'],ivh:['#1C7ED6','Brain'],oop:['#D9A400','Bone'],anem:['#7F8C8D','Blood']};
-let view='tl', done={};
+let view='tl', done={}, proto='pcmc';
+const PC=()=>proto==='pcmc';
+const FFD=()=>{const v=$('ffd').value;return v===''?null:Math.max(0,Math.round(parseFloat(v)))};
 function mdays(m){return DOB?Math.round((addMonths(DOB,m)-DOB)/864e5):Math.round(m*30.44)}
 function events(ga,bw,cw){
   const pre=ga<37, special=pre||bw<2500||C('sick')||C('mono'), E=[], L=[];
@@ -209,32 +219,36 @@ function events(ga,bw,cw){
   L.push({id:'cchd',k:'cchd',title:'Pulse oximetry (CCHD)',x:'All newborns, right hand and foot; use the calculator below'});
   if(C('dopa')) L.push({id:'dopa',k:'thy',title:'Thyroid after dopamine',x:'Serum FT4 + TSH 48–72 h after stopping dopamine (notes: at least 24–48 h)'});
   // thyroid
-  if(special){E.push({id:'thy1',k:'thy',title:'Serum FT4 + TSH (1st)',x:'Preterm, LBW, sick or monozygotic twin; instead of the heel-prick card',a:14,b:21});
+  if(special&&PC()){E.push({id:'thy0',k:'thy',title:'TSH screening (48–72 h)',x:'Preterm, LBW, sick or monozygotic twin',a:2,b:3});
+    E.push({id:'thy1',k:'thy',title:'Serum TSH + FT4 (3rd week)',a:14,b:21});
+    if(pre&&bw<1000){const d=Math.round((37-ga)*7);E.push({id:'thy3',k:'thy',title:'TSH + FT4 (PMA 37 weeks, ELBW)',a:d,b:d})}}
+  else if(special){E.push({id:'thy1',k:'thy',title:'Serum FT4 + TSH (1st)',x:'Preterm, LBW, sick or monozygotic twin; instead of the heel-prick card',a:14,b:21});
     E.push({id:'thy2',k:'thy',title:'Serum FT4 + TSH (2nd)',a:28,b:28});
     if(pre){const d=Math.round((37-ga)*7);E.push({id:'thy3',k:'thy',title:'Serum FT4 + TSH (3rd, PMA 37 weeks)',a:d,b:d})}}
   else E.push({id:'thy0',k:'thy',title:'National TSH screening (heel prick)',x:'48–96 h after birth',a:2,b:4});
   if(C('mat')) E.push({id:'thym',k:'thy',title:'Serum FT4 + TSH at 72 h',x:'Maternal autoimmune thyroid disease',a:3,b:3});
   E.push({id:'h1',k:'hear',title:'Hearing screening done (1 month)',a:mdays(1),b:mdays(1),by:true});
   // ROP
-  if(bw<1500||ga<30||(bw<=2000&&C('ropr'))){const d=ga<27?Math.max(28,Math.round((31-ga)*7)):28;E.push({id:'rop',k:'rop',title:'ROP eye exam (ophthalmologist)',x:ga<27?'GA < 27 weeks: PMA 31 weeks':'GA ≥ 27 weeks: DOL 28',a:d,b:d})}
-  if(bw<1500||ga<32){E.push({id:'ivh1',k:'ivh',title:'Head ultrasound (1st)',a:1,b:3});E.push({id:'ivh2',k:'ivh',title:'Head ultrasound (repeat)',a:7,b:10})}
-  if(bw<1500||ga<28||C('tpn')||C('fort')||C('bone')) E.push({id:'oop',k:'oop',title:'Calcium, phosphate, ALP',a:28,b:42});
-  const nad=pre?[28,56]:[56,84];
-  E.push({id:'hct',k:'anem',title:'Hematocrit + reticulocyte count',x:(pre?'Preterm nadir 4–8 weeks':'Term nadir 8–12 weeks'),a:nad[0],b:nad[1]});
+  if(bw<1500||ga<30||(bw<=2000&&C('ropr'))){const d=ga<27?Math.max(28,Math.round((31-ga)*7)):28;E.push({id:'rop',k:'rop',title:'ROP eye exam (ophthalmologist)',x:PC()?'DOL 28 or PMA ≥ 31 weeks, whichever is later':(ga<27?'GA < 27 weeks: PMA 31 weeks':'GA ≥ 27 weeks: DOL 28'),a:d,b:d})}
+  if(bw<1500||ga<32){if(PC()){E.push({id:'ivh1',k:'ivh',title:'Head ultrasound (IVH)',a:0,b:3});E.push({id:'ivh2',k:'ivh',title:'Head ultrasound (IVH)',a:7,b:10});E.push({id:'ivh3',k:'ivh',title:'Head ultrasound (PVL)',a:28,b:30})} else {E.push({id:'ivh1',k:'ivh',title:'Head ultrasound (1st)',a:1,b:3});E.push({id:'ivh2',k:'ivh',title:'Head ultrasound (repeat)',a:7,b:10})}}
+  if(bw<1500||ga<28||C('tpn')||C('fort')||C('bone')) {const f=FFD(),ow=PC()?(f!=null?[f+7,f+7]:[14,21]):[28,42];E.push({id:'oop',k:'oop',title:PC()?'Calcium, phosphate, ALP (1 week after full feeds)':'Calcium, phosphate, ALP',x:PC()?'Normal twice (ALP < 500, Ca 8–10, PO₄ 4–8): no more labs':undefined,a:ow[0],b:ow[1]});}
+  const nad=pre?(PC()?[21,28]:[28,56]):[56,84];
+  E.push({id:'hct',k:'anem',title:'Hematocrit + reticulocyte count',x:(pre?(PC()?'3–4 weeks of life':'Preterm nadir 4–8 weeks'):'Term nadir 8–12 weeks'),a:nad[0],b:nad[1]});
   const im=pre?1:4;
   E.push({id:'fe',k:'anem',title:`Start iron 2 mg/kg/day${cw>0?' ('+Math.round(cw/1000*2*10)/10+' mg/day)':''}`,x:pre?'Preterm: from 1 month, continue to 12 months':'Term: from 4 months',a:mdays(im),b:mdays(im),from:true});
   E.push({id:'ida',k:'anem',title:'Screen for iron deficiency anemia',x:'12 months',a:mdays(12),b:mdays(12)});
   E.sort((p,q)=>p.a-q.a||p.b-q.b);
   return {E,L};
 }
-const HOSTS={oae:'Not passed',thy0:'TSH > 25 mU/L',oop:'Abnormal',ivh1:'Abnormal',ivh2:'Abnormal'};
+const HOSTS={oae:'Not passed',thy0:'TSH > 25 mU/L',oop:'Abnormal',ivh1:'Abnormal',ivh2:'Abnormal',ivh3:'Abnormal'};
 let flags={};
+const cwG=()=>parseFloat($('cw').value)||0;
 function kidsOf(id){
   if(!flags[id])return [];
   const nowD=Math.max(DOL==null?0:DOL,0);
   if(id==='oae')return [{id:'h3',k:'hear',title:'Hearing diagnosis, audiology (3 months)',a:mdays(3),b:mdays(3),by:true},{id:'h6',k:'hear',title:'Treatment / hearing aids (6 months)',a:mdays(6),b:mdays(6),by:true}];
   if(id==='thy0')return [{id:'tshx',k:'thy',title:'Recall: serum FT4 + TSH to confirm',a:nowD,b:nowD,imm:true}];
-  if(id==='oop')return [{id:'oopx',k:'oop',title:'25(OH)D, PTH and films',a:nowD,b:nowD,imm:true}];
+  if(id==='oop')return [{id:'oopx',k:'oop',title:PC()?'Recalculate milk and add Ca (milk + Ca tab) 180–220 mg/kg/day'+(cwG()>0?` (${Math.round(cwG()/1000*180)}–${Math.round(cwG()/1000*220)} mg/day)`:''):'25(OH)D, PTH and films',a:nowD,b:nowD,imm:true}];
   return [{id:id+'x',k:'ivh',title:'Follow-up head ultrasound by the findings',a:nowD,b:nowD,imm:true}];
 }
 function stat(e){
@@ -276,6 +290,7 @@ function cchd(){
 }
 document.querySelectorAll('input').forEach(i=>i.addEventListener('input',()=>{calc();cchd()}));
 $('out').addEventListener('change',e=>{const d=e.target.dataset||{};if(d.d){done[d.d]=e.target.checked;calc()}else if(d.a){flags[d.a]=e.target.checked;calc()}});
+document.querySelectorAll('#pr .opt').forEach(b=>b.onclick=()=>{proto=b.dataset.v;document.querySelectorAll('#pr .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));calc()});
 document.querySelectorAll('#vw .opt').forEach(b=>b.onclick=()=>{view=b.dataset.v;document.querySelectorAll('#vw .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));calc()});
 calc();
 </script></body></html>
