@@ -228,7 +228,7 @@ function calc(){
   const f=x=>W?String(r1(x)):'__';
   const tail=`in TPN volume ${f(tpnV)} ml IV drip rate ${f(rate)} ml/hr x 24 hr`;
   const L=[];
-  L.push(`SW ${f(water)} ml ${tail}`);
+  if(water>=0.05) L.push(`SW ${f(water)} ml ${tail}`);
   L.push(`10%Aminoven ${f(aaV)} ml ${tail}`);
   L.push(`50%Glucose ${f(d50)} ml ${tail} (GIR ${r1(gir)})`);
   if(naNaCl>0) L.push(`3%NaCl ${f(naV)} ml ${tail}`);
@@ -273,7 +273,9 @@ function calc(){
   </div></div>`;
   const noteCard=`<div class="card"><h2>Volume note <small><button class="btn" id="cp3">Copy</button></small></h2><div class="body"><div class="rep">${nt.split('\n').map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   const sumCard=`<div class="card"><h2>Summary <small><button class="btn" id="cp2">Copy</button></small></h2><div class="body"><table class="sm">${S.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div></div>`;
-  h=orderCard+noteCard+sumCard+h;
+  const tpnOn=true;
+  const swWarn=(W&&water<-0.04&&tpnOn)?`<div class="note bad" style="margin-top:14px"><b>No room for sterile water.</b> The additives add up to ${r1(-water)} ml more than the ${f(tpnV)} ml bag, so the SW line is left out and the bag would be slightly overfilled. ${water+2.4>=0?`Fix: raise the rate to ${r1(rate+0.1)} ml/hr (bag ${r1((rate+0.1)*24)} ml, SW would be ${r1(water+2.4)} ml), or lower the GIR / sodium / other doses a little.`:'Fix: lower the GIR or other doses, or give more IV volume. Raising the rate by 0.1 is not enough.'}</div>`:'';
+  h=swWarn+orderCard+noteCard+sumCard+h;
   $('out').innerHTML=h;
   [['cp',txt],['cp2',stxt],['cp3',nt]].forEach(([i,t])=>{$(i).onclick=()=>{try{navigator.clipboard.writeText(t);$(i).textContent='Copied'}catch(e){}setTimeout(()=>{if($(i))$(i).textContent='Copy'},1200)}});
 }
