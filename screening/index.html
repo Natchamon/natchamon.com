@@ -89,9 +89,10 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
   <label class="f"><span class="lb">Birth weight</span><span class="inp"><input id="bw" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 1400"><i>g</i></span></label>
  </div>
  <div class="g2">
-  <label class="f"><span class="lb">Date of birth (optional)</span><span class="inp"><input id="dob" type="date" style="text-align:left"></span></label>
-  <label class="f"><span class="lb">Current weight (optional)</span><span class="inp"><input id="cw" type="number" inputmode="decimal" min="0" step="10" placeholder="for iron dose"><i>g</i></span></label>
+  <label class="f"><span class="lb">Date of birth</span><span class="inp"><input id="dob" type="date" style="text-align:left"></span></label>
+  <label class="f"><span class="lb">or day of life</span><span class="inp"><input id="dolin" type="number" inputmode="numeric" min="0" max="400" step="1" placeholder="e.g. 15"><i>days</i></span></label>
  </div>
+ <label class="f"><span class="lb">Current weight (optional)</span><span class="inp"><input id="cw" type="number" inputmode="decimal" min="0" step="10" placeholder="for iron dose"><i>g</i></span></label>
  <div class="lb" id="dolnote"></div>
 </div></div>
 
@@ -147,8 +148,9 @@ function winM(m,label,w){ w=w||'by'; // by month
 function item(name,applies,lines,chip){return `<div class="item"><div><b>${name}</b><span class="chip ${applies?'yes':'no'}">${applies?'applies':'not indicated'}</span>${chip||''}</div>${lines.map(l=>`<div class="s">${l}</div>`).join('')}</div>`}
 function calc(){
   const ga=parseFloat($('ga').value), bw=parseFloat($('bw').value), cw=parseFloat($('cw').value);
-  DOB=parseDob(); DOL=DOB?Math.round((today()-DOB)/864e5):null;
-  $('dolnote').textContent=DOB?(DOL>=0?`Today is day of life ${DOL}${ga>0?` · PMA ${(ga+DOL/7).toFixed(1)} wk`:''}`:'Date of birth is in the future'):'Add a date of birth to see calendar dates and what is due now.';
+  DOB=parseDob(); const dli=$('dolin').value===''?null:Math.max(0,Math.round(parseFloat($('dolin').value))); let src='';
+  if(DOB){DOL=Math.round((today()-DOB)/864e5);src='dob'} else if(dli!=null){DOL=dli;DOB=addDays(today(),-dli);src='dol'} else DOL=null;
+  $('dolnote').textContent=DOL!=null?(DOL>=0?`Day of life ${DOL}${ga>0?` · PMA ${(ga+DOL/7).toFixed(1)} wk`:''}${src==='dol'?' · born '+fmt(DOB):''}${src==='dob'&&dli!=null?' · using the date of birth':''}`:'Date of birth is in the future'):'Add a date of birth or the day of life to see calendar dates and what is due now.';
   const out=$('out');
   if(!(ga>0)||!(bw>0)){out.innerHTML='<div class="note info" style="margin-top:14px">Enter gestational age and birth weight to see what applies.</div>';return}
   const pre=ga<37, lbw=bw<2500, vlbw=bw<1500;
@@ -240,7 +242,7 @@ function stat(e){
   if(e.by||e.from){ if(DOL>e.a)return e.by?'<span class="chip late">window passed</span>':'<span class="chip due">started</span>'; return e.a-DOL<=14?'<span class="chip due">due soon</span>':`<span class="chip soon">in ${e.a-DOL} d</span>`}
   return status(e.a,e.b)}
 function dateTxt(e){
-  if(e.imm&&!DOB)return 'Follow-up now (add a date of birth for the date)';
+  if(e.imm&&!DOB)return 'Follow-up now (add a date of birth or day of life for the date)';
   const dl=e.a===e.b?`DOL ${e.a}`:`DOL ${e.a}–${e.b}`;
   const w=e.by?'by ':e.from?'from ':'';
   if(!DOB)return w+dl;
@@ -255,7 +257,7 @@ function timelineHTML(ga,bw,cw){
     const now=ALL.filter(isNow), next=ALL.filter(e=>!done[e.id]&&e.a>DOL&&!isNow(e)).slice(0,3);
     const row=e=>`<div class="sumrow" style="--c:${COL[e.k][0]}"><i></i><b>${e.title}</b> <span style="color:var(--ink-2)">${dateTxt(e)}</span></div>`;
     h+=`<div class="card"><h2>Today <small>day of life ${DOL}</small></h2><div class="body"><div class="grp">Due now</div>${now.length?now.map(row).join(''):'<div class="sumrow" style="color:var(--ink-2)">Nothing in a window today.</div>'}<div class="grp" style="margin-top:6px">Next up</div>${next.length?next.map(row).join(''):'<div class="sumrow" style="color:var(--ink-2)">Nothing further scheduled.</div>'}</div></div>`;
-  } else h+='<div class="note info" style="margin-top:14px">Add the date of birth to see real dates, a Today marker and what is due now.</div>';
+  } else h+='<div class="note info" style="margin-top:14px">Add the date of birth or day of life to see real dates, a Today marker and what is due now.</div>';
   h+=`<div class="card"><h2>Before discharge</h2><div class="body"><div class="tl">${L.map(evHTML).join('')}</div></div></div>`;
   let parts=[], placed=false;
   E.forEach(e=>{ if(DOL!=null&&DOL>=0&&!placed&&e.a>DOL){parts.push(`<div class="now">Today · DOL ${DOL}</div>`);placed=true} parts.push(evHTML(e)) });
