@@ -56,6 +56,7 @@ tr.sel td:first-child{font-weight:600}
 .ing td:last-child{font-weight:600}
 .ing tr.tot td{background:var(--soft)}
 .chk{display:grid;gap:6px}
+.sm td:first-child{color:var(--ink-2);width:40%}.sm td:last-child{text-align:left;font-weight:500}.sm td{text-align:left;vertical-align:top}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Neonatal TPN<small>Parenteral nutrition order from the PCMC protocol · doses per kg → volumes, rates and energy</small></h1></header>
@@ -214,32 +215,44 @@ function calc(){
   if(risk.sga&&day<3) info('SGA: watch for refeeding syndrome, consider phosphate from DOL 2.');
   info('Trace element: Addamel N 0.2 mL/kg/day (shown) or Peditrace 1 mL/kg/day per protocol. Monitor capillary glucose 60–145 mg/dL; keep serum K 4.5–6, Ca 8–10, P 4.5–7.');
   h+=`<div class="card"><h2>Checks</h2><div class="body chk">${C.join('')}</div></div>`;
-  // order text
+  // order text, one line per item in the hospital EMR wording
+  const f=x=>W?String(r1(x)):'__';
+  const tail=`in TPN volume ${f(tpnV)} ml IV drip rate ${f(rate)} ml/hr x 24 hr`;
   const L=[];
-  L.push(`TPN (${line==='C'?'central':'peripheral'}) ${W?r0(kg*1000)+' g, ':''}DOL ${day}${day===7?'+':''}`);
-  L.push(`TPN rate ${W?r1(rate):'__'} ml/hr (${W?r0(tpnV):'__'} ml/24 h), final glucose ${W?r1(fin):'__'}%, GIR ${r1(gir)} mg/kg/min`);
-  L.push(`Sterile water ${W?r1(water):'__'} ml, 10% Aminoven ${W?r1(aaV):'__'} ml (${r2(aa)} g/kg), 50% dextrose ${W?r1(d50):'__'} ml`);
-  const m=[];
-  if(naNaCl>0) m.push(`3% NaCl ${W?r1(naV):'__'} ml`);
-  if(kclE>0) m.push(`KCl ${W?r1(kclV):'__'} ml`);
-  if(kpE>0) m.push(`K2PO4 ${W?r1(kpE):'__'} ml`);
-  if(ca>0) m.push(`10% Ca gluconate ${W?r1(caV):'__'} ml`);
-  if(gly>0) m.push(`Glycophos ${r1(glyV)} ml`);
-  if(nac>0) m.push(`Na acetate ${r1(nacV)} ml`);
-  if(mg>0) m.push(`50% MgSO4 ${r1(mgV)} ml`);
-  if(zn>0) m.push(`ZnSO4 ${r1(znV)} ml`);
-  if(sol>0) m.push(`Soluvit N ${r1(solV)} ml`);
-  if(ped>0) m.push(`Peditrace ${r1(pedV)} ml`);
-  m.push('OMVI 2 ml',...(ped>0?[]:[`Addamel ${W?r1(add):'__'} ml`]),`Heparin ${W?r1(hepU):'__'} U`);
-  L.push(m.join(', '));
-  if(lip>0) L.push(`20% SMOF ${W?r1(lipV):'__'} ml drip 24 h (${W?r1(lipRate):'__'} ml/hr, ${r2(lip)} g/kg)`);
-  if(mk>0) L.push(`Milk ${r0(mk)} ml/kg/day`);
-  L.push(`Osmolarity ${W?r0(osm):'__'} mOsm/L, NPC:AA ${aa>0?r0(npc):'–'}`);
-  L.push(`Total volume ${r0(ivKg)} ml/kg/d (TPN+lipid), energy ${r1(eTot)} kcal/kg/d`);
+  L.push(`SW ${f(water)} ml ${tail}`);
+  L.push(`10%Aminoven ${f(aaV)} ml ${tail}`);
+  L.push(`50%Glucose ${f(d50)} ml ${tail} (GIR ${r1(gir)})`);
+  if(naNaCl>0) L.push(`3%NaCl ${f(naV)} ml ${tail}`);
+  if(gly>0) L.push(`Glycophos ${f(glyV)} ml ${tail}`);
+  if(nac>0) L.push(`Na acetate ${f(nacV)} ml ${tail}`);
+  if(kclE>0) L.push(`KCl ${f(kclV)} ml ${tail}`);
+  if(kpE>0) L.push(`K2HPO4 ${f(kpE)} ml ${tail}`);
+  if(ca>0) L.push(`10% calcium gluconate ${f(caV)} ml ${tail}`);
+  if(mg>0) L.push(`50%MgSO4 ${f(mgV)} ml ${tail}`);
+  if(zn>0) L.push(`ZnSO4 ${f(znV)} ml ${tail}`);
+  L.push(`OMVI 2 ml ${tail}`);
+  if(sol>0) L.push(`Soluvit N ${f(solV)} ml ${tail}`);
+  if(ped>0) L.push(`Peditrace ${f(pedV)} ml ${tail}`);
+  else L.push(`Addamel ${f(add)} ml ${tail}`);
+  L.push(`Heparin ${W?r0(hepU):'__'} U ${tail}`);
+  if(lip>0) L.push(`20%SMOF ${f(lipV)} ml IV drip in 24 hours (${r2(lip)} g/kg/day)`);
+  L.push('DTX 1 hr หลังจากเปลี่ยน TPN; keep 60-150');
   const txt=L.join('\n');
-  h+=`<div class="card"><h2>Order <small><button class="btn" id="cp">Copy</button></small></h2><div class="body"><div class="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
+  const S=[
+   ['Line',line==='C'?'Central':'Peripheral'],
+   ['TPN',`${f(rate)} ml/hr · ${f(tpnV)} ml/24 h`],
+   ['Lipid',lip>0?`${f(lipRate)} ml/hr · ${f(lipV)} ml/24 h`:'none'],
+   ['Total volume',`${r0(ivKg)} ml/kg/d (TPN + lipid)${mk>0?` + milk ${r0(mk)}`:''}`],
+   ['GIR / final glucose',`${r1(gir)} mg/kg/min · ${f(fin)}%`],
+   ['Protein / lipid',`${r2(aa)} / ${r2(lip)} g/kg/d`],
+   ['Na / K / Ca',`${r1(na)} mEq · ${r1(kt)} mEq · ${r1(ca)} mmol /kg/d`],
+   ['Energy',`${r1(eTot)} kcal/kg/d · NPC:AA ${aa>0?r0(npc):'–'}`],
+   ['Osmolarity',`${W?r0(osm):'__'} mOsm/L (limit ${osmMax})`]];
+  const stxt=`TPN DOL ${day}${day===7?'+':''}${W?', '+r0(kg*1000)+' g':''}\n`+S.map(x=>x[0]+': '+x[1]).join('\n');
+  h+=`<div class="card"><h2>Summary <small><button class="btn" id="cp2">Copy</button></small></h2><div class="body"><table class="sm">${S.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div></div>`;
+  h+=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body"><div class="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   $('out').innerHTML=h;
-  $('cp').onclick=()=>{try{navigator.clipboard.writeText(txt);$('cp').textContent='Copied'}catch(e){}setTimeout(()=>{if($('cp'))$('cp').textContent='Copy'},1200)};
+  [['cp',txt],['cp2',stxt]].forEach(([i,t])=>{$(i).onclick=()=>{try{navigator.clipboard.writeText(t);$(i).textContent='Copied'}catch(e){}setTimeout(()=>{if($(i))$(i).textContent='Copy'},1200)}});
 }
 document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;seg('gest',v=>v===gest);suggest()});
 document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{day=+b.dataset.v;seg('day',v=>+v===day);suggest()});
