@@ -231,15 +231,16 @@ function kidsOf(id){
   if(!flags[id])return [];
   const nowD=Math.max(DOL==null?0:DOL,0);
   if(id==='oae')return [{id:'h3',k:'hear',title:'Hearing diagnosis, audiology (3 months)',a:mdays(3),b:mdays(3),by:true},{id:'h6',k:'hear',title:'Treatment / hearing aids (6 months)',a:mdays(6),b:mdays(6),by:true}];
-  if(id==='thy0')return [{id:'tshx',k:'thy',title:'Recall: serum FT4 + TSH to confirm',a:nowD,b:nowD}];
-  if(id==='oop')return [{id:'oopx',k:'oop',title:'25(OH)D, PTH and films',a:nowD,b:nowD}];
-  return [{id:id+'x',k:'ivh',title:'Follow-up head ultrasound by the findings',a:nowD,b:nowD}];
+  if(id==='thy0')return [{id:'tshx',k:'thy',title:'Recall: serum FT4 + TSH to confirm',a:nowD,b:nowD,imm:true}];
+  if(id==='oop')return [{id:'oopx',k:'oop',title:'25(OH)D, PTH and films',a:nowD,b:nowD,imm:true}];
+  return [{id:id+'x',k:'ivh',title:'Follow-up head ultrasound by the findings',a:nowD,b:nowD,imm:true}];
 }
 function stat(e){
   if(DOL==null)return '';
   if(e.by||e.from){ if(DOL>e.a)return e.by?'<span class="chip late">window passed</span>':'<span class="chip due">started</span>'; return e.a-DOL<=14?'<span class="chip due">due soon</span>':`<span class="chip soon">in ${e.a-DOL} d</span>`}
   return status(e.a,e.b)}
 function dateTxt(e){
+  if(e.imm&&!DOB)return 'Follow-up now (add a date of birth for the date)';
   const dl=e.a===e.b?`DOL ${e.a}`:`DOL ${e.a}–${e.b}`;
   const w=e.by?'by ':e.from?'from ':'';
   if(!DOB)return w+dl;
