@@ -57,8 +57,12 @@ tr.sel td:first-child{font-weight:600}
 .ing tr.tot td{background:var(--soft)}
 .chk{display:grid;gap:6px}
 .bagh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.bagh div{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:8px 10px}.bagh span{display:block;font-size:12px;color:var(--ink-2)}.bagh b{font:600 17px var(--f-head);font-variant-numeric:tabular-nums}
-.ord td{padding:9px 4px;font-size:15px}.ord td:last-child{font:600 16px var(--f-head);white-space:nowrap}.ord tr:nth-child(even) td{background:var(--soft)}
-.oth{display:grid;gap:6px}.oth div{border-left:3px solid var(--accent);padding:4px 10px;font-size:14px}
+.ord{border-collapse:separate;border-spacing:0 10px}
+.ord td{padding:14px 12px;font-size:16px;font-weight:600;border:0;background:var(--soft)}
+.ord td:first-child{border-radius:10px 0 0 10px;border-left:4px solid var(--accent)}
+.ord td:last-child{text-align:right;border-radius:0 10px 10px 0;white-space:nowrap;font:600 18px var(--f-head);color:var(--accent)}
+.ord td:last-child b{background:var(--accent-soft);border:1px solid var(--accent);border-radius:8px;padding:4px 10px;font-weight:600}
+.oth{display:grid;gap:12px}.oth div{border-left:4px solid var(--accent);background:var(--soft);border-radius:0 10px 10px 0;padding:12px 12px;font-size:15px;font-weight:500}
 .sm td:first-child{color:var(--ink-2);width:40%}.sm td:last-child{text-align:left;font-weight:500}.sm td{text-align:left;vertical-align:top}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
@@ -263,7 +267,7 @@ function calc(){
     if(m) bag.push([m[1]+(m[4]?' <span class="hint">'+m[4]+'</span>':''),m[2]+' '+m[3]]); else oth.push(x)});
   const orderCard=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body">
    <div class="bagh"><div><span>TPN volume</span><b>${f(tpnV)} ml</b></div><div><span>Rate</span><b>${f(rate)} ml/hr</b></div><div><span>Duration</span><b>24 hr</b></div></div>
-   <table class="ord">${bag.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+   <table class="ord">${bag.map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join('')}</table>
    ${oth.length?`<div class="oth">${oth.map(x=>`<div>${x}</div>`).join('')}</div>`:''}
   </div></div>`;
   const noteCard=`<div class="card"><h2>Volume note <small><button class="btn" id="cp3">Copy</button></small></h2><div class="body"><div class="rep">${nt.split('\n').map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
