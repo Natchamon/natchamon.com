@@ -56,6 +56,9 @@ tr.sel td:first-child{font-weight:600}
 .ing td:last-child{font-weight:600}
 .ing tr.tot td{background:var(--soft)}
 .chk{display:grid;gap:6px}
+.bagh{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.bagh div{background:var(--accent-soft);border:1px solid var(--accent);border-radius:10px;padding:8px 10px}.bagh span{display:block;font-size:12px;color:var(--ink-2)}.bagh b{font:600 17px var(--f-head);font-variant-numeric:tabular-nums}
+.ord td{padding:9px 4px;font-size:15px}.ord td:last-child{font:600 16px var(--f-head);white-space:nowrap}.ord tr:nth-child(even) td{background:var(--soft)}
+.oth{display:grid;gap:6px}.oth div{border-left:3px solid var(--accent);padding:4px 10px;font-size:14px}
 .sm td:first-child{color:var(--ink-2);width:40%}.sm td:last-child{text-align:left;font-weight:500}.sm td{text-align:left;vertical-align:top}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
@@ -254,9 +257,18 @@ function calc(){
    ['Energy',`${r1(eTot)} kcal/kg/d · NPC:AA ${aa>0?r0(npc):'–'}`],
    ['Osmolarity',`${W?r0(osm):'__'} mOsm/L (limit ${osmMax})`]];
   const stxt=`TPN DOL ${day}${day===7?'+':''}${W?', '+r0(kg*1000)+' g':''}\n`+S.map(x=>x[0]+': '+x[1]).join('\n');
-  h+=`<div class="card"><h2>Summary <small><button class="btn" id="cp2">Copy</button></small></h2><div class="body"><table class="sm">${S.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div></div>`;
-  h+=`<div class="card"><h2>Volume note <small><button class="btn" id="cp3">Copy</button></small></h2><div class="body"><div class="rep">${nt.split('\n').map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
-  h+=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body"><div class="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
+  // on-screen layout: ingredients as a table, other orders as plain lines
+  const bag=[], oth=[];
+  L.forEach(x=>{const m=x.match(/^(.*?) ([\d.]+|__) (ml|U) in TPN volume .*?(\(GIR [^)]*\))?$/);
+    if(m) bag.push([m[1]+(m[4]?' <span class="hint">'+m[4]+'</span>':''),m[2]+' '+m[3]]); else oth.push(x)});
+  const orderCard=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body">
+   <div class="bagh"><div><span>TPN volume</span><b>${f(tpnV)} ml</b></div><div><span>Rate</span><b>${f(rate)} ml/hr</b></div><div><span>Duration</span><b>24 hr</b></div></div>
+   <table class="ord">${bag.map(r=>`<tr><td>${r[0]}</td><td>${r[1]}</td></tr>`).join('')}</table>
+   ${oth.length?`<div class="oth">${oth.map(x=>`<div>${x}</div>`).join('')}</div>`:''}
+  </div></div>`;
+  const noteCard=`<div class="card"><h2>Volume note <small><button class="btn" id="cp3">Copy</button></small></h2><div class="body"><div class="rep">${nt.split('\n').map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
+  const sumCard=`<div class="card"><h2>Summary <small><button class="btn" id="cp2">Copy</button></small></h2><div class="body"><table class="sm">${S.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div></div>`;
+  h=orderCard+noteCard+sumCard+h;
   $('out').innerHTML=h;
   [['cp',txt],['cp2',stxt],['cp3',nt]].forEach(([i,t])=>{$(i).onclick=()=>{try{navigator.clipboard.writeText(t);$(i).textContent='Copied'}catch(e){}setTimeout(()=>{if($(i))$(i).textContent='Copy'},1200)}});
 }
