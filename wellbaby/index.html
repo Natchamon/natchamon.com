@@ -355,7 +355,7 @@ const vl=v=>VL[v];
 const gk=v=>v<6?'early':v<=12?'late':v<24?'tod':v<48?'pre':'kid';
 const VN={2:{next:4,sleep:[14,17],sleepTxt:'อายุ 0–3 เดือน'},4:{next:6,sleep:[12,16],sleepTxt:'อายุ 4–6 เดือน'},6:{next:9,sleep:[12,16],sleepTxt:'อายุ 6–12 เดือน'},9:{next:12,sleep:[12,16],sleepTxt:'อายุ 6–12 เดือน'},
  12:{next:18,sleep:[12,16],sleepTxt:'อายุ 6–12 เดือน'},18:{next:24,sleep:[11,14],sleepTxt:'อายุ 12–23 เดือน'},24:{next:30,sleep:[10,13],sleepTxt:'อายุ 2–3 ปี'},30:{next:48,sleep:[10,13],sleepTxt:'อายุ 2–3 ปี'},48:{next:60,sleep:[10,13],sleepTxt:'อายุ 4–5 ปี'}};
-const VSUB={2:'เริ่มวัคซีนชุดแรก',4:'วัคซีนเข็มที่ 2',6:'เริ่มอาหารเสริม',9:'MMR · JE · Hb',12:'JE · Hb',18:'DTP · OPV · MMR',24:'JE ครั้งที่ 2',30:'MMR',48:'BP · สายตา · Hb'};
+const VSUB={2:'เริ่มวัคซีนชุดแรก',4:'วัคซีนเข็มที่ 2',6:'เริ่มอาหารเสริม',9:'MMR · JE · Hb',12:'JE · Hb',18:'DTP · OPV · MMR',24:'JE ครั้งที่ 2',30:'พัฒนาการ',48:'BP · สายตา · Hb'};
 
 const DUE={
  2:['ตรวจการได้ยินด้วยเครื่อง OAE/AABR หากยังไม่ได้ทำ','คัดกรองภาวะซึมเศร้าหลังคลอดของแม่ อย่างน้อย 1 ครั้งในช่วง 6 เดือนแรก','วัคซีน DTwP-HB-Hib, OPV และโรต้า ครั้งที่ 1'],
@@ -445,14 +445,14 @@ function examPoints(v){ const out={}; const note=(EXAMNOTE[v]||'').replace(/^[^:
     (out[k]=out[k]||[]).push(t); }); return out; }
 const SYS=[['ga','ทั่วไป/ผิวหนัง (GA/Skin)'],['heent','ศีรษะ ตา หู คอ จมูก (HEENT)'],['cv','หัวใจ/ทรวงอก (Cardio/Chest)'],['abd','ท้อง (Abdomen)'],['gen','อวัยวะเพศ (Genitalia)'],['neuro','ระบบประสาท/หลัง (Neuro/Back)'],['ext','แขนขา (Extremities)']];
 const VAX={
- 2:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp1','DTP-Hib-HBV 1','DTP-Hib-HBV 1 0.5 ml IM'],['ipv1','IPV 1','IPV 1 0.5 ml IM'],['opv1','OPV 1 (กิน)','OPV drop'],['rota1','โรต้า 1','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM']],
- 4:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp2','DTP-Hib-HBV 2','DTP-Hib-HBV 2 0.5 ml IM'],['ipv','IPV','IPV 0.5 ml IM'],['opv2','OPV 2 (กิน)','OPV drop'],['rota2','โรต้า 2','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM']],
- 6:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp3','DTP-Hib-HBV 3','DTP-Hib-HBV 3 0.5 ml IM'],['opv3','OPV 3 (กิน)','OPV drop'],['rota3','โรต้า 3 (ถ้ามี)','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM'],['ento','Entrovac (เสริม)','additional : Entrovac'],['hba','HBA (เสริม)','additional : HBA vaccine'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
+ 2:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp1','DTP-Hib-HBV 1','DTP-Hib-HBV 1 0.5 ml IM'],['ipv1','IPV 1','IPV 1 0.5 ml IM'],['rota1','โรต้า 1','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM']],
+ 4:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp2','DTP-Hib-HBV 2','DTP-Hib-HBV 2 0.5 ml IM'],['ipv2','IPV 2','IPV 2 0.5 ml IM'],['rota2','โรต้า 2','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM']],
+ 6:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp3','DTP-Hib-HBV 3','DTP-Hib-HBV 3 0.5 ml IM'],['opv1','OPV 1 (กิน)','bivalent OPV drop'],['rota3','โรต้า 3 (ถ้ามี)','Rota drop'],['pcv','PCV 15 (เสริม)','additional : PCV 15 0.5 ml IM'],['ento','Entrovac (เสริม)','additional : Entrovac'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
  9:[['mmr1','MMR ครั้งที่ 1','MMR 0.5 ml SC'],['je1','JE ครั้งที่ 1','Live JE 0.5 ml SC'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 12:[['je1','JE ครั้งที่ 1','Live JE 0.5 ml SC'],['mmr1','MMR ครั้งที่ 1 (หากยังไม่ได้)','MMR 0.5 ml SC'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 18:[['dtp4','DTwP กระตุ้นครั้งที่ 1','DTwP 0.5 ml IM'],['opv4','OPV กระตุ้น (กิน)','OPV 2 drops oral'],['mmr2','MMR','MMR 0.5 ml SC'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
+ 12:[['je1','JE ครั้งที่ 1 (หากยังไม่ได้)','Live JE 0.5 ml SC'],['mmr1','MMR ครั้งที่ 1 (หากยังไม่ได้)','MMR 0.5 ml SC'],['pcv4','PCV 15 ครั้งที่ 4 (เสริม)','additional : PCV 15 0.5 ml IM'],['hav1','HAV ครั้งที่ 1 (เสริม)','additional : HAV vaccine'],['vzv1','อีสุกอีใส ครั้งที่ 1 (เสริม)','additional : VZV vaccine'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
+ 18:[['dtp4','DTwP กระตุ้นครั้งที่ 1','DTwP 0.5 ml IM'],['opv4','OPV กระตุ้น (กิน)','OPV 2 drops oral'],['mmr2','MMR ครั้งที่ 2','MMR 0.5 ml SC'],['hav2','HAV ครั้งที่ 2 (เสริม)','additional : HAV vaccine'],['vzv2','อีสุกอีใส ครั้งที่ 2 (เสริม)','additional : VZV vaccine'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
  24:[['je2','JE ครั้งที่ 2','Live JE vaccine 0.5 ml SC'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 30:[['mmr2','MMR','MMR 0.5 ml SC']],
+ 30:[['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
  48:[['dtp5','DTwP กระตุ้นครั้งที่ 2','DTwP 0.5 ml IM'],['opv5','OPV กระตุ้น (กิน)','OPV 2 drops oral'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']]
 };
 const GD={
