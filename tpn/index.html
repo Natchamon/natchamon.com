@@ -67,7 +67,7 @@ tr.sel td:first-child{font-weight:600}
 .sm td:first-child{color:var(--ink-2);width:40%}.sm td:last-child{text-align:left;font-weight:500}.sm td{text-align:left;vertical-align:top}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
-<header><h1>Neonatal TPN<small>Parenteral nutrition order from the PCMC protocol · doses per kg → volumes, rates and energy</small></h1></header>
+<header><h1>Neonatal TPN<small>Milk advance → lipid cut → TPN or D10 for the rest · PCMC protocol doses · EMR-ready lines</small></h1></header>
 
 <div class="card"><h2>Baby</h2><div class="body">
  <div class="g2">
@@ -80,17 +80,33 @@ tr.sel td:first-child{font-weight:600}
   <div class="seg" id="rk"><button class="opt" data-v="vlbw" aria-pressed="false">BW &lt; 1,500 g (VLBW/ELBW)</button><button class="opt" data-v="ga32" aria-pressed="false">GA ≤ 32 wk</button><button class="opt" data-v="sga" aria-pressed="false">SGA</button></div>
   <span class="hint">Tick all that apply. Used for the sodium range, calcium from day 1 and the phosphate note.</span></div>
  <div class="f"><span class="lb">Line</span><div class="seg" id="ln"><button class="opt" data-v="C" aria-pressed="true">Central</button><button class="opt" data-v="P" aria-pressed="false">Peripheral</button></div></div>
+ <label class="f"><span class="lb">Total fluid</span><span class="inp"><input id="tf" type="number" inputmode="decimal" min="0" step="5"><i>mL/kg/d</i></span><span class="hint" id="tfh"></span></label>
+</div></div>
+
+<div class="card"><h2>Milk <small>advance by day</small></h2><div class="body">
  <div class="g2">
-  <label class="f"><span class="lb">Total fluid</span><span class="inp"><input id="tf" type="number" inputmode="decimal" min="0" step="5"><i>mL/kg/d</i></span><span class="hint" id="tfh"></span></label>
-  <label class="f"><span class="lb">Enteral milk</span><span class="inp"><input id="mk" type="number" inputmode="decimal" min="0" step="5" value="0"><i>mL/kg/d</i></span><span class="hint">Taken off the TPN volume</span></label>
+  <label class="f"><span class="lb">Yesterday</span><span class="inp"><input id="my" type="number" inputmode="decimal" min="0" step="5" value="0"><i>mL/kg/d</i></span></label>
+  <label class="f"><span class="lb">Advance by</span><span class="inp"><input id="adv" type="number" inputmode="decimal" min="0" step="5" value="20"><i>mL/kg/d</i></span></label>
  </div>
- <div class="g2" id="kcw" style="display:none"><label class="f"><span class="lb">Milk energy</span><span class="inp"><input id="kc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label><label class="f"><span class="lb">Feeds per day</span><span class="inp"><input id="nf" type="number" inputmode="numeric" min="1" max="24" step="1" value="8"><i>feeds</i></span></label></div>
+ <span class="hint">Today = yesterday + advance (capped at total fluid). To type today's amount directly, set yesterday to 0.</span>
+ <div class="f"><span class="lb">Milk type</span><div class="seg" id="mt"><button class="opt" data-v="BM/PF" aria-pressed="true">BM/PF</button><button class="opt" data-v="BM/IF" aria-pressed="false">BM/IF</button><button class="opt" data-v="PF" aria-pressed="false">PF</button><button class="opt" data-v="IF" aria-pressed="false">IF</button></div></div>
+ <div class="g2">
+  <label class="f"><span class="lb">Milk energy</span><span class="inp"><input id="kc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label>
+  <label class="f"><span class="lb">Feeds per day</span><span class="inp"><input id="nf" type="number" inputmode="numeric" min="1" max="24" step="1" value="8"><i>feeds</i></span></label>
+ </div>
+ <div class="seg" id="kp"><button class="opt" data-v="20" aria-pressed="true">20</button><button class="opt" data-v="24" aria-pressed="false">24</button><button class="opt" data-v="27" aria-pressed="false">27</button><button class="opt" data-v="30" aria-pressed="false">30</button></div>
+</div></div>
+
+<div class="card"><h2>IV fluid <small>for the rest of the fluid</small></h2><div class="body">
+ <div class="seg" id="md"><button class="opt" data-v="auto" aria-pressed="true">Auto</button><button class="opt" data-v="tpn" aria-pressed="false">TPN</button><button class="opt" data-v="d10" aria-pressed="false">Dextrose</button><button class="opt" data-v="none" aria-pressed="false">No IV</button></div>
+ <span class="hint">Auto: TPN while milk is under 100 mL/kg/d, dextrose once milk reaches 100.</span>
+ <label class="f"><span class="lb">Dextrose strength (if dextrose)</span><span class="inp"><input id="dx" type="number" inputmode="decimal" min="1" max="30" step="1" value="10"><i>%</i></span></label>
 </div></div>
 
 <div class="card"><h2>Doses <small>per kg per day · protocol suggestion for this day</small></h2><div class="body">
  <div class="g2">
   <label class="f"><span class="lb">Amino acid</span><span class="inp"><input id="aa" type="number" inputmode="decimal" step="0.5" min="0"><i>g/kg</i></span><span class="hint" id="aah"></span></label>
-  <label class="f"><span class="lb">GIR</span><span class="inp"><input id="gir" type="number" inputmode="decimal" step="0.5" min="0"><i>mg/kg/min</i></span><span class="hint">start 4–6, +1–2 to 10–12</span></label>
+  <label class="f"><span class="lb">GIR</span><span class="inp"><input id="gir" type="number" inputmode="decimal" step="0.5" min="0"><i>mg/kg/min</i></span><span class="hint">start 4–6, +1–2 to 10–12 · auto-capped so final glucose ≤ 12.5%</span></label>
   <label class="f"><span class="lb">Lipid (20% SMOF)</span><span class="inp"><input id="lip" type="number" inputmode="decimal" step="0.5" min="0"><i>g/kg</i></span><span class="hint">1 → 3 g/kg, TG &lt; 265</span></label>
   <label class="f"><span class="lb">Sodium</span><span class="inp"><input id="na" type="number" inputmode="decimal" step="0.5" min="0"><i>mEq/kg</i></span><span class="hint" id="nah"></span></label>
   <label class="f"><span class="lb">Potassium (total)</span><span class="inp"><input id="k" type="number" inputmode="decimal" step="0.5" min="0"><i>mEq/kg</i></span><span class="hint">2–3 from DOL 2–3</span></label>
@@ -114,14 +130,14 @@ tr.sel td:first-child{font-weight:600}
 
 <div id="out"></div>
 
-<p class="foot">Calculation aid only. Doses, conversions (10% Aminoven g × 10, 50% dextrose g × 2, 3% NaCl mEq × 2, KCl mEq ÷ 2, K₂PO₄ mL = mEq, 10% Ca gluconate mmol × 4, 20% SMOF g × 5) and the final glucose formula come from the PCMC revised neonatal protocol and its parenteral nutrition order sheet. Osmolarity uses mOsm/mL per product from the unit's TPN calculator (50% dextrose 2.52, Aminoven 0.885, 3% NaCl 1.03, KCl 4, K₂HPO₄ 7.4, Ca gluconate 0.308, trace 0.1); limits are 900 peripheral and 1,200 central. Check against your pharmacy and the baby's labs before ordering.</p>
+<p class="foot">Calculation aid only. Milk is rounded to whole mL per feed and TV/TC come from the rounded amount; the lipid cut (50% at 80 mL/kg/d, off at 100) and protein/GIR notes follow the PCMC protocol. TPN doses, conversions (10% Aminoven g × 10, 50% dextrose g × 2, 3% NaCl mEq × 2, KCl mEq ÷ 2, K₂PO₄ mL = mEq, 10% Ca gluconate mmol × 4, 20% SMOF g × 5) and the final glucose formula come from the PCMC revised neonatal protocol and its parenteral nutrition order sheet. Osmolarity uses mOsm/mL per product from the unit's TPN calculator (50% dextrose 2.52, Aminoven 0.885, 3% NaCl 1.03, KCl 4, K₂HPO₄ 7.4, Ca gluconate 0.308, trace 0.1); limits are 900 peripheral and 1,200 central. Check against your pharmacy and the baby's labs before ordering.</p>
 </div>
 <script>
 const $=id=>document.getElementById(id);
 const r0=Math.round, r1=x=>Math.round(x*10)/10, r2=x=>Math.round(x*100)/100;
 const TBL={term:[65,65,80,100,120,150,150],pre:[60,80,100,120,140,160,160]};
 const GIRS=[5,6,7,8,9,10,10];
-let gest='term', day=1, line='C', risk={vlbw:false,ga32:false,sga:false};
+let gest='term', day=1, line='C', mode='auto', mt='BM/PF', risk={vlbw:false,ga32:false,sga:false};
 const DOSE=['aa','gir','lip','na','k','ca'];
 function k(label,val,unit,sub,cls){return `<div class="kpi ${cls||''}"><span>${label}</span><b>${val}${unit?`<small> ${unit}</small>`:''}</b>${sub?`<small class="s">${sub}</small>`:''}</div>`}
 function seg(id,fn){document.querySelectorAll('#'+id+' .opt').forEach(x=>x.setAttribute('aria-pressed',String(fn(x.dataset.v))))}
@@ -138,20 +154,38 @@ function suggest(){
   $('aah').textContent=gest==='pre'?'preterm 3–3.5 · +0.5–1 each step':'term 3 · +0.5–1 each step';
   $('nah').textContent=hi?'VLBW/ELBW 4–6 · from DOL 3':'2–4 · from DOL 3 (DOL 2 if Na < 140)';
   $('tfh').textContent='PCMC table day '+d+', '+(gest==='pre'?'preterm':'term');
+  sugLip();
   calc();
 }
 function num(id){return Math.max(0,parseFloat($(id).value)||0)}
+function milkState(){
+  const kg=(parseFloat($('w').value)||0)/1000, W=kg>0, tf=num('tf'), nf=Math.max(1,num('nf')||8);
+  const mkT=Math.min(num('my')+num('adv'),tf);
+  const perFeed=W?Math.round(mkT*kg/nf):0, milkV=perFeed*nf;
+  return {kg,W,tf,nf,mkT,perFeed,milkV,mk:W?milkV/kg:mkT};
+}
+function lipSug(mk){const base=Math.min(day,3);return mk>=100?0:mk>=80?base/2:base}
+function sugLip(){
+  const M=milkState(), m=M.mk, l=lipSug(m);
+  $('lip').value=l;$('aa').value=m>=100?2.5:(day===1?3:(gest==='pre'?3.5:3));
+  // GIR: day suggestion, capped so final glucose stays at or under 12.5%
+  let g=GIRS[day-1];
+  if(M.W){const rate=Math.floor(((M.tf-m)*M.kg-l*M.kg*5)/24*10+1e-9)/10;
+    if(rate>0) g=Math.max(2,Math.min(g,Math.floor(12.5*rate/(6*M.kg)*2)/2));}
+  $('gir').value=g;
+}
 function calc(){
   const kg=(parseFloat($('w').value)||0)/1000, W=kg>0;
-  const tf=num('tf'), mk=Math.min(num('mk'),tf), kc=num('kc');
-  $('kcw').style.display=mk>0?'':'none';
-  const aa=num('aa'), gir=num('gir'), lip=num('lip'), na=num('na'), kt=num('k'), ca=num('ca'), kpe=Math.min(num('kp'),kt), hep=num('hep');
+  const M=milkState(), tf=M.tf, mk=M.mk, nf=M.nf, milkV=M.milkV, perFeed=M.perFeed, kc=num('kc'), dx=num('dx')||10;
   const ivKg=tf-mk, ivV=ivKg*kg;
-  const lipG=lip*kg, lipV=lipG*5, tpnRaw=ivV-lipV, rate=tpnRaw>0?Math.floor(tpnRaw/24*10+1e-9)/10:0, tpnV=rate*24, lipRate=lipV/24;
-  const nf=Math.max(1,num('nf')||8), milkV=mk*kg;
+  let ivm=mode; if(mode==='auto') ivm=ivKg<=0.5?'none':(mk>=100?'d10':'tpn');
+  const tpnOn=ivm==='tpn', d10On=ivm==='d10', T=tpnOn?1:0;
+  const aa=T*num('aa'), gir=T*num('gir'), lip=num('lip'), na=T*num('na'), kt=T*num('k'), ca=T*num('ca'), kpe=Math.min(T*num('kp'),kt), hep=T*num('hep');
+  const lipG=lip*kg, lipV=lipG*5, tpnRaw=tpnOn?ivV-lipV:0, rate=tpnRaw>0?Math.floor(tpnRaw/24*10+1e-9)/10:0, tpnV=rate*24, lipRate=lipV/24;
+  const d10Raw=d10On?ivV-lipV:0, dexRate=d10Raw>0?Math.floor(d10Raw/24*10+1e-9)/10:0, dexV=dexRate*24, dexTV=W?dexV/kg:0, dexGIR=W?dx*dexRate/(6*kg):0;
   const aaG=aa*kg, aaV=aaG*10;
   const glG=gir*kg*1.44, d50=glG*2, fin=tpnV>0?glG/tpnV*100:0;
-  const mg=num('mg'), zn=num('zn'), sol=num('sol'), ped=num('ped'), gly=num('gly'), nac=num('nac');
+  const mg=T*num('mg'), zn=T*num('zn'), sol=T*num('sol'), ped=T*num('ped'), gly=T*num('gly'), nac=T*num('nac');
   const glyV=gly*kg, glyNa=glyV*2, nacE=Math.min(nac*kg,Math.max(0,na*kg-glyNa)), nacV=nacE/2;
   const naE=na*kg, naNaCl=Math.max(0,naE-glyNa-nacE), naV=naNaCl*2;
   const mgE=mg*kg, mgV=mgE/4, znV=zn*kg/1000, solV=sol*kg, pedV=ped*kg;
@@ -159,14 +193,14 @@ function calc(){
   const caM=ca*kg, caV=caM*4;
   const omvi=2, add=ped>0?0:0.2*kg, hepU=hep*tpnV;
   const water=tpnV-(aaV+d50+naV+kclV+kpE+caV+omvi+add+glyV+nacV+mgV+znV+solV+pedV);
-  const eDex=gir*1.44*3.4, eAA=aa*4, eLip=lip*10, eMilk=mk*kc/30, eTot=eDex+eAA+eLip+eMilk;
+  const eDex=tpnOn?gir*1.44*3.4:(d10On&&W?dx*dexV/100*3.4/kg:0), eAA=aa*4, eLip=lip*10, eMilk=mk*kc/30, eTot=eDex+eAA+eLip+eMilk;
   const osmSum=d50*2.52+aaV*0.885+naV*1.03+kclV*4+kpE*7.4+caV*0.308+add*0.1+glyV*10.3+nacV*2+mgV*4.06+znV*0.1+solV*4+pedV*0.1;
   const osm=tpnV>0?osmSum*1000/tpnV:0, osmMax=line==='C'?1200:900;
   const npc=aa>0?(eDex+eLip)/aa:0, pmm=kpE*0.5+gly*kg;
   const dash=v=>W?v:'–', u=s=>W?s:'';
   let h='';
   if(W&&(kg<0.4||kg>6)) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range, check the value (grams).</div>`;
-  if(W&&tpnV<=0) h+=`<div class="note bad" style="margin-top:14px">TPN + lipid volume is zero or negative, check total fluid and milk.</div>`;
+  if(W&&tpnOn&&tpnV<=0) h+=`<div class="note bad" style="margin-top:14px">TPN + lipid volume is zero or negative, check total fluid and milk.</div>`;
   const rows=[
    ['Sterile water','fills the rest',water,'mL'],
    ['10% Aminoven',`${r2(aa)} g/kg · ${r1(aaG)} g × 10`,aaV,'mL'],
@@ -184,7 +218,7 @@ function calc(){
    ...(gly>0?[['Glycophos',`${r2(gly)} mmol/kg · Na ${r1(glyNa)} mEq`,glyV,'mL']]:[]),
    ...(nac>0?[['Na acetate',`${r1(nacE)} mEq ÷ 2`,nacV,'mL']]:[]),
    ['Heparin',`${hep} U/mL × ${r0(tpnV)} mL`,hepU,'U']];
-  h+=`<div class="card"><h2>TPN bag <small>${line==='C'?'central':'peripheral'} line · 24 h</small></h2><div class="body">
+  if(tpnOn) h+=`<div class="card"><h2>TPN bag <small>${line==='C'?'central':'peripheral'} line · 24 h</small></h2><div class="body">
    <div class="big3">${k('TPN rate',dash(r1(rate)),u('mL/h'),W?r0(tpnV)+' mL / 24 h':'','main')}${k('Lipid rate',dash(r1(lipRate)),u('mL/h'),W?r1(lipV)+' mL of 20% SMOF':'','main')}${k('Final glucose',dash(r1(fin)),'%','GIR × kg × 6 ÷ rate','main')}</div>
    <div class="big3">${k('Osmolarity',dash(r0(osm)),u('mOsm/L'),`keep < ${osmMax} (${line==='C'?'central':'peripheral'})`,'')}${k('NPC : AA',aa>0?r0(npc):'–','kcal/g AA','dextrose + lipid kcal ÷ g protein','')}${k('Phosphate',dash(r2(pmm/(kg||1))),u('mmol/kg/d'),'K₂HPO₄ 0.5 mmol/mL','')}</div>
    <table class="ing"><tr><th>Ingredient</th><th>Calc</th><th>Amount</th></tr>`+
@@ -193,9 +227,9 @@ function calc(){
    ${W&&water<0?'<div class="note bad">Additives add up to more than the TPN volume (sterile water is negative). Increase the fluid, lower the dose or use a more concentrated source.</div>':''}
   </div></div>`;
   h+=`<div class="card"><h2>Energy &amp; volume</h2><div class="body">
-   <div class="big3">${k('Total volume',r0(ivKg),'mL/kg/d','TPN + lipid','main')}${k('Total energy',r1(eTot),'kcal/kg/d',gest==='pre'?'target 90–120':'target 80–90','main')}${k('Protein',r1(aa),'g/kg/d',gest==='pre'?'target 3–3.5':'target 3','')}</div>
+   <div class="big3">${k('Total volume',r0(ivKg),'mL/kg/d','IV + lipid','main')}${k('Total energy',r1(eTot),'kcal/kg/d',gest==='pre'?'target 90–120':'target 80–90','main')}${k('Protein',r1(aa),'g/kg/d',gest==='pre'?'target 3–3.5':'target 3','')}</div>
    <table><tr><th>Energy</th><th>g/kg/d</th><th>kcal/kg/d</th></tr>
-    <tr><td>Dextrose × 3.4</td><td>${r1(gir*1.44)}</td><td>${r1(eDex)}</td></tr>
+    <tr><td>Dextrose × 3.4</td><td>${r1(eDex/3.4)}</td><td>${r1(eDex)}</td></tr>
     <tr><td>Protein × 4</td><td>${r1(aa)}</td><td>${r1(eAA)}</td></tr>
     <tr><td>Lipid × 10</td><td>${r1(lip)}</td><td>${r1(eLip)}</td></tr>
     ${mk>0?`<tr><td>Milk (${kc} kcal/oz)</td><td>${r0(mk)} mL</td><td>${r1(eMilk)}</td></tr>`:''}
@@ -215,67 +249,72 @@ function calc(){
   if(gir>12) warn('GIR above 12 mg/kg/min (protocol 10–12).');
   if(lip>3) warn('Lipid above 3 g/kg/day.');
   if(lip>=2) info('Lipid 2 g/kg/day or more: check triglyceride, keep TG < 265 mg/dL. If TG > 265, stop lipid for 1 day, then restart at half the previous dose and recheck TG in 24 h.');
-  if(mk>=100) warn('Milk ≥ 100 mL/kg/day: protocol says off lipid, protein down to 2–2.5 g/kg/day, and wean GIR by 2 until TPN can stop.');
-  else if(mk>=80) warn('Milk ≥ 80 mL/kg/day: protocol says reduce lipid by 50%. At 100 mL/kg/day, off lipid.');
   if(day<3&&na>0) info('Protocol starts sodium on DOL 3 (DOL 2 if Na < 140).');
-  if(day>=3&&na===0) info('Sodium normally starts DOL 3. Keep serum Na 130–140.');
-  if(day>=3&&kpE===0) info('Phosphate usually starts DOL 3–4 (consider DOL 2 if SGA, refeeding risk). Calcium : phosphorus 1 : 1 in TPN.');
-  if((risk.vlbw||risk.ga32)&&ca===0) warn('BW < 1,500 g or GA ≤ 32 wk: add calcium 1 mmol/kg/day from DOL 1.');
-  if(risk.sga&&day<3) info('SGA: watch for refeeding syndrome, consider phosphate from DOL 2.');
-  info('Trace element: Addamel N 0.2 mL/kg/day (shown) or Peditrace 1 mL/kg/day per protocol. Monitor capillary glucose 60–145 mg/dL; keep serum K 4.5–6, Ca 8–10, P 4.5–7.');
+  if(tpnOn&&day>=3&&na===0) info('Sodium normally starts DOL 3. Keep serum Na 130–140.');
+  if(tpnOn&&day>=3&&kpE===0) info('Phosphate usually starts DOL 3–4 (consider DOL 2 if SGA, refeeding risk). Calcium : phosphorus 1 : 1 in TPN.');
+  if(tpnOn&&(risk.vlbw||risk.ga32)&&ca===0) warn('BW < 1,500 g or GA ≤ 32 wk: add calcium 1 mmol/kg/day from DOL 1.');
+  if(tpnOn&&risk.sga&&day<3) info('SGA: watch for refeeding syndrome, consider phosphate from DOL 2.');
+  if(tpnOn) info('Trace element: Addamel N 0.2 mL/kg/day (shown) or Peditrace 1 mL/kg/day per protocol. Monitor capillary glucose 60–145 mg/dL; keep serum K 4.5–6, Ca 8–10, P 4.5–7.');
   h+=`<div class="card"><h2>Checks</h2><div class="body chk">${C.join('')}</div></div>`;
   // order text, one line per item in the hospital EMR wording
   const f=x=>W?String(r1(x)):'__';
   const tail=`in TPN volume ${f(tpnV)} ml IV drip rate ${f(rate)} ml/hr x 24 hr`;
   const L=[];
-  if(water>=0.05) L.push(`SW ${f(water)} ml ${tail}`);
-  L.push(`10%Aminoven ${f(aaV)} ml ${tail}`);
-  L.push(`50%Glucose ${f(d50)} ml ${tail} (GIR ${r1(gir)})`);
-  if(naNaCl>0) L.push(`3%NaCl ${f(naV)} ml ${tail}`);
-  if(gly>0) L.push(`Glycophos ${f(glyV)} ml ${tail}`);
-  if(nac>0) L.push(`Na acetate ${f(nacV)} ml ${tail}`);
-  if(kclE>0) L.push(`KCl ${f(kclV)} ml ${tail}`);
-  if(kpE>0) L.push(`K2HPO4 ${f(kpE)} ml ${tail}`);
-  if(ca>0) L.push(`10% calcium gluconate ${f(caV)} ml ${tail}`);
-  if(mg>0) L.push(`50%MgSO4 ${f(mgV)} ml ${tail}`);
-  if(zn>0) L.push(`ZnSO4 ${f(znV)} ml ${tail}`);
-  L.push(`OMVI 2 ml ${tail}`);
-  if(sol>0) L.push(`Soluvit N ${f(solV)} ml ${tail}`);
-  if(ped>0) L.push(`Peditrace ${f(pedV)} ml ${tail}`);
-  else L.push(`Addamel ${f(add)} ml ${tail}`);
-  L.push(`Heparin ${W?r0(hepU):'__'} U ${tail}`);
+  const LT=[];
+  if(water>=0.05) LT.push(`SW ${f(water)} ml ${tail}`);
+  LT.push(`10%Aminoven ${f(aaV)} ml ${tail}`);
+  LT.push(`50%Glucose ${f(d50)} ml ${tail} (GIR ${r1(gir)})`);
+  if(naNaCl>0) LT.push(`3%NaCl ${f(naV)} ml ${tail}`);
+  if(gly>0) LT.push(`Glycophos ${f(glyV)} ml ${tail}`);
+  if(nac>0) LT.push(`Na acetate ${f(nacV)} ml ${tail}`);
+  if(kclE>0) LT.push(`KCl ${f(kclV)} ml ${tail}`);
+  if(kpE>0) LT.push(`K2HPO4 ${f(kpE)} ml ${tail}`);
+  if(ca>0) LT.push(`10% calcium gluconate ${f(caV)} ml ${tail}`);
+  if(mg>0) LT.push(`50%MgSO4 ${f(mgV)} ml ${tail}`);
+  if(zn>0) LT.push(`ZnSO4 ${f(znV)} ml ${tail}`);
+  LT.push(`OMVI 2 ml ${tail}`);
+  if(sol>0) LT.push(`Soluvit N ${f(solV)} ml ${tail}`);
+  if(ped>0) LT.push(`Peditrace ${f(pedV)} ml ${tail}`);
+  else LT.push(`Addamel ${f(add)} ml ${tail}`);
+  LT.push(`Heparin ${W?r0(hepU):'__'} U ${tail}`);
+  if(tpnOn) L.push(...LT);
+  if(d10On) L.push(`D-${dx}-S/5 (${dx}%DN/5) หยดเข้าหลอดเลือดดำ drip rate ${f(dexRate)} ml/hr x 24 hr (TV ${r2(dexTV)}, GIR ${r1(dexGIR)})`);
   if(lip>0) L.push(`20%SMOF ${f(lipV)} ml IV drip in 24 hours (${r2(lip)} g/kg/day)`);
-  L.push('DTX 1 hr หลังจากเปลี่ยน TPN; keep 60-150');
-  if(mk>0) L.push(`BM/PF (${kc} kcal/oz) sig ${f(milkV/nf)} ml x ${nf} feeds vai TF (TV ${r2(mk)}, TC ${r2(eMilk)})`);
+  if(tpnOn) L.push('DTX 1 hr หลังจากเปลี่ยน TPN; keep 60-150');
+  if(mk>0) L.push(`${mt} (${kc} kcal/oz) sig ${f(perFeed)} ml x ${nf} feeds vai TF (TV ${r2(mk)}, TC ${r2(eMilk)})`);
   const nt=[`TV ${r0(tf)} ml/kg/day = ${f(tf*kg)} ml/day`,
     `หัก lipid ${f(lipV)} ml${mk>0?` และนม ${f(milkV)} ml`:''}`,
-    `เหลือสำหรับ TPN ${f(tpnRaw)} ml คิดเป็น rate ${f(rate)} ml/hr`].join('\n');
+    ivm==='none'?`ไม่ต้องให้ IV fluid`:`เหลือสำหรับ ${tpnOn?'TPN':'D'+dx} ${f(tpnOn?tpnRaw:d10Raw)} ml คิดเป็น rate ${f(tpnOn?rate:dexRate)} ml/hr`].join('\n');
   const txt=L.join('\n');
   const S=[
-   ['Line',line==='C'?'Central':'Peripheral'],
-   ['TPN',`${f(rate)} ml/hr · ${f(tpnV)} ml/24 h (rate rounded down to 0.1)`],
+   ...(mk>0?[['Milk',`${mt} ${kc} kcal/oz · ${f(perFeed)} ml × ${nf} feeds · TV ${r2(mk)}`]]:[]),
+   ...(tpnOn?[['Line',line==='C'?'Central':'Peripheral'],['TPN',`${f(rate)} ml/hr · ${f(tpnV)} ml/24 h`]]:[]),
+   ...(d10On?[['Dextrose',`D${dx} ${f(dexRate)} ml/hr · GIR ${r1(dexGIR)}`]]:[]),
    ['Lipid',lip>0?`${f(lipRate)} ml/hr · ${f(lipV)} ml/24 h`:'none'],
-   ['Total volume',`${r0(ivKg)} ml/kg/d (TPN + lipid)${mk>0?` + milk ${r0(mk)}`:''}`],
-   ['GIR / final glucose',`${r1(gir)} mg/kg/min · ${f(fin)}%`],
-   ['Protein / lipid',`${r2(aa)} / ${r2(lip)} g/kg/d`],
-   ['Na / K / Ca',`${r1(na)} mEq · ${r1(kt)} mEq · ${r1(ca)} mmol /kg/d`],
-   ['Energy',`${r1(eTot)} kcal/kg/d · NPC:AA ${aa>0?r0(npc):'–'}`],
-   ['Osmolarity',`${W?r0(osm):'__'} mOsm/L (limit ${osmMax})`]];
-  const stxt=`TPN DOL ${day}${day===7?'+':''}${W?', '+r0(kg*1000)+' g':''}\n`+S.map(x=>x[0]+': '+x[1]).join('\n');
+   ['Total fluid',`${r0(tf)} ml/kg/d = milk ${r0(mk)} + IV/lipid ${r0(ivKg)}`],
+   ...(tpnOn?[['GIR / final glucose',`${r1(gir)} mg/kg/min · ${f(fin)}%`],['Protein / lipid',`${r2(aa)} / ${r2(lip)} g/kg/d`],['Na / K / Ca',`${r1(na)} mEq · ${r1(kt)} mEq · ${r1(ca)} mmol /kg/d`],['Osmolarity',`${W?r0(osm):'__'} mOsm/L (limit ${osmMax})`]]:[]),
+   ['Energy',`${r1(eTot)} kcal/kg/d`]];
+  const stxt=`Neonatal TPN DOL ${day}${day===7?'+':''}${W?', '+r0(kg*1000)+' g':''}\n`+S.map(x=>x[0]+': '+x[1]).join('\n');
   // on-screen layout: ingredients as a table, other orders as plain lines
   const bag=[], oth=[];
-  L.forEach(x=>{const m=x.match(/^(.*?) ([\d.]+|__) (ml|U) (in TPN volume [^(]*?)\s*(\(GIR [^)]*\))?$/);
+  L.forEach(x=>{const m=x.match(/^(.*?) (-?[\d.]+|__) (ml|U) (in TPN volume [^(]*?)\s*(\(GIR [^)]*\))?$/);
     if(m) bag.push([m[1]+(m[5]?' <span class="hint">'+m[5]+'</span>':'')+'<div class="how">'+m[4]+'</div>',m[2]+' '+m[3]]); else oth.push(x)});
   const orderCard=`<div class="card"><h2>Order <small>EMR wording · <button class="btn" id="cp">Copy</button></small></h2><div class="body">
-   <div class="bagh"><div><span>TPN volume</span><b>${f(tpnV)} ml</b></div><div><span>Rate</span><b>${f(rate)} ml/hr</b></div><div><span>Duration</span><b>24 hr</b></div></div>
+   ${tpnOn?`<div class="bagh"><div><span>TPN volume</span><b>${f(tpnV)} ml</b></div><div><span>Rate</span><b>${f(rate)} ml/hr</b></div><div><span>Duration</span><b>24 hr</b></div></div>`:''}
    <table class="ord">${bag.map(r=>`<tr><td>${r[0]}</td><td><b>${r[1]}</b></td></tr>`).join('')}</table>
    ${oth.length?`<div class="oth">${oth.map(x=>`<div>${x}</div>`).join('')}</div>`:''}
   </div></div>`;
   const noteCard=`<div class="card"><h2>Volume note <small><button class="btn" id="cp3">Copy</button></small></h2><div class="body"><div class="rep">${nt.split('\n').map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   const sumCard=`<div class="card"><h2>Summary <small><button class="btn" id="cp2">Copy</button></small></h2><div class="body"><table class="sm">${S.map(x=>`<tr><td>${x[0]}</td><td>${x[1]}</td></tr>`).join('')}</table></div></div>`;
-  const tpnOn=true;
+  const sg=lipSug(mk);
+  let ban='';
+  if(mk>=100) ban+=`<div class="note warn" style="margin-top:14px"><b>Suggested cut:</b> milk ${r0(mk)} mL/kg/d is at 100 or more. Lipid off, protein 2–2.5 g/kg/d, wean GIR by 2 each step, TPN can stop and dextrose covers the rest.</div>`;
+  else if(mk>=80) ban+=`<div class="note warn" style="margin-top:14px"><b>Suggested cut:</b> milk ${r0(mk)} mL/kg/d is at 80 or more. Lipid cut by 50% to ${r2(sg)} g/kg/d. At 100 lipid goes off.</div>`;
+  if(num('lip')!==sg&&mk>=80) ban+=`<div class="note info">Lipid is ${r2(num('lip'))} g/kg/d, the suggestion is ${r2(sg)}.</div>`;
+  if(num('my')+num('adv')>tf&&tf>0) ban+=`<div class="note info">Yesterday + advance is more than total fluid, so milk is capped at ${r0(tf)} mL/kg/d.</div>`;
+  const milkCard=mk>0?`<div class="card"><h2>Milk <small>${mt} · ${kc} kcal/oz · day ${day}${day===7?'+':''}</small></h2><div class="body"><div class="big3">${k('Per feed',dash(perFeed),u('mL'),`× ${nf} feeds`,'main')}${k('Today',r2(mk),'mL/kg/d',W?`${r0(milkV)} mL/day`:'','main')}${k('Calories',r1(eMilk),'kcal/kg/d',`TC · ${W?r0(eMilk*kg):'–'} kcal/day`,'main')}</div></div></div>`:'';
   const swWarn=(W&&water<-0.04&&tpnOn)?`<div class="note bad" style="margin-top:14px"><b>No room for sterile water.</b> The additives add up to ${r1(-water)} ml more than the ${f(tpnV)} ml bag, so the SW line is left out and the bag would be slightly overfilled. ${water+2.4>=0?`Fix: raise the rate to ${r1(rate+0.1)} ml/hr (bag ${r1((rate+0.1)*24)} ml, SW would be ${r1(water+2.4)} ml), or lower the GIR / sodium / other doses a little.`:'Fix: lower the GIR or other doses, or give more IV volume. Raising the rate by 0.1 is not enough.'}</div>`:'';
-  h=swWarn+orderCard+noteCard+sumCard+h;
+  h=ban+milkCard+swWarn+orderCard+noteCard+sumCard+h;
   $('out').innerHTML=h;
   [['cp',txt],['cp2',stxt],['cp3',nt]].forEach(([i,t])=>{$(i).onclick=()=>{try{navigator.clipboard.writeText(t);$(i).textContent='Copied'}catch(e){}setTimeout(()=>{if($(i))$(i).textContent='Copy'},1200)}});
 }
@@ -283,6 +322,12 @@ document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset
 document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{day=+b.dataset.v;seg('day',v=>+v===day);suggest()});
 document.querySelectorAll('#ln .opt').forEach(b=>b.onclick=()=>{line=b.dataset.v;seg('ln',v=>v===line);calc()});
 document.querySelectorAll('#rk .opt').forEach(b=>b.onclick=()=>{risk[b.dataset.v]=!risk[b.dataset.v];b.setAttribute('aria-pressed',String(risk[b.dataset.v]));suggest()});
-['w','tf','mk','kc','nf','mg','zn','sol','ped','gly','nac','aa','gir','lip','na','k','kp','ca','hep'].forEach(i=>$(i).addEventListener('input',calc));
+['w','kc','mg','zn','sol','ped','gly','nac','aa','gir','lip','na','k','kp','ca','hep','dx'].forEach(i=>$(i).addEventListener('input',calc));
+['tf','my','adv','nf'].forEach(i=>$(i).addEventListener('input',()=>{sugLip();calc()}));
+$('w').addEventListener('change',()=>{sugLip();calc()});
+document.querySelectorAll('#md .opt').forEach(b=>b.onclick=()=>{mode=b.dataset.v;seg('md',v=>v===mode);calc()});
+document.querySelectorAll('#mt .opt').forEach(b=>b.onclick=()=>{mt=b.dataset.v;seg('mt',v=>v===mt);calc()});
+document.querySelectorAll('#kp .opt').forEach(b=>b.onclick=()=>{$('kc').value=b.dataset.v;seg('kp',v=>v===b.dataset.v);calc()});
+$('kc').addEventListener('input',()=>seg('kp',v=>v===$('kc').value));
 suggest();
 </script></body></html>
