@@ -87,11 +87,9 @@ details>summary{cursor:pointer;font-size:13.5px;color:var(--accent)}
 <header><h1>Growth tracker<small>Weight and length/height on the Thai Society for Pediatric Endocrinology charts, 0–19 years</small></h1></header>
 
 <div class="card"><h2>Patient</h2><div class="body">
- <div class="g2">
+ <div class="g2" style="grid-template-columns:1fr">
   <div class="f"><span class="lb">Sex</span><div class="seg" id="sx"><button class="opt" data-v="b" aria-pressed="true">Boy</button><button class="opt" data-v="g" aria-pressed="false">Girl</button></div></div>
-  <div class="f"><span class="lb">Enter age as</span><div class="seg" id="md"><button class="opt" data-v="age" aria-pressed="true">Age</button><button class="opt" data-v="dob" aria-pressed="false">Birth date</button></div></div>
  </div>
- <label class="f" id="dobw" hidden><span class="lb">Date of birth</span><span class="inp"><input id="dob" type="date"></span></label>
  <details><summary>Preterm or parents' heights (optional)</summary>
   <div class="body" style="padding:10px 0 0">
    <label class="f"><span class="lb">Gestational age at birth</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="22" max="42" step="1" placeholder="e.g. 32"><i>weeks</i></span><span class="hint">If under 37 weeks, age is corrected for plotting until 24 months.</span></label>
@@ -175,7 +173,7 @@ function renderRows(){
 function corr(m){const ga=parseFloat($('ga').value); const gap=(40-ga)*7/30.4375; if(ga>=22&&ga<37&&m<24+gap) return {m:Math.max(0,m-gap),c:true}; return {m,c:false}}
 
 function calc(){
-  const dob=$('dob').value, P=[];
+  const dob='', P=[];
   V.forEach((v,i)=>{
     let m0=null;
     if(mode==='age'){ if(v.y!==''||v.mo!=='') m0=(parseFloat(v.y)||0)*12+(parseFloat(v.mo)||0); }
@@ -272,8 +270,7 @@ function chartSVG(R,pts,mph){
   return s+'</svg>';
 }
 document.querySelectorAll('#sx .opt').forEach(b=>b.onclick=()=>{sex=b.dataset.v;document.querySelectorAll('#sx .opt').forEach(x=>x.setAttribute('aria-pressed',String(x.dataset.v===sex)));calc()});
-document.querySelectorAll('#md .opt').forEach(b=>b.onclick=()=>{mode=b.dataset.v;modeUI()});
-['dob','ga','fh','mh'].forEach(i=>$(i).addEventListener('input',calc));
+['ga','fh','mh'].forEach(i=>$(i).addEventListener('input',calc));
 $('add').onclick=()=>addRow();
 addRow();
 </script></body></html>
