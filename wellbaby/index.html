@@ -48,6 +48,7 @@ button,input,select,textarea{font:inherit;color:inherit}
 /* header */
 .hdr{position:sticky;top:env(safe-area-inset-top,0px);z-index:20;background:var(--surface);
   box-shadow:0 0 0 100vmax var(--surface);clip-path:inset(0 -100vmax);padding:10px 0 10px}
+.hdr-act{display:flex;gap:8px;margin-top:8px}.hdr-act .btn{flex:1;min-height:38px;padding:4px 10px}
 .hdr-top{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
 .brand{font:600 18px/1.2 var(--f-head);letter-spacing:.01em}
 .brand small{display:block;font:400 12px/1.4 var(--f-body);color:var(--ink-2);letter-spacing:0}
@@ -252,6 +253,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
       <div class="brand">Well baby clinic<small>อิงแบบฟอร์ม CHS 2026 · อายุ 2 เดือน – 4 ปี</small></div>
       <button type="button" class="btn infobtn" id="btn-info" aria-haspopup="dialog">ⓘ ข้อมูลอ้างอิง</button>
     </div>
+    <div class="hdr-act" id="hdr-act" hidden><button type="button" class="btn solid" id="btn-rep2">ดูรายงาน</button><button type="button" class="btn danger" id="btn-clear2" data-lab="ล้างทั้งหมด">ล้างทั้งหมด</button><button type="button" class="btn" id="btn-info2" aria-label="ข้อมูลอ้างอิง" style="flex:0 0 44px">ⓘ</button></div>
   </header>
   <dialog id="info-dlg" aria-labelledby="info-ttl">
     <h2 id="info-ttl">ข้อจำกัดความรับผิดชอบและแหล่งข้อมูล</h2>
@@ -938,7 +940,7 @@ function reportText(){
 /* ---------- events ---------- */
 function setView(which){
   const rep=which==='report';
-  $('#view-form').hidden=rep; $('#view-report').hidden=!rep;
+  $('#view-form').hidden=rep; $('#view-report').hidden=!rep; { const b=$('#btn-rep2'); if(b) b.textContent=rep?'← กลับไปฟอร์ม':'ดูรายงาน'; }
   if(rep) renderReport(); window.scrollTo(0,0);
 }
 function switchVisit(v){ S.visit=v; renderVisits(); renderForm(); document.body.dataset.visit=v; refresh(); }
@@ -967,8 +969,10 @@ document.addEventListener('click',e=>{
     case 'tab-form': setView('form'); break;
     case 'tab-report': case 'btn-toreport': setView('report'); break;
     case 'btn-back': setView('form'); break;
+    case 'btn-rep2': setView($('#view-report').hidden?'report':'form'); break;
     case 'btn-gauto': delete S.gevalManual; refresh(); break;
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
+    case 'btn-clear2': if(t.dataset.arm){ delete t.dataset.arm; t.textContent=t.dataset.lab; S={visit:S.visit,vd:todayISO(),cc:DEFCC,agemode:'age'}; renderForm(); refresh(); if(!$('#view-report').hidden) setView('form'); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อล้าง'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent=t.dataset.lab; } },4000); } break;
     case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO(),cc:DEFCC,agemode:'age'}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
     case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=t.id==='btn-copy'?chartNote():reportText(); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
       const fb=()=>{ $('#copyarea').innerHTML='<textarea class="copybox" id="cptxt" readonly></textarea>'; const ta=$('#cptxt'); ta.value=txt; ta.focus(); ta.select(); };
@@ -1001,7 +1005,7 @@ renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh();
 <script>
 (function(){ const d=document.getElementById('info-dlg'); if(!d||!d.showModal) return;
   const open=()=>{ try{d.showModal();}catch(_){} };
-  document.getElementById('btn-info').addEventListener('click',open);
+  document.getElementById('btn-info').addEventListener('click',open); document.getElementById('btn-info2').addEventListener('click',open);
   document.getElementById('btn-info-ok').addEventListener('click',()=>{ d.close(); });
   d.addEventListener('click',e=>{ if(e.target===d) d.close(); });
   document.getElementById('st-info').addEventListener('click',open);
@@ -1013,7 +1017,7 @@ renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh();
   if(!st||!ml||!sv) return;
   if(fo) fo.hidden=true;
   sv.innerHTML=VIS.map(v=>`<button type="button" class="vbtn" data-v="${v}"><b>${VB[v]}</b><span>${VSUB[v]}</span></button>`).join('');
-  function go(v){ st.hidden=true; ml.hidden=false; if(fo) fo.hidden=false; if(v!==S.visit) switchVisit(v); else { renderVisits(); } window.scrollTo(0,0); window.dispatchEvent(new Event('resize')); }
+  function go(v){ st.hidden=true; ml.hidden=false; $('#hdr-act').hidden=false; $('#btn-info').hidden=true; if(fo) fo.hidden=false; if(v!==S.visit) switchVisit(v); else { renderVisits(); } window.scrollTo(0,0); window.dispatchEvent(new Event('resize')); }
   sv.addEventListener('click',e=>{ const b=e.target.closest('.vbtn'); if(b) go(+b.dataset.v); });
 })();
 </script>
