@@ -137,7 +137,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
 .g2 .fld,.g2 .inp{min-width:0}.g2 input[type=date]{min-width:0;font-size:14px}
 .g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
-.row.inl{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.row.inl{display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-wrap:wrap}.row.inl .lb{min-width:96px}
 .nrec:empty{display:none}
 .keep2{display:contents}
 .keep2 .line2{grid-template-columns:auto 1fr!important}
@@ -344,7 +344,7 @@ const thDate=iso=>{const t=parseISO(iso); if(t==null) return ''; const d=new Dat
 const fromT=t=>{const d=new Date(t);return d.getUTCFullYear()+'-'+String(d.getUTCMonth()+1).padStart(2,'0')+'-'+String(d.getUTCDate()).padStart(2,'0');};
 
 const DEFCC='มาตรวจสุขภาพเด็กดีตามนัด';
-let S={visit:2,vd:todayISO(),cc:DEFCC};
+let S={visit:2,vd:todayISO(),cc:DEFCC,agemode:'age'};
 let REG={};
 const STR={ok:'ok',warn:'warn',bad:'bad'};
 
@@ -778,7 +778,7 @@ function renderForm(){
 }
 
 /* ---------- derived ---------- */
-function ageMode(){ return S.agemode==='age'?'age':'dob'; }
+function ageMode(){ return S.agemode==='dob'?'dob':'age'; }
 function ageYM(a){ const y=Math.floor(a.m/12), mo=a.m%12; return (y?y+' ปี ':'')+mo+' เดือน'; }
 function ageInfo(){
   if(ageMode()==='age'){ const y=Math.max(0,+S.age_y||0), mo=Math.max(0,+S.age_m||0); if(!(+S.age_y>0||+S.age_m>0)) return null;
@@ -967,7 +967,7 @@ document.addEventListener('click',e=>{
     case 'btn-back': setView('form'); break;
     case 'btn-gauto': delete S.gevalManual; refresh(); break;
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
-    case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO(),cc:DEFCC}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
+    case 'btn-clear': if(t.dataset.arm){ S={visit:S.visit,vd:todayISO(),cc:DEFCC,agemode:'age'}; renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
     case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=t.id==='btn-copy'?chartNote():reportText(); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
       const fb=()=>{ $('#copyarea').innerHTML='<textarea class="copybox" id="cptxt" readonly></textarea>'; const ta=$('#cptxt'); ta.value=txt; ta.focus(); ta.select(); };
       try{ navigator.clipboard.writeText(txt).then(done,fb); }catch(_){ fb(); } break; }
