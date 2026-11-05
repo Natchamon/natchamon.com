@@ -137,6 +137,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .g2{display:grid;grid-template-columns:1fr 1fr;gap:8px 10px}
 .g2 .fld,.g2 .inp{min-width:0}.g2 input[type=date]{min-width:0;font-size:14px}
 .g2 .inp{min-height:38px;padding:0 8px}.g2 .inp input{padding:6px 0}.g2 .lb{font-size:13px}
+.sugg{flex:1 0 100%;display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:var(--warn-bg,#FCEBDA);color:var(--warn,#A8500F);border-radius:12px;padding:10px 12px;font-size:14px}.sugg .btn-s{min-height:40px;padding:6px 14px;border-radius:10px;border:1.5px solid currentColor;background:var(--surface,#fff);color:inherit;font-weight:600;cursor:pointer}
 .row.inl{display:flex;align-items:center;justify-content:flex-start;gap:12px;flex-wrap:wrap}.row.inl .lb{min-width:96px}
 .nrec:empty{display:none}
 .keep2{display:contents}
@@ -836,6 +837,7 @@ function refresh(){
       const dm=a.m+a.d/30.4375, tol=S.visit>=18?2:1, diff=Math.abs(dm-S.visit);
       if(a.m>228) h+='<span class="pill bad">อายุเกิน 19 ปี ข้อมูลอ้างอิงนี้ไม่ครอบคลุม</span>';
       else if(diff<=tol) h+=`<span class="pill ok">ตรงกับนัด ${vl(S.visit)}</span>`;
+      else { const sv=VIS.reduce((b,v)=>Math.abs(dm-v)<Math.abs(dm-b)?v:b,VIS[0]); if(sv!==S.visit) h+=`<div class="sugg"><span>อายุ ${a.approx?ageYM(a):a.m+' เดือน'} เหมาะกับแบบฟอร์ม <b>${vl(sv)}</b> มากกว่า ${vl(S.visit)}</span><button type="button" class="btn-s" data-goto="${sv}">ไปแบบฟอร์ม ${vl(sv)}</button></div>`; }
     }
     ai.innerHTML=h; }
   // sleep
