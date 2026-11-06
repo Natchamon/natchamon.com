@@ -70,7 +70,7 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 <script>
 const $=id=>document.getElementById(id);
 let mp=100, md=24, sev='none';
-const PCT={l:{mild:5,mod:10,sev:15},m:{mild:5,mod:6,sev:9}};
+const PCT={l:{mild:5,mod:10,sev:15},m:{mild:3,mod:6,sev:9}};
 const MULT={mild:1.2,mod:1.5};
 function bracket(w){return !(w>0)?'l':w>30?'h':w>=10?'m':'l'}
 function renderPre(w){
@@ -80,7 +80,7 @@ function renderPre(w){
   $('pre').innerHTML=it.map(([k,l])=>`<button class="opt" data-k="${k}" aria-pressed="${sev===k}">${l}</button>`).join('');
   document.querySelectorAll('#pre .opt').forEach(b=>b.onclick=()=>{sev=b.dataset.k;sync()});
   $('dwrap').hidden=br==='h'; $('mdwrap').hidden=br==='h';
-  $('prehint').textContent= !(w>0)?'Enter the weight to see the presets for that weight.':br==='h'?'Over 30 kg: no separate deficit. Rate = maintenance × 120% (mild) or × 150% (moderate).':br==='m'?'10–30 kg: deficit = 5% mild, 6% moderate, 9% severe of body weight.':'Under 10 kg: deficit = 5% mild, 10% moderate, 15% severe of body weight.';
+  $('prehint').textContent= !(w>0)?'Enter the weight to see the presets for that weight.':br==='h'?'Over 30 kg: no separate deficit. Rate = maintenance × 120% (mild) or × 150% (moderate).':br==='m'?'10–30 kg: deficit = 3% mild, 6% moderate, 9% severe of body weight.':'Under 10 kg: deficit = 5% mild, 10% moderate, 15% severe of body weight.';
 }
 const r1=x=>Math.round(x*10)/10, r0=Math.round;
 function maint(w){ // returns {day, hr}
