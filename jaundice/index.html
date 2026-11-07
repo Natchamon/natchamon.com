@@ -63,7 +63,6 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
  <details id="agecalc"><summary>Age calculator (date of birth → hours)</summary><div class="body" style="padding:10px 0 0">
   <label class="f"><span class="lb">Date of birth</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
   <label class="f"><span class="lb">Measurement date</span><span class="inp"><input id="cdt" type="datetime-local"></span></label>
-  <div><button class="btn" id="acb" type="button">Calculate age</button></div>
   <div class="lb" id="acout"></div>
  </div></details>
  <div class="g2">
@@ -84,7 +83,6 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
  <div class="g2">
   <label class="f"><span class="lb">Previous TSB (or TcB)</span><span class="inp"><input id="ptsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>mg/dL</i></span></label>
   <label class="f"><span class="lb">Previous TSB taken (uses date of birth above)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
-  <div><button class="btn" id="pcb" type="button">Calculate age</button></div>
   <div class="lb" id="pcout"></div>
   <label class="f"><span class="lb">Its age</span><span class="inp"><input id="page" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 36"><i>hours</i></span></label>
  </div>
@@ -268,10 +266,10 @@ function pcalc(){
   if(h<0){$('pcout').textContent='Previous TSB is before birth.';return}
   $('page').value=Math.round(h);$('pcout').textContent='Age at previous TSB: '+Math.round(h)+' h ('+hrTxt(h)+')';calc();
 }
-$('pdt').addEventListener('input',pcalc);$('pcb').onclick=pcalc;$('bdt').addEventListener('input',()=>{if($('pdt').value)pcalc()});
+$('pdt').addEventListener('input',pcalc);$('bdt').addEventListener('input',()=>{if($('pdt').value)pcalc()});
 $('cdt').value=nowLocal();
 ['bdt','cdt'].forEach(i=>$(i).addEventListener('input',acalc));
-$('acb').onclick=()=>{ if($('cdt').dataset.edited!=='1') $('cdt').value=nowLocal(); acalc(); };
+setInterval(()=>{if($('cdt').dataset.edited!=='1'){$('cdt').value=nowLocal();if($('bdt').value)acalc()}},30000);
 $('cdt').addEventListener('input',()=>{$('cdt').dataset.edited='1'});
 $('postpt').addEventListener('input',calc);
 buildRF('term'); calc();
