@@ -60,6 +60,12 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 <header><h1>Neonatal jaundice<small>Phototherapy and exchange thresholds · follow-up · PCMC guideline v.I, 22/04/2026</small></h1></header>
 
 <div class="card"><h2>Baby</h2><div class="body">
+ <details id="agecalc"><summary>Age calculator (birth date and time → hours)</summary><div class="body" style="padding:10px 0 0">
+  <label class="f"><span class="lb">Birth date and time</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
+  <label class="f"><span class="lb">TSB / TcB taken at</span><span class="inp"><input id="cdt" type="datetime-local"></span><span class="hint">Leave blank to use now.</span></label>
+  <label class="f"><span class="lb">Previous TSB taken at (optional)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
+  <div class="lb" id="acout"></div>
+ </div></details>
  <div class="g2">
   <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="22" max="44" step="1" placeholder="e.g. 38"><i>weeks</i></span></label>
   <label class="f"><span class="lb">Age</span><span class="inp"><input id="age" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 60"><i>hours</i></span></label>
@@ -72,12 +78,6 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
   <label class="f"><span class="lb">Weight (optional)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3"><i>kg</i></span></label>
  </div>
  <div class="lb" id="agenote"></div>
- <details id="agecalc"><summary>Age calculator (birth date and time → hours)</summary><div class="body" style="padding:10px 0 0">
-  <label class="f"><span class="lb">Birth date and time</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
-  <label class="f"><span class="lb">TSB / TcB taken at</span><span class="inp"><input id="cdt" type="datetime-local"></span><span class="hint">Leave blank to use now.</span></label>
-  <label class="f"><span class="lb">Previous TSB taken at (optional)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
-  <div class="lb" id="acout"></div>
- </div></details>
 </div></div>
 
 <div class="card"><h2>Rate of rise <small>optional, from a previous TSB</small></h2><div class="body">
