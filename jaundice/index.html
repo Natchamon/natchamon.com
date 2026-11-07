@@ -259,7 +259,7 @@ function calc(){
   if(plan) h2+=`<div class="card"><h2>Follow-up plan <small>what to do next</small></h2><div class="body">${plan}</div></div>`;
   h2+=`<div class="card"><h2>Threshold in the guideline table</h2><div class="body">${otable(mode,risk,ga,h)}</div></div>`;
   CTX={ga,h,tsb,pt,pa,risk,mode,dP,photo};
-  h2+=`<div class="card"><h2>Threshold charts <small>baby plotted</small></h2><div class="body" id="chbody"></div></div>`;
+  h2+=`<div class="card"><h2>Threshold charts <small>AAP 2022 · baby plotted</small></h2><div class="body" id="chbody"></div></div>`;
   h2+=`<div class="card"><h2>Follow-up tables <small>highlighted row = this baby</small></h2><div class="body">${fuHTML()}</div></div>`;
   out.innerHTML=h2; drawCharts(); hlFU(ga<40||rflag,false);
   document.querySelectorAll('.ot').forEach(o=>{const c=o.querySelector('td.c'); if(c) o.scrollLeft=Math.max(0,c.offsetLeft-o.clientWidth/2+c.offsetWidth/2)});
@@ -278,34 +278,30 @@ const aapTag=t=>`<div class="aap"><b>AAP:</b> ${t}</div>`;
 const AAPSTOP='stop when TSB is at least 2 mg/dL below the threshold at which phototherapy was started; check TSB about 24 h after stopping, or 6–12 h if phototherapy was started before 48 h of age.';
 // ---------- charts and follow-up tables ----------
 let CTX=null; const CH={risk:null};
-const PAL=['#0E8A8F','#D9822B','#9B2D7A','#3FB6B2','#C99700','#E0456F'];
-function curvePts(row){const p=[];for(let i=0;i<14;i++)p.push([6*(i+1),row[i]]);p.push([96,row[14]],[168,row[14]],[192,row[15]],[336,row[15]]);return p}
-function chartSVG(kind,rk,c){
-  const tab=kind+(rk?'Risk':'No'), rows=T[tab], keys=Object.keys(rows).map(Number), mx=Math.max(...keys);
-  const gk=Math.min(Math.max(Math.floor(c.ga),35),mx);
-  const X0=36,X1=348,Y0=8,Y1=188;
-  let lo=kind==='photo'?4:12, hi=kind==='photo'?24:28;
-  [c.tsb,c.pt].forEach(v=>{if(v>0){hi=Math.max(hi,Math.ceil((v+1)/2)*2);lo=Math.min(lo,Math.floor((v-1)/2)*2)}});
-  const sx=h=>X0+Math.min(h,336)/336*(X1-X0), sy=v=>Y1-(v-lo)/(hi-lo)*(Y1-Y0);
-  let g='';
-  for(let v=lo;v<=hi;v+=2) g+=`<line x1="${X0}" x2="${X1}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)" stroke-width=".6"/><text x="${X0-4}" y="${sy(v)+3}" text-anchor="end">${v}</text>`;
-  for(let h=0;h<=336;h+=24) g+=`<line x1="${sx(h)}" x2="${sx(h)}" y1="${Y0}" y2="${Y1}" stroke="var(--line)" stroke-width=".6"/>`+(h%48===0?`<text x="${sx(h)}" y="${Y1+13}" text-anchor="middle">${h===0?'0':h/24+'d'}</text>`:'');
-  const sorted=keys.slice().sort((a,b)=>a-b);
-  const line=(k,bold)=>{const col=PAL[sorted.indexOf(k)%PAL.length],pts=curvePts(rows[k]).map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ');
-    return `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="${bold?3:1.3}" ${(k%2===1&&!bold)?'stroke-dasharray="4 3"':''} opacity="${bold?1:.75}" stroke-linejoin="round"/>`};
-  sorted.filter(k=>k!==gk).forEach(k=>g+=line(k,false)); g+=line(gk,true);
-  if(c.pt>0&&c.pa>=0&&c.pa<c.h) g+=`<line x1="${sx(c.pa)}" y1="${sy(c.pt)}" x2="${sx(c.h)}" y2="${sy(c.tsb)}" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 2"/><circle cx="${sx(c.pa)}" cy="${sy(c.pt)}" r="4.5" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>`;
-  g+=`<circle cx="${sx(c.h)}" cy="${sy(c.tsb)}" r="5.5" fill="var(--bad)" stroke="#fff" stroke-width="1.5"/>`;
-  const lbl=k=>k===mx?'≥ '+k:String(k);
-  const lg=sorted.slice().reverse().map(k=>`<span><i style="border-top:3px ${k%2===1?'dashed':'solid'} ${PAL[sorted.indexOf(k)%PAL.length]}"></i>${lbl(k)} wk${k===gk?' (this baby)':''}</span>`).join('');
-  const ttl=(kind==='photo'?'Phototherapy':'Exchange transfusion')+' threshold · '+(rk?'with':'no')+' neurotoxicity risk factor';
-  return `<div class="fuh">${ttl}</div><svg class="chrt" viewBox="0 0 360 222" role="img" aria-label="${ttl}">${g}<line x1="${X0}" x2="${X0}" y1="${Y0}" y2="${Y1}" stroke="var(--ink-2)"/><line x1="${X0}" x2="${X1}" y1="${Y1}" y2="${Y1}" stroke="var(--ink-2)"/><text x="${(X0+X1)/2}" y="216" text-anchor="middle">Age (days)</text><text transform="translate(9 ${(Y0+Y1)/2}) rotate(-90)" text-anchor="middle">TSB (mg/dL)</text></svg><div class="lg">${lg}</div>`;
+// AAP 2022 figures 1-4: pixel calibration of each image (x: 0..336 h; y: ymin..ymax)
+const AAPIMG={
+  photo_no:{w:1350,h:753,x0:58.5,x1:1324.5,yb:652.5,yt:10.5,ymin:6,ymax:24},
+  photo_risk:{w:1350,h:753,x0:58.5,x1:1324.5,yb:652.5,yt:10.5,ymin:4,ymax:20},
+  exch_no:{w:1348,h:750,x0:59,x1:1320,yb:650,yt:10.5,ymin:14,ymax:28},
+  exch_risk:{w:1348,h:750,x0:59,x1:1320,yb:650,yt:10.5,ymin:12,ymax:24}};
+function chartImg(kind,rk,c){
+  const key=kind+'_'+(rk?'risk':'no'), m=AAPIMG[key];
+  const px=h=>m.x0+Math.min(Math.max(h,0),336)/336*(m.x1-m.x0);
+  const py=v=>{const y=m.yb-(v-m.ymin)/(m.ymax-m.ymin)*(m.yb-m.yt);return Math.min(Math.max(y,m.yt),m.yb)};
+  const off=v=>v>m.ymax?'above':v<m.ymin?'below':'';
+  const r=Math.max(m.w/70,10);
+  let g=`<line x1="${px(c.h)}" x2="${px(c.h)}" y1="${m.yt}" y2="${m.yb}" stroke="#555" stroke-width="2" stroke-dasharray="8 6" opacity=".55"/>`;
+  if(c.pt>0&&c.pa>=0&&c.pa<c.h) g+=`<line x1="${px(c.pa)}" y1="${py(c.pt)}" x2="${px(c.h)}" y2="${py(c.tsb)}" stroke="#111" stroke-width="3" stroke-dasharray="8 6"/><circle cx="${px(c.pa)}" cy="${py(c.pt)}" r="${r*.85}" fill="#fff" stroke="#111" stroke-width="4"/>`;
+  g+=`<circle cx="${px(c.h)}" cy="${py(c.tsb)}" r="${r}" fill="#D6204A" stroke="#fff" stroke-width="4"/>`;
+  const ttl=(kind==='photo'?'Phototherapy':'Exchange transfusion')+' thresholds · '+(rk?'with':'no')+' neurotoxicity risk factor';
+  const note=off(c.tsb)?`<div class="note warn">TSB ${r1(c.tsb)} is ${off(c.tsb)} the range of this chart (${m.ymin}–${m.ymax} mg/dL); the point is drawn at the edge.</div>`:'';
+  return `<div class="fuh">${ttl}</div><div style="position:relative;line-height:0"><img src="aap-${key}.jpg" alt="${ttl}" style="width:100%;height:auto;display:block;border:1px solid var(--line);border-radius:8px;background:#fff"><svg viewBox="0 0 ${m.w} ${m.h}" style="position:absolute;inset:0;width:100%;height:100%">${g}</svg></div>${note}`;
 }
 function drawCharts(){
   const c=CTX, el=$('chbody'); if(!el) return;
   if(!c||c.mode!=='term'){el.innerHTML='<div class="note info">The charts cover gestational age 35 weeks and above.</div>';return}
   const rk=CH.risk==null?c.risk:CH.risk;
-  el.innerHTML=`<div class="seg" id="chseg"><button class="opt" data-v="0" aria-pressed="${!rk}">No risk factor</button><button class="opt" data-v="1" aria-pressed="${rk}">With risk factor</button></div>`+chartSVG('photo',rk,c)+chartSVG('exch',rk,c)+`<div class="lg"><span><b style="color:var(--bad)">●</b> TSB now (${r1(c.tsb)} at ${Math.round(c.h)} h)</span>${c.pt>0&&c.pa>=0&&c.pa<c.h?`<span>○ previous TSB (${r1(c.pt)} at ${Math.round(c.pa)} h)</span>`:''}</div>${c.h>336?'<div class="note warn">Age is beyond 14 days; the point is drawn at the right edge.</div>':''}<div class="lb">Curves join the PCMC table values (the page uses the lower value between table columns).</div>`;
+  el.innerHTML=`<div class="seg" id="chseg"><button class="opt" data-v="0" aria-pressed="${!rk}">No risk factor</button><button class="opt" data-v="1" aria-pressed="${rk}">With risk factor</button></div>`+chartImg('photo',rk,c)+chartImg('exch',rk,c)+`<div class="lg"><span><b style="color:#D6204A">●</b> TSB now (${r1(c.tsb)} at ${Math.round(c.h)} h)</span>${c.pt>0&&c.pa>=0&&c.pa<c.h?`<span>○ previous TSB (${r1(c.pt)} at ${Math.round(c.pa)} h)</span>`:''}<span>┆ dashed line = baby's age</span></div>${c.h>336?'<div class="note warn">Age is beyond 14 days; the point is drawn at the right edge.</div>':''}<div class="lb">Source: Kemper AR, Newman TB, Slaughter JL, et al. Clinical Practice Guideline Revision: Management of Hyperbilirubinemia in the Newborn Infant 35 or More Weeks of Gestation. <i>Pediatrics</i>. 2022;150(3):e2022058859. doi:10.1542/peds.2022-058859. Figures 1–4 © American Academy of Pediatrics, reproduced for reference with this baby's values plotted on them. The tool's thresholds come from the PCMC table, which can differ slightly from the curves.</div>`;
   document.querySelectorAll('#chseg .opt').forEach(b=>b.onclick=()=>{CH.risk=b.dataset.v==='1';drawCharts()});
 }
 function fuHTML(){
