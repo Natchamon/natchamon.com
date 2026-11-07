@@ -123,10 +123,8 @@ function calc(){
    const whole=Math.abs(perFeed-Math.round(perFeed))<1e-9;
    const c=(o,f,d)=>W?r1(o[f])+(d||''):'–';
    h+=`<table class="sm"><tr><td>Per feed</td><td>${W?r1(perFeed)+' mL':'–'}${W?` <small>(${r2(perFeed/30)} oz × ${nf} feeds)</small>`:''}</td></tr>
-   <tr><td>Total volume (TV)</td><td>${W?r0(enV)+' mL/day':'–'}</td></tr>
-   <tr><td>TV per kg</td><td>${r1(enkg)} mL/kg/day</td></tr>
-   <tr><td>Total calories (TC)</td><td>${W?r0(milkK)+' kcal/day':'–'}</td></tr>
-   <tr><td>TC per kg</td><td>${r1(tc)} kcal/kg/day</td></tr></table>`;
+   <tr><td>Total volume</td><td>${r1(enkg)} mL/kg/day${W?`<br><small>(${r0(enV)} mL/day)</small>`:''}</td></tr>
+   <tr><td>Total calories</td><td>${r1(tc)} kcal/kg/day${W?`<br><small>(${r0(milkK)} kcal/day)</small>`:''}</td></tr></table>`;
    if(W){
     h+=`<div class="lb" style="margin:14px 0 4px">If the per-feed volume is rounded to a whole mL</div>`;
     if(whole) h+=`<div class="note info">Per feed is already a whole number (${r0(perFeed)} mL).</div>`;
