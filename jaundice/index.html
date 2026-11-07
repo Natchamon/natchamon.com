@@ -100,7 +100,7 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 <div class="foot"><p><b>Disclaimer.</b> This tool is based on the PCMC neonatal jaundice guideline (Version I, 22 April 2026), prepared by the Department of Pediatrics, Pannanonda Bhikkhu Chaipradit Medical Center (PCMC). It is a reference aid only, not a substitute for your unit protocol or clinical judgement, and it is not an official PCMC product.</p>
 <p><b>Sources cited in the guideline:</b></p>
 <ul style="margin:0 0 8px;padding-left:18px"><li>Adapted from: Thai Neonatal Society and Royal College of Pediatricians of Thailand (2026). Clinical practice guideline for the management of neonatal jaundice, B.E. 2568. Bangkok: Thai Neonatal Society.</li><li>American Academy of Pediatrics (2022). Management of hyperbilirubinemia in the newborn infant ≥35 weeks of gestation. Pediatrics, 150(3): e2022058859.</li></ul>
-<p>Thresholds are transcribed from the guideline tables; between the table's age columns the value is interpolated linearly.</p></div>
+<p>Thresholds are transcribed from the guideline tables; when the age falls between two columns, the lower threshold is used.</p></div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -114,13 +114,15 @@ const T={
 };
 function look(tab,ga,h,cap){const row=T[tab][Math.min(Math.max(Math.floor(ga),35),cap)];
   if(h<=6)return row[0];
-  if(h<=84){const i=Math.floor(h/6)-1,f=(h-6*(i+1))/6;return i>=13?row[13]:row[i]+(row[i+1]-row[i])*f}
-  if(h<96)return row[13]+(row[14]-row[13])*(h-84)/12;
+  if(h<=84){const i=Math.floor(h/6)-1; return (h%6===0||i>=13)?row[i]:Math.min(row[i],row[i+1])}
+  if(h<96)return Math.min(row[13],row[14]);
   if(h<192)return row[14];
   return row[15]}
+// hour of the table column used when the age falls between two columns (null if on a column / inside a band)
+function betweenHr(h){ if(h<6) return null; if(h<=84) return h%6===0?null:6*Math.floor(h/6); if(h<96) return 84; return null }
 // table 3: no follow-up TSB needed (age 48..96 h)
 const T3=[9,9.5,10,10.2,10.5,11,11.2,11.5,12];
-function t3(h){if(h<48||h>96)return null;const i=Math.min(Math.floor((h-48)/6),7),f=(h-48-6*i)/6;return h>=96?12:T3[i]+(T3[i+1]-T3[i])*f}
+function t3(h){if(h<48||h>96)return null;return h>=96?12:T3[Math.floor((h-48)/6)]}
 // preterm <35 wk by PMA: [photo lo, hi, exch lo, hi]
 function pre(pma){return pma<28?[5,6,11,14]:pma<30?[6,8,12,14]:pma<32?[8,10,13,16]:pma<34?[10,12,15,18]:[12,14,17,19]}
 const RF35=['Isoimmune hemolytic disease (e.g. DAT positive)','G6PD deficiency','Other hemolytic condition','Sepsis','Significant clinical instability in the last 24 h'];
@@ -133,7 +135,7 @@ function buildRF(m){ if(rfMode===m)return; rfMode=m; const L=m==='pre'?RF34:RF35
   
   $('rf').querySelectorAll('input').forEach(c=>c.addEventListener('input',calc)); }
 const COLS=Array.from({length:14},(_,i)=>(i+1)*6+'h').concat(['4–7 d','8–14 d']);
-function usedCols(h){ if(h<=6) return [0]; if(h<=84){const i=Math.floor(h/6)-1,f=(h-6*(i+1))/6; return f>0?[i,i+1]:[i]} if(h<96) return [13,14]; if(h<192) return [14]; return [15]; }
+function usedCols(h){ if(h<=6) return [0]; if(h<=84) return [Math.floor(h/6)-1]; if(h<96) return [13]; if(h<192) return [14]; return [15]; }
 function otbl(title,key,cap,ga,h){
   const rowKey=Math.min(Math.max(Math.floor(ga),35),cap), used=usedCols(h);
   let t=`<div class="lb" style="margin:10px 0 4px"><b>${title}</b></div><div class="ot"><table><tr><th>GA</th>${COLS.map((c,i)=>`<th${used.includes(i)?' class="u"':''}>${c}</th>`).join('')}</tr>`;
@@ -146,7 +148,7 @@ function otable(mode,risk,ga,h){
   if(mode==='term'){
     return otbl('Phototherapy threshold (mg/dL) · '+(risk?'with risk factor (Table 1)':'no risk factor (Table 5)'),risk?'photoRisk':'photoNo',risk?38:40,ga,h)
       +otbl('Exchange transfusion threshold (mg/dL) · '+(risk?'with risk factor (Table 2)':'no risk factor (Table 6)'),risk?'exchRisk':'exchNo',38,ga,h)
-      +'<div class="lb" style="margin-top:8px">Dark cells are the table values around this baby (the threshold above is interpolated between them). A + means that row applies to that GA and above.</div>';
+      +'<div class="lb" style="margin-top:8px">Dark cells are the table values around this baby (when the age is between two columns, the lower value is used). A + means that row applies to that GA and above.</div>';
   }
   const pma=ga+h/168, bands=[['< 28 wk',5,6,11,14],['28 – <30 wk',6,8,12,14],['30 – <32 wk',8,10,13,16],['32 – <34 wk',10,12,15,18],['34 – <35 wk',12,14,17,19]];
   const ix=pma<28?0:pma<30?1:pma<32?2:pma<34?3:4;
@@ -240,9 +242,10 @@ function calc(){
   const rateTxt=rate==null?'___':Math.abs(Math.round(rate*100)/100)+' mg/dL/h';
   const thrAt=hh=>r1(mode==='term'?look(risk?'photoRisk':'photoNo',ga,hh,risk?38:40):pre(ga+hh/168)[risk?0:1]);
   const nr=risk?'':' (no risk)', hv=v=>v>=0?v:'___';
+  const atb=hh=>{const x=mode==='term'?betweenHr(hh):null;return x?` (at ${x} hr)`:''};
   const lines=[];
-  if(pt>0&&pa>=0&&pa<h){const tp=thrAt(pa);lines.push(`Hct/TB at ${Math.round(pa)} hr = ${hv(parseFloat($('phct').value))}/${r1(pt)} (phototherapy threshold${nr} ${tp}, delta ${sg(pt-tp)})`)}
-  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}, delta ${dsig}${rate==null?'':', rate '+(rate>=0?'rising ':'falling ')+rateTxt})`);
+  if(pt>0&&pa>=0&&pa<h){const tp=thrAt(pa);lines.push(`Hct/TB at ${Math.round(pa)} hr = ${hv(parseFloat($('phct').value))}/${r1(pt)} (phototherapy threshold${nr} ${tp}${atb(pa)}, delta ${sg(pt-tp)})`)}
+  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}${atb(h)}, delta ${dsig}${rate==null?'':', rate '+(rate>=0?'rising ':'falling ')+rateTxt})`);
   const rep=lines.join('\n');
   h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word;white-space:pre-line">${rep}</div></div></div>`;
   if(plan) h2+=`<div class="card"><h2>Follow-up plan <small>what to do next</small></h2><div class="body">${plan}</div></div>`;
