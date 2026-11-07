@@ -55,6 +55,12 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 ul.act{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
 [hidden]{display:none!important}.ot{overflow-x:auto}.ot table{min-width:620px;font-size:12.5px}.ot td,.ot th{text-align:center;padding:5px 6px}.ot td:first-child,.ot th:first-child{position:sticky;left:0;background:var(--surface);white-space:nowrap;z-index:1}.ot td.u,.ot th.u{background:var(--accent-soft)}.ot td.c{background:var(--accent);color:var(--on-accent,#fff);font-weight:700}
 details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0}
+.chrt{width:100%;height:auto;display:block}.chrt text{font:10px var(--f-body,system-ui);fill:var(--ink-2)}
+.lg{display:flex;flex-wrap:wrap;gap:4px 12px;font-size:12px;color:var(--ink-2);margin:2px 0 6px}.lg i{display:inline-block;width:18px;vertical-align:middle;margin-right:4px}
+table.fu td,table.fu th{text-align:left;vertical-align:top;font-size:13px}
+table.fu tr.hlr td{background:var(--accent-soft);font-weight:600}
+table.fu td.hlc{outline:2px solid var(--accent);outline-offset:-2px}
+.fuh{font-weight:600;margin:6px 0 4px}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Neonatal jaundice<small>Phototherapy and exchange thresholds · follow-up · PCMC guideline v.I, 22/04/2026</small></h1></header>
@@ -250,16 +256,84 @@ function calc(){
   h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word;white-space:pre-line">${rep}</div></div></div>`;
   if(plan) h2+=`<div class="card"><h2>Follow-up plan <small>what to do next</small></h2><div class="body">${plan}</div></div>`;
   h2+=`<div class="card"><h2>Threshold in the guideline table</h2><div class="body">${otable(mode,risk,ga,h)}</div></div>`;
-  out.innerHTML=h2;
+  CTX={ga,h,tsb,pt,pa,risk,mode,dP,photo};
+  h2+=`<div class="card"><h2>Threshold charts <small>baby plotted</small></h2><div class="body" id="chbody"></div></div>`;
+  h2+=`<div class="card"><h2>Follow-up tables <small>highlighted row = this baby</small></h2><div class="body">${fuHTML()}</div></div>`;
+  out.innerHTML=h2; drawCharts(); hlFU(ga<40||rflag,false);
   document.querySelectorAll('.ot').forEach(o=>{const c=o.querySelector('td.c'); if(c) o.scrollLeft=Math.max(0,c.offsetLeft-o.clientWidth/2+c.offsetWidth/2)});
   $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep);$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
   const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${(i===0&&ga<40)||(i===2&&rflag)?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
     const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
       let t; if(dP<2) t='On phototherapy.'; else if(dP<5.5) t=rk?'Follow up after 24–48 hours.':'Follow up after 48–72 hours.'; else t=rk?'Follow up after 72–96 hours.':(hb?'Follow up at age 1 month (mother has hepatitis B).':'Follow up at age 2 months.');
-      $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
+      hlFU(rk,hb); $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
     fr.addEventListener('input',upd); upd(); }
 }
 ['ga','age','tsb','w','hct','ptsb','page','phct'].forEach(i=>$(i).addEventListener('input',calc));
+
+// ---------- charts and follow-up tables ----------
+let CTX=null; const CH={risk:null};
+const PAL=['#0E8A8F','#D9822B','#9B2D7A','#3FB6B2','#C99700','#E0456F'];
+function curvePts(row){const p=[];for(let i=0;i<14;i++)p.push([6*(i+1),row[i]]);p.push([96,row[14]],[168,row[14]],[192,row[15]],[336,row[15]]);return p}
+function chartSVG(kind,rk,c){
+  const tab=kind+(rk?'Risk':'No'), rows=T[tab], keys=Object.keys(rows).map(Number), mx=Math.max(...keys);
+  const gk=Math.min(Math.max(Math.floor(c.ga),35),mx);
+  const X0=36,X1=348,Y0=8,Y1=188;
+  let lo=kind==='photo'?4:12, hi=kind==='photo'?24:28;
+  [c.tsb,c.pt].forEach(v=>{if(v>0){hi=Math.max(hi,Math.ceil((v+1)/2)*2);lo=Math.min(lo,Math.floor((v-1)/2)*2)}});
+  const sx=h=>X0+Math.min(h,336)/336*(X1-X0), sy=v=>Y1-(v-lo)/(hi-lo)*(Y1-Y0);
+  let g='';
+  for(let v=lo;v<=hi;v+=2) g+=`<line x1="${X0}" x2="${X1}" y1="${sy(v)}" y2="${sy(v)}" stroke="var(--line)" stroke-width=".6"/><text x="${X0-4}" y="${sy(v)+3}" text-anchor="end">${v}</text>`;
+  for(let h=0;h<=336;h+=24) g+=`<line x1="${sx(h)}" x2="${sx(h)}" y1="${Y0}" y2="${Y1}" stroke="var(--line)" stroke-width=".6"/>`+(h%48===0?`<text x="${sx(h)}" y="${Y1+13}" text-anchor="middle">${h===0?'0':h/24+'d'}</text>`:'');
+  const sorted=keys.slice().sort((a,b)=>a-b);
+  const line=(k,bold)=>{const col=PAL[sorted.indexOf(k)%PAL.length],pts=curvePts(rows[k]).map(q=>sx(q[0]).toFixed(1)+','+sy(q[1]).toFixed(1)).join(' ');
+    return `<polyline points="${pts}" fill="none" stroke="${col}" stroke-width="${bold?3:1.3}" ${(k%2===1&&!bold)?'stroke-dasharray="4 3"':''} opacity="${bold?1:.75}" stroke-linejoin="round"/>`};
+  sorted.filter(k=>k!==gk).forEach(k=>g+=line(k,false)); g+=line(gk,true);
+  if(c.pt>0&&c.pa>=0&&c.pa<c.h) g+=`<line x1="${sx(c.pa)}" y1="${sy(c.pt)}" x2="${sx(c.h)}" y2="${sy(c.tsb)}" stroke="var(--ink)" stroke-width="1.2" stroke-dasharray="3 2"/><circle cx="${sx(c.pa)}" cy="${sy(c.pt)}" r="4.5" fill="var(--surface)" stroke="var(--ink)" stroke-width="2"/>`;
+  g+=`<circle cx="${sx(c.h)}" cy="${sy(c.tsb)}" r="5.5" fill="var(--bad)" stroke="#fff" stroke-width="1.5"/>`;
+  const lbl=k=>k===mx?'≥ '+k:String(k);
+  const lg=sorted.slice().reverse().map(k=>`<span><i style="border-top:3px ${k%2===1?'dashed':'solid'} ${PAL[sorted.indexOf(k)%PAL.length]}"></i>${lbl(k)} wk${k===gk?' (this baby)':''}</span>`).join('');
+  const ttl=(kind==='photo'?'Phototherapy':'Exchange transfusion')+' threshold · '+(rk?'with':'no')+' neurotoxicity risk factor';
+  return `<div class="fuh">${ttl}</div><svg class="chrt" viewBox="0 0 360 222" role="img" aria-label="${ttl}">${g}<line x1="${X0}" x2="${X0}" y1="${Y0}" y2="${Y1}" stroke="var(--ink-2)"/><line x1="${X0}" x2="${X1}" y1="${Y1}" y2="${Y1}" stroke="var(--ink-2)"/><text x="${(X0+X1)/2}" y="216" text-anchor="middle">Age (days)</text><text transform="translate(9 ${(Y0+Y1)/2}) rotate(-90)" text-anchor="middle">TSB (mg/dL)</text></svg><div class="lg">${lg}</div>`;
+}
+function drawCharts(){
+  const c=CTX, el=$('chbody'); if(!el) return;
+  if(!c||c.mode!=='term'){el.innerHTML='<div class="note info">The charts cover gestational age 35 weeks and above.</div>';return}
+  const rk=CH.risk==null?c.risk:CH.risk;
+  el.innerHTML=`<div class="seg" id="chseg"><button class="opt" data-v="0" aria-pressed="${!rk}">No risk factor</button><button class="opt" data-v="1" aria-pressed="${rk}">With risk factor</button></div>`+chartSVG('photo',rk,c)+chartSVG('exch',rk,c)+`<div class="lg"><span><b style="color:var(--bad)">●</b> TSB now (${r1(c.tsb)} at ${Math.round(c.h)} h)</span>${c.pt>0&&c.pa>=0&&c.pa<c.h?`<span>○ previous TSB (${r1(c.pt)} at ${Math.round(c.pa)} h)</span>`:''}</div>${c.h>336?'<div class="note warn">Age is beyond 14 days; the point is drawn at the right edge.</div>':''}<div class="lb">Curves join the PCMC table values (the page uses the lower value between table columns).</div>`;
+  document.querySelectorAll('#chseg .opt').forEach(b=>b.onclick=()=>{CH.risk=b.dataset.v==='1';drawCharts()});
+}
+function fuHTML(){
+  return `<div class="fuh">PCMC Table 4 — follow-up by (phototherapy threshold − TSB)</div><table class="fu" id="fu4"><tr><th>Threshold − TSB</th><th>Risk factor</th><th>No risk factor</th></tr>
+   <tr data-r="0"><td>&lt; 2 mg/dL</td><td colspan="2">On phototherapy</td></tr>
+   <tr data-r="1"><td>2 – 5.4 mg/dL</td><td data-c="1">Follow up after 24–48 h</td><td data-c="0">Follow up after 48–72 h</td></tr>
+   <tr data-r="2"><td>≥ 5.5 mg/dL</td><td data-c="1">Follow up after 72–96 h</td><td data-c="0">Follow up at 2 months (1 month if mother has hepatitis B)</td></tr></table>
+   <div class="lb" id="fu4n"></div>
+   <div class="fuh" style="margin-top:16px">AAP 2022 (Figure 5) — discharge follow-up if phototherapy was not given</div>
+   <div class="lb" style="margin-bottom:4px">Applies from 12 h of age. Measure TSB if the TcB is within 3.0 mg/dL below the phototherapy threshold or is 15 mg/dL or more.</div>
+   <table class="fu" id="fuA"><tr><th>Threshold − TSB</th><th>Age</th><th>Recommendation</th></tr>
+   <tr data-a="0"><td>At or above threshold</td><td></td><td>Begin phototherapy</td></tr>
+   <tr data-a="1"><td rowspan="2">0.1 – 1.9</td><td>&lt; 24 h</td><td>Delay discharge, consider phototherapy, measure TSB in 4 to 8 hours</td></tr>
+   <tr data-a="2"><td>≥ 24 h</td><td>Measure TSB in 4 to 24 hours<sup>a</sup>. Options: delay discharge and consider phototherapy; discharge with home phototherapy if all guideline considerations are met; discharge without phototherapy but with close follow-up</td></tr>
+   <tr data-a="3"><td>2.0 – 3.4</td><td>Any</td><td>TSB or TcB in 4 to 24 hours<sup>a</sup></td></tr>
+   <tr data-a="4"><td>3.5 – 5.4</td><td>Any</td><td>TSB or TcB in 1 to 2 days</td></tr>
+   <tr data-a="5"><td rowspan="2">5.5 – 6.9</td><td>Discharging &lt; 72 h</td><td>Follow-up within 2 days; TcB or TSB according to clinical judgment<sup>b</sup></td></tr>
+   <tr data-a="6"><td>Discharging ≥ 72 h</td><td>Clinical judgment<sup>b</sup></td></tr>
+   <tr data-a="7"><td rowspan="2">≥ 7.0</td><td>Discharging &lt; 72 h</td><td>Follow-up within 3 days; TcB or TSB according to clinical judgment<sup>b</sup></td></tr>
+   <tr data-a="8"><td>Discharging ≥ 72 h</td><td>Clinical judgment<sup>b</sup></td></tr></table>
+   <div class="lb" style="margin-top:6px"><sup>a</sup> Use clinical judgment and shared decision making to choose when to repeat within this window. <sup>b</sup> Consider examination, risk factors for hyperbilirubinemia and for neurotoxicity, feeding adequacy, weight trajectory and family support. The baby's current age stands in for the discharge time. The AAP and PCMC tables give different intervals, so follow your unit's protocol.</div>
+   <div class="lb">Source: AAP clinical practice guideline revision, Pediatrics 2022;150(3):e2022058859 (Figure 5), retyped.</div>`;
+}
+function hlFU(rk,hb){
+  const c=CTX; if(!c||c.mode!=='term'||!$('fu4')) return;
+  const d=c.dP, below=c.tsb<c.photo;
+  document.querySelectorAll('#fu4 tr[data-r], #fuA tr[data-a]').forEach(r=>r.classList.remove('hlr'));
+  document.querySelectorAll('#fu4 td').forEach(t=>t.classList.remove('hlc'));
+  const r4=d<2?0:d<5.5?1:2; const row4=document.querySelector(`#fu4 tr[data-r="${r4}"]`); row4.classList.add('hlr');
+  if(r4>0) row4.querySelector(`td[data-c="${rk?1:0}"]`).classList.add('hlc');
+  $('fu4n').textContent=`Threshold − TSB = ${d} mg/dL; ${rk?'risk factor present':'no risk factor'}.`+(c.tsb>=c.photo?' TSB is at or above the threshold: phototherapy.':'');
+  const a=d<=0?0:d<2?(c.h<24?1:2):d<3.5?3:d<5.5?4:d<7?(c.h<72?5:6):(c.h<72?7:8);
+  document.querySelector(`#fuA tr[data-a="${a}"]`).classList.add('hlr');
+}
 function hrTxt(x){return Math.floor(x/24)+' d '+Math.round(x%24)+' h'}
 function nowLocal(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())}
 function acalc(){
