@@ -155,21 +155,22 @@ function render(){
   else if(fails.length){cls=recheck?'bad':'warn';adv=recheck?'ยังไม่ผ่านหลังฝึก 1 เดือน → ส่งต่อ รพช./รพท./รพศ./รพ.จิตเวช ที่มีคลินิกกระตุ้นพัฒนาการ พร้อมใบส่งตัว (ประเมินต่อด้วย TEDA4I)':'ไม่สมวัยในด้าน '+failD.join(', ')+' → แนะนำพ่อแม่ ผู้ปกครองฝึกทักษะข้อที่ไม่ผ่านบ่อยๆ แล้วนัดประเมินซ้ำใน 1 เดือน'}
   else if(done===its.length){cls='info';adv='สมวัย → แนะนำพ่อแม่ ผู้ปกครองส่งเสริมพัฒนาการตามวิธีฝึกทักษะในช่วงอายุถัดไป'}
   else adv='ผ่านทุกข้อที่ประเมินแล้ว · ประเมินให้ครบทุกข้อ';
-  const tip=t=>{const ls=(t||'').split('\n').map(x=>x.replace(/^\s*\d+\.\s*/,'').trim()).filter(Boolean);return ls.slice(0,2).join('; ')};
-  const L=[`DSPM ช่วงอายุ ${bi[1]} (ประเมินแล้ว ${done}/${its.length} ข้อ)`], S=[];
+  const tipL=t=>{const ls=(t||'').split('\n').map(x=>x.replace(/^\s*\d+\.\s*/,'').trim()).filter(Boolean);const out=[];const main=ls.filter(x=>!/^ถ้า/.test(x)&&!/^ควรระวัง/.test(x)).slice(0,2);if(main.length)out.push('แนะนำฝึก: '+main.join(' '));const alt=ls.find(x=>/^ถ้า/.test(x));if(alt)out.push(alt);return out};
+  const L=[`DSPM ช่วงอายุ ${bi[1]}`], S=[];
   ORD.forEach(d=>{const di=its.filter(i=>i.d===d); if(!di.length) return; const s=st[d]; const dn=di.filter(i=>R[i.n]).length;
     const stx=s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':`ยังไม่ครบ (${dn}/${di.length} ข้อ)`;
-    L.push('',`${d} ${DOM[d][0]} (${DOM[d][1]}): ${stx}`);
+    L.push(`- ${DOM[d][1]}: ${stx}`);
     di.forEach(i=>{const r=R[i.n];
       if(r==='p') L.push('  ✓ '+i.s);
-      else if(r==='f'){L.push('  ✗ '+i.s); if(i.p) L.push('    เกณฑ์ผ่าน: '+i.p.replace(/^ผ่าน:\s*/,'')); const tp=tip(i.t); if(tp) L.push('    แนะนำฝึก: '+tp)}
+      else if(r==='f'){L.push('  ✗ '+i.s); if(i.p) L.push('    เกณฑ์ผ่าน: '+i.p.replace(/^ผ่าน:\s*/,'')); tipL(i.t).forEach(x=>L.push('    '+x))}
       else L.push('  ○ ยังไม่ได้ประเมิน: '+i.s)});});
   S.push(`DSPM ช่วงอายุ ${bi[1]}`);
   ORD.forEach(d=>{const di=its.filter(i=>i.d===d);
     const can=di.filter(i=>R[i.n]==='p').map(i=>i.s), cant=di.filter(i=>R[i.n]==='f').map(i=>i.s);
     if(!can.length&&!cant.length) return;
     if(can.length){S.push(`- ${d} สามารถ ${can.join(', ')}`); if(cant.length) S.push('ไม่สามารถ '+cant.join(', '))} else S.push(`- ${d} ไม่สามารถ ${cant.join(', ')}`)});
-  L.push('','สรุป: '+adv); S.push('','ข้อสรุป: '+adv.replace('ยังไม่ผ่าน','ยังไม่สามารถทำได้').replace('ไม่ผ่าน','ไม่สามารถทำได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
+  const advL=(fails.length&&!recheck)?('ไม่สมวัยในด้าน'+failD.map(d=>`${DOM[d][0]} (${d})`).join(', ')+'\n→ '+adv.split('→')[1].trim()):adv.replace(' → ','\n→ ');
+  L.push('สรุป: '+advL); S.push('','ข้อสรุป: '+adv.replace('ยังไม่ผ่าน','ยังไม่สามารถทำได้').replace('ไม่ผ่าน','ไม่สามารถทำได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
   const cur=repMode==='short'?S:L;
   h+=`<div class="card"><h2>สรุป</h2><div class="body"><div class="note ${cls}">${adv}</div>
    <label class="sw"><input type="checkbox" id="rc" ${recheck?'checked':''}>ประเมินซ้ำหลังฝึก 1 เดือนแล้ว (ข้อที่เคยไม่ผ่าน)</label>
