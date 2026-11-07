@@ -112,7 +112,7 @@ const $=id=>document.getElementById(id);
 const BANDS=[['0','แรกเกิด – 1 เดือน',0],['1-2','1–2 เดือน',1],['3-4','3–4 เดือน',3],['5-6','5–6 เดือน',5],['7-8','7–8 เดือน',7],['9','9 เดือน',9,1],['10-12','10–12 เดือน',10],['13-15','13–15 เดือน',13],['16-17','16–17 เดือน',16],['18','18 เดือน',18,1],['19-24','19–24 เดือน',19],['25-29','25–29 เดือน',25],['30','30 เดือน',30,1],['31-36','31–36 เดือน',31],['37-41','37–41 เดือน',37],['42','42 เดือน',42,1],['43-48','43–48 เดือน',43],['49-54','49–54 เดือน',49],['55-60','55–60 เดือน',55]];
 const DOM={GM:['กล้ามเนื้อมัดใหญ่','Gross motor'],FM:['กล้ามเนื้อมัดเล็กและสติปัญญา','Fine motor'],RL:['เข้าใจภาษา','Receptive language'],EL:['ใช้ภาษา','Expressive language'],PS:['ช่วยเหลือตนเองและสังคม','Personal & social']};
 const ORD=['GM','FM','RL','EL','PS'];
-let band='0', R={}, recheck=false, auto=true;
+let band='0', R={}, recheck=false, auto=true, repMode='full';
 function bandOf(m){let b=BANDS[0];for(const x of BANDS) if(m>=x[2]) b=x;return b}
 function ageUpdate(){
   const y=$('ay').value,mo=$('am').value;
@@ -155,18 +155,29 @@ function render(){
   else if(fails.length){cls=recheck?'bad':'warn';adv=recheck?'ยังไม่ผ่านหลังฝึก 1 เดือน → ส่งต่อ รพช./รพท./รพศ./รพ.จิตเวช ที่มีคลินิกกระตุ้นพัฒนาการ พร้อมใบส่งตัว (ประเมินต่อด้วย TEDA4I)':'ไม่สมวัยในด้าน '+failD.join(', ')+' → แนะนำพ่อแม่ ผู้ปกครองฝึกทักษะข้อที่ไม่ผ่านบ่อยๆ แล้วนัดประเมินซ้ำใน 1 เดือน'}
   else if(done===its.length){cls='info';adv='สมวัย → แนะนำพ่อแม่ ผู้ปกครองส่งเสริมพัฒนาการตามวิธีฝึกทักษะในช่วงอายุถัดไป'}
   else adv='ผ่านทุกข้อที่ประเมินแล้ว · ประเมินให้ครบทุกข้อ';
-  const L=[`DSPM ช่วงอายุ ${bi[1]}`];
-  ORD.forEach(d=>{const di=its.filter(i=>i.d===d); if(!di.length) return; const s=st[d];
-    L.push(`${d} ${DOM[d][0]}: ${s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':'ยังไม่ครบ'}`);
-    di.forEach(i=>{if(R[i.n]==='f') L.push('  - ไม่ผ่าน: '+i.s)})});
-  L.push('สรุป: '+adv);
+  const tip=t=>{const ls=(t||'').split('\n').map(x=>x.replace(/^\s*\d+\.\s*/,'').trim()).filter(Boolean);return ls.slice(0,2).join('; ')};
+  const L=[`DSPM ช่วงอายุ ${bi[1]} (ประเมินแล้ว ${done}/${its.length} ข้อ)`], S=[];
+  const sh=[];
+  ORD.forEach(d=>{const di=its.filter(i=>i.d===d); if(!di.length) return; const s=st[d]; const dn=di.filter(i=>R[i.n]).length;
+    const stx=s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':`ยังไม่ครบ (${dn}/${di.length} ข้อ)`;
+    L.push('',`${d} ${DOM[d][0]} (${DOM[d][1]}): ${stx}`);
+    di.forEach(i=>{const r=R[i.n];
+      if(r==='p') L.push('  ✓ '+i.s);
+      else if(r==='f'){L.push('  ✗ '+i.s); if(i.p) L.push('    เกณฑ์ผ่าน: '+i.p.replace(/^ผ่าน:\s*/,'')); const tp=tip(i.t); if(tp) L.push('    แนะนำฝึก: '+tp)}
+      else L.push('  ○ ยังไม่ได้ประเมิน: '+i.s)});
+    sh.push(`${d} ${s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':'ยังไม่ครบ'}`)});
+  S.push(`DSPM ${bi[1]}: ${sh.join(' | ')}`);
+  const fl=its.filter(i=>R[i.n]==='f'); if(fl.length) S.push('ไม่ผ่าน: '+fl.map(i=>i.s).join('; '));
+  L.push('','สรุป: '+adv); S.push('สรุป: '+adv);
+  const cur=repMode==='short'?S:L;
   h+=`<div class="card"><h2>สรุป</h2><div class="body"><div class="note ${cls}">${adv}</div>
    <label class="sw"><input type="checkbox" id="rc" ${recheck?'checked':''}>ประเมินซ้ำหลังฝึก 1 เดือนแล้ว (ข้อที่เคยไม่ผ่าน)</label>
-   <div class="rep" id="rep">${L.join('\n')}</div><div><button class="btn" id="cp" type="button">Copy</button> <button class="btn" id="rs" type="button">ล้างผลช่วงนี้</button></div></div></div>`;
+   <div class="seg" id="rm"><button class="opt" data-v="full" aria-pressed="${repMode==='full'}">ฉบับเต็ม</button><button class="opt" data-v="short" aria-pressed="${repMode==='short'}">ฉบับย่อ</button></div><div class="rep" id="rep">${cur.join('\n')}</div><div><button class="btn" id="cp" type="button">Copy</button> <button class="btn" id="rs" type="button">ล้างผลช่วงนี้</button></div></div></div>`;
   $('out').innerHTML=h;
   document.querySelectorAll('.pf button').forEach(b=>b.onclick=()=>{const n=b.dataset.n; R[n]=R[n]===b.dataset.v?'':b.dataset.v; const y=window.scrollY; render(); window.scrollTo(0,y)});
+  document.querySelectorAll('#rm .opt').forEach(b=>b.onclick=()=>{repMode=b.dataset.v;const y=window.scrollY;render();window.scrollTo(0,y)});
   $('rc').onchange=e=>{recheck=e.target.checked;const y=window.scrollY;render();window.scrollTo(0,y)};
-  $('cp').onclick=()=>{try{navigator.clipboard.writeText(L.join('\n'));$('cp').textContent='Copied'}catch(e){}setTimeout(()=>{if($('cp'))$('cp').textContent='Copy'},1200)};
+  $('cp').onclick=()=>{try{navigator.clipboard.writeText(cur.join('\n'));$('cp').textContent='Copied'}catch(e){}setTimeout(()=>{if($('cp'))$('cp').textContent='Copy'},1200)};
   $('rs').onclick=()=>{its.forEach(i=>delete R[i.n]);render()};
 }
 ['ay','am'].forEach(i=>$(i).addEventListener('input',ageUpdate));
