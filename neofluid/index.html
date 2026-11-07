@@ -74,6 +74,7 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
   <label class="f"><span class="lb">Milk energy</span><span class="inp"><input id="kc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label>
  </div>
  <div class="seg" id="kp" aria-label="Milk energy presets"><button class="opt" data-v="20" aria-pressed="true">BM / IF · 20</button><button class="opt" data-v="24" aria-pressed="false">HMF / PF · 24</button><button class="opt" data-v="30" aria-pressed="false">30 kcal/oz</button></div>
+ <div class="lb" id="nfh" style="margin-top:-6px"></div>
  <label class="chk"><input type="checkbox" id="og"><span>Fed by OG tube (adds "via OG" to the order)</span></label>
 </div></div>
 
@@ -96,19 +97,20 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
 const $=id=>document.getElementById(id);
 const r0=Math.round, r1=x=>Math.round(x*10)/10, r2=x=>Math.round(x*100)/100;
 const TBL={term:[65,65,80,100,120,150],pre:[60,80,100,120,140,160]};
-const AGES=['1','2','3','4','5','6','7 d–1 mo','1–6 mo','6–12 mo','>12 mo'];
+const AGES=['1','2','3','4','5','6','7 d–3 mo','4–6 mo','7–12 mo','>12 mo'];
 const hs=kg=>100*Math.min(kg,10)+50*Math.min(Math.max(kg-10,0),10)+20*Math.max(kg-20,0);
-function tvOf(g,a,kg){if(a<=6)return TBL[g][a-1];if(a===7)return 150;if(a===8)return 120;if(a===9)return 110;return kg>0?hs(kg)/kg:null}
+function tvOf(g,a,kg){if(a<=6)return TBL[g][a-1];if(a<=9)return 150;return kg>0?hs(kg)/kg:null}
 function ovTable(g,a){
   let t='<tr><th></th>'+AGES.map((l,i)=>`<th class="${i+1===a?'hl':''}">${l}</th>`).join('')+'</tr>';
-  [['term','Term'],['pre','Preterm']].forEach(([k,n])=>{t+=`<tr class="${k===g?'sel':''}"><td>${n}</td>`+AGES.map((l,i)=>`<td class="${i+1===a?'hl':''}">${i<6?TBL[k][i]:i===6?150:i===7?120:i===8?110:'H-S'}</td>`).join('')+'</tr>'});
+  [['term','Term'],['pre','Preterm']].forEach(([k,n])=>{t+=`<tr class="${k===g?'sel':''}"><td>${n}</td>`+AGES.map((l,i)=>`<td class="${i+1===a?'hl':''}">${i<6?TBL[k][i]:i<9?150:'H-S'}</td>`).join('')+'</tr>'});
   return t;
 }
-const OVNOTE='mL/kg/day. Day 7 to 1 month stays at 150. From 1 month the sheet gives one set of values (used for preterm too). Over 12 months: Holliday-Segar (100 / 50 / 20 mL/kg for the first 10 kg / next 10 kg / the rest).';
+const OVNOTE='mL/kg/day. From day 7 to 12 months the milk guide uses weight × 150 ÷ number of feeds (150 mL/kg/day). Over 12 months: Holliday-Segar (100 / 50 / 20 mL/kg for the first 10 kg / next 10 kg / the rest).';
 function seg(id,fn){document.querySelectorAll('#'+id+' .opt').forEach(x=>x.setAttribute('aria-pressed',String(fn(x.dataset.v))))}
 function copyBtn(getTxt){const b=$('cp');b.onclick=async()=>{try{await navigator.clipboard.writeText(getTxt());b.textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected'}setTimeout(()=>{const x=$('cp');if(x)x.textContent='Copy'},1500)}}
 function orderCard(lines){return `<div class="card"><h2>Order <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div class="rep" id="rep">${lines.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`}
-let gest='term', age=3, lastRep='';
+let gest='term', age=3, lastRep='', nfEdited=false;
+const NFDEF={7:8,8:6,9:4}, NFHINT={7:'every 2–3 h, usually 8 feeds',8:'every 3–4 h, 4–6 feeds',9:'4–6 milk meals, one meal replaced by complementary food'};
 function k(){}
 function calc(){
   const kg=(parseFloat($('w').value)||0)/1000, W=kg>0;
@@ -117,7 +119,7 @@ function calc(){
   const mlkg=tvOf(gest,age,kg);
   $('ov').innerHTML=ovTable(gest,age); $('ovn').textContent=OVNOTE;
   let h='';
-  const lim=age<=7?[0.4,6]:[1,60];
+  const lim=age<=6?[0.4,6]:[1,60];
   if(W&&(kg<lim[0]||kg>lim[1])) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
   if(mlkg==null){ h+=`<div class="note info" style="margin-top:14px">Enter the weight to get the Holliday-Segar volume.</div>`; $('out').innerHTML=h; return }
   const enV=mlkg*kg, perFeed=enV/nf, tc=mlkg*kcalMl, milkK=tc*kg;
@@ -137,6 +139,11 @@ function calc(){
     }
   }
   h+=`</div></div>`;
+  const G={7:['0–3 months','Weight (kg) × 150 ÷ 8 = mL per feed (3 kg: 56 mL, give about 56–60 mL ≈ 2 oz). Feed every 2–3 h, 8 feeds a day (for example 06, 09, 12, 15, 18, 21, 24, 03).','Breastfeeding: as often as the baby wants to build supply, 10–15 min on each breast, burp, then switch sides. Expressed milk or formula: every 2–3 h.','Is the mother\'s milk enough? Poops at least 2 times a day, pees at least 6 times a day, let-down reflex present, weight gain 20–30 g/day (600–900 g/month).'],
+   8:['4–6 months','Weight (kg) × 150 ÷ 4–6 feeds = mL per feed (6 kg: (150 × 6) ÷ 6 = 150 mL ≈ 5 oz). Total milk per day about 18–24 oz. Start scheduled feeds every 3–4 h (for example 09, 12, 15, 18, 24, 04).','Breastfeeding: burp or hold the baby upright at 30–45° after a feed. Bottle: raise the volume per feed, with bigger meals every 4–6 h.','At this age babies may take less milk, like looking around and start to smile.'],
+   9:['7–12 months (the sheet covers 8–12 months)','Weight (kg) × 150 ÷ 4–6 feeds = mL per feed. Total milk per day about 18–24 oz (±1–2 oz). Night feeds can be stopped now; if the baby still takes 1–2, practise stopping when ready.','4–6 milk meals (for example 06, 11, 15, 19); one complementary meal replaces one milk meal. Breastfeeding every 4–6 h; the baby may bite the nipple, tell the baby it hurts.','Is the supply enough? Weight gain about 200–400 g/month.']};
+  const dayOz=enV/30, ozNote=(age>=8&&age<=9&&W&&(dayOz>26||dayOz<16))?`<div class="note warn" style="margin-top:14px">The formula gives ${r1(dayOz)} oz/day (${r0(enV)} mL), but the sheet says about 18–24 oz/day (±1–2 oz). Check against what the baby actually takes.</div>`:'';
+  if(G[age]) h+=ozNote+`<details class="card ref"><summary>Feeding guide: ${G[age][0]}<small>from the milk sheet</small></summary><div class="body"><p>${G[age][1]}</p><p>${G[age][2]}</p><p>${G[age][3]}</p></div></details>`;
   const og=$('og').checked?' via OG':'';
   const L=[`${lab} (${kc} kcal/oz) sig ${W?r1(perFeed):'__'} ml x ${nf} feeds${og} (TV ${r2(mlkg)}, TC ${r2(tc)})`];
   lastRep=L.join('\n');
@@ -146,11 +153,12 @@ function calc(){
   $('out').innerHTML=h; copyBtn(()=>lastRep);
 }
 function build(){ $('day').innerHTML=AGES.map((l,i)=>`<button class="opt" data-v="${i+1}" aria-pressed="false">${l}</button>`).join('');
-  document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.v;sync()}) }
+  document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.v;nfEdited=false;sync()}) }
 document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;sync()});
 document.querySelectorAll('#kp .opt').forEach(b=>b.onclick=()=>{$('kc').value=b.dataset.v;sync()});
-function sync(){seg('gest',v=>v===gest);seg('day',v=>+v===age);seg('kp',v=>+v===(parseFloat($('kc').value)||0));calc()}
-['w','nf','kc'].forEach(i=>$(i).addEventListener('input',sync));$('og').addEventListener('change',sync);
+function sync(){ if(!nfEdited) $('nf').value=NFDEF[age]||8; $('nfh').textContent=NFHINT[age]?('Sheet: '+NFHINT[age]+'.'):'';
+  seg('gest',v=>v===gest);seg('day',v=>+v===age);seg('kp',v=>+v===(parseFloat($('kc').value)||0));calc()}
+['w','kc'].forEach(i=>$(i).addEventListener('input',sync));$('nf').addEventListener('input',()=>{nfEdited=true;sync()});$('og').addEventListener('change',sync);
 build();
 const q=new URLSearchParams(location.search);
 if(q.get('w'))$('w').value=q.get('w'); if(q.get('g'))gest=q.get('g')==='term'?'term':'pre'; if(+q.get('a')>=1&&+q.get('a')<=10)age=+q.get('a');
