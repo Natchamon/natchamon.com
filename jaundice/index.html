@@ -53,16 +53,17 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:4px 0}
 .chk input{margin-top:3px;width:18px;height:18px;flex:0 0 auto}
 ul.act{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
-.ot{overflow-x:auto}.ot table{min-width:620px;font-size:12.5px}.ot td,.ot th{text-align:center;padding:5px 6px}.ot td:first-child,.ot th:first-child{position:sticky;left:0;background:var(--surface);white-space:nowrap;z-index:1}.ot td.u,.ot th.u{background:var(--accent-soft)}.ot td.c{background:var(--accent);color:var(--on-accent,#fff);font-weight:700}
+[hidden]{display:none!important}.ot{overflow-x:auto}.ot table{min-width:620px;font-size:12.5px}.ot td,.ot th{text-align:center;padding:5px 6px}.ot td:first-child,.ot th:first-child{position:sticky;left:0;background:var(--surface);white-space:nowrap;z-index:1}.ot td.u,.ot th.u{background:var(--accent-soft)}.ot td.c{background:var(--accent);color:var(--on-accent,#fff);font-weight:700}
 details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Neonatal jaundice<small>Phototherapy and exchange thresholds · follow-up · PCMC guideline v.I, 22/04/2026</small></h1></header>
 
 <div class="card"><h2>Baby</h2><div class="body">
- <details id="agecalc"><summary>Age calculator (birth date and time → hours)</summary><div class="body" style="padding:10px 0 0">
-  <label class="f"><span class="lb">Birth date and time</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
-  <label class="f"><span class="lb">TSB / TcB taken at</span><span class="inp"><input id="cdt" type="datetime-local"></span><span class="hint">Leave blank to use now.</span></label>
+ <details id="agecalc"><summary>Age calculator (date of birth → hours)</summary><div class="body" style="padding:10px 0 0">
+  <label class="f"><span class="lb">Date of birth</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
+  <div class="f"><span class="lb">TSB / TcB taken</span><div class="seg" id="cm"><button class="opt" data-v="now" aria-pressed="true">Now</button><button class="opt" data-v="before" aria-pressed="false">Before now</button></div></div>
+  <label class="f" id="cdtw" hidden><span class="lb">TSB / TcB date and time</span><span class="inp"><input id="cdt" type="datetime-local"></span></label>
   <label class="f"><span class="lb">Previous TSB taken at (optional)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
   <div class="lb" id="acout"></div>
  </div></details>
@@ -249,14 +250,18 @@ function calc(){
 function hrTxt(x){return Math.floor(x/24)+' d '+Math.round(x%24)+' h'}
 function acalc(){
   const b=$('bdt').value?new Date($('bdt').value):null; if(!b||isNaN(b)){$('acout').textContent='';return}
-  const c=$('cdt').value?new Date($('cdt').value):new Date(), pv=$('pdt').value?new Date($('pdt').value):null;
+  const c=cmode==='now'?new Date():($('cdt').value?new Date($('cdt').value):null), pv=$('pdt').value?new Date($('pdt').value):null;
+  if(!c||isNaN(c)){$('acout').textContent='Enter the date and time of the TSB.';return}
   const h=(c-b)/36e5; let t='';
   if(h<0) t='TSB time is before birth.';
   else { $('age').value=Math.round(h); t='Age at TSB: '+Math.round(h)+' h ('+hrTxt(h)+')'; }
   if(pv&&!isNaN(pv)){const ph=(pv-b)/36e5; if(ph<0) t+=' · Previous TSB is before birth.'; else { $('page').value=Math.round(ph); t+=' · Previous TSB age: '+Math.round(ph)+' h'; }}
   $('acout').textContent=t; calc();
 }
+let cmode='now';
+document.querySelectorAll('#cm .opt').forEach(b=>b.onclick=()=>{cmode=b.dataset.v;document.querySelectorAll('#cm .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('cdtw').hidden=cmode==='now';acalc()});
 ['bdt','cdt','pdt'].forEach(i=>$(i).addEventListener('input',acalc));
+setInterval(()=>{if(cmode==='now'&&$('bdt').value) acalc()},60000);
 $('postpt').addEventListener('input',calc);
 buildRF('term'); calc();
 </script></body></html>
