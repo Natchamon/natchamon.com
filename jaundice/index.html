@@ -53,6 +53,7 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:4px 0}
 .chk input{margin-top:3px;width:18px;height:18px;flex:0 0 auto}
 ul.act{margin:0;padding-left:18px;display:grid;gap:4px;font-size:14px}
+.ot{overflow-x:auto}.ot table{min-width:620px;font-size:12.5px}.ot td,.ot th{text-align:center;padding:5px 6px}.ot td:first-child,.ot th:first-child{position:sticky;left:0;background:var(--surface);white-space:nowrap;z-index:1}.ot td.u,.ot th.u{background:var(--accent-soft)}.ot td.c{background:var(--accent);color:var(--on-accent,#fff);font-weight:700}
 details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
@@ -71,6 +72,12 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
   <label class="f"><span class="lb">Weight (optional)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3"><i>kg</i></span></label>
  </div>
  <div class="lb" id="agenote"></div>
+ <details id="agecalc"><summary>Age calculator (birth date and time → hours)</summary><div class="body" style="padding:10px 0 0">
+  <label class="f"><span class="lb">Birth date and time</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
+  <label class="f"><span class="lb">TSB / TcB taken at</span><span class="inp"><input id="cdt" type="datetime-local"></span><span class="hint">Leave blank to use now.</span></label>
+  <label class="f"><span class="lb">Previous TSB taken at (optional)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
+  <div class="lb" id="acout"></div>
+ </div></details>
 </div></div>
 
 <div class="card"><h2>Rate of rise <small>optional, from a previous TSB</small></h2><div class="body">
@@ -121,6 +128,26 @@ function buildRF(m){ if(rfMode===m)return; rfMode=m; const L=m==='pre'?RF34:RF35
   $('rf').innerHTML=L.map((t,i)=>`<label class="chk"><input type="checkbox" data-rf="${i}"><span>${t}</span></label>`).join('');
   
   $('rf').querySelectorAll('input').forEach(c=>c.addEventListener('input',calc)); }
+const COLS=Array.from({length:14},(_,i)=>(i+1)*6+'h').concat(['4–7 d','8–14 d']);
+function usedCols(h){ if(h<=6) return [0]; if(h<=84){const i=Math.floor(h/6)-1,f=(h-6*(i+1))/6; return f>0?[i,i+1]:[i]} if(h<96) return [13,14]; if(h<192) return [14]; return [15]; }
+function otbl(title,key,cap,ga,h){
+  const rowKey=Math.min(Math.max(Math.floor(ga),35),cap), used=usedCols(h);
+  let t=`<div class="lb" style="margin:10px 0 4px"><b>${title}</b></div><div class="ot"><table><tr><th>GA</th>${COLS.map((c,i)=>`<th${used.includes(i)?' class="u"':''}>${c}</th>`).join('')}</tr>`;
+  Object.keys(T[key]).map(Number).sort((a,b)=>a-b).forEach(g=>{
+    t+=`<tr><td${g===rowKey?' class="u"':''}><b>${g}${g===cap?'+':''} wk</b></td>${T[key][g].map((v,i)=>`<td class="${g===rowKey&&used.includes(i)?'c':(g===rowKey||used.includes(i))?'u':''}">${v}</td>`).join('')}</tr>`;
+  });
+  return t+'</table></div>';
+}
+function otable(mode,risk,ga,h){
+  if(mode==='term'){
+    return otbl('Phototherapy threshold (mg/dL) · '+(risk?'with risk factor (Table 1)':'no risk factor (Table 5)'),risk?'photoRisk':'photoNo',risk?38:40,ga,h)
+      +otbl('Exchange transfusion threshold (mg/dL) · '+(risk?'with risk factor (Table 2)':'no risk factor (Table 6)'),risk?'exchRisk':'exchNo',38,ga,h)
+      +'<div class="lb" style="margin-top:8px">Dark cells are the table values around this baby (the threshold above is interpolated between them). A + means that row applies to that GA and above.</div>';
+  }
+  const pma=ga+h/168, bands=[['< 28 wk',5,6,11,14],['28 – <30 wk',6,8,12,14],['30 – <32 wk',8,10,13,16],['32 – <34 wk',10,12,15,18],['34 – <35 wk',12,14,17,19]];
+  const ix=pma<28?0:pma<30?1:pma<32?2:pma<34?3:4;
+  return `<div class="lb" style="margin:10px 0 4px"><b>Thresholds by postmenstrual age (mg/dL)</b></div><div class="ot"><table><tr><th>PMA</th><th>Photo</th><th>Exchange</th></tr>`+bands.map((b,i)=>`<tr><td${i===ix?' class="u"':''}><b>${b[0]}</b></td><td class="${i===ix?'c':''}">${b[1]}–${b[2]}</td><td class="${i===ix?'c':''}">${b[3]}–${b[4]}</td></tr>`).join('')+`</table></div><div class="lb" style="margin-top:8px">PMA now ${r1(pma)} wk. ${risk?'Lower':'Upper'} end of each range used.</div>`;
+}
 function box(l,v,u,s,c){return `<div class="kpi ${c||''}"><span>${l}</span><b>${v}${u?`<small> ${u}</small>`:''}</b>${s?`<small class="s">${s}</small>`:''}</div>`}
 function calc(){
   const ga=parseFloat($('ga').value), h=parseFloat($('age').value), tsb=parseFloat($('tsb').value), kg=parseFloat($('w').value)||0;
@@ -199,16 +226,18 @@ function calc(){
     } else h2+=`<div class="note info">Under 35 weeks: follow TSB according to the risk of a rising TSB (clinical judgement).</div>`;
   }
   h2+='</div></div>';
+  h2+=`<div class="card"><h2>Threshold in the guideline table</h2><div class="body">${otable(mode,risk,ga,h)}</div></div>`;
   const dbv=parseFloat($('hct').value), dsig=sg(tsb-(risk?pR:pN)), thr=risk?pR:pN;
   const rateTxt=rate==null?'___':(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100)+' mg/dL/h';
   const thrAt=hh=>r1(mode==='term'?look(risk?'photoRisk':'photoNo',ga,hh,risk?38:40):pre(ga+hh/168)[risk?0:1]);
   const nr=risk?'':' (no risk)', hv=v=>v>=0?v:'___';
   const lines=[];
   if(pt>0&&pa>=0&&pa<h){const tp=thrAt(pa);lines.push(`Hct/TB at ${Math.round(pa)} hr = ${hv(parseFloat($('phct').value))}/${r1(pt)} (phototherapy threshold${nr} ${tp}, delta ${sg(pt-tp)})`)}
-  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}, delta ${dsig}, rate rising ${rateTxt})`);
+  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}, delta ${dsig}${rate==null?'':', rate rising '+rateTxt})`);
   const rep=lines.join('\n');
   h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word;white-space:pre-line">${rep}</div></div></div>`;
   out.innerHTML=h2;
+  document.querySelectorAll('.ot').forEach(o=>{const c=o.querySelector('td.c'); if(c) o.scrollLeft=Math.max(0,c.offsetLeft-o.clientWidth/2+c.offsetWidth/2)});
   $('cp').onclick=async()=>{try{await navigator.clipboard.writeText(rep);$('cp').textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const sl=getSelection();sl.removeAllRanges();sl.addRange(r);$('cp').textContent='Selected'}setTimeout(()=>{$('cp').textContent='Copy'},1500)};
   const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${(i===0&&ga<40)||(i===2&&rflag)?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
     const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
@@ -217,6 +246,17 @@ function calc(){
     fr.addEventListener('input',upd); upd(); }
 }
 ['ga','age','tsb','w','hct','ptsb','page','phct'].forEach(i=>$(i).addEventListener('input',calc));
+function hrTxt(x){return Math.floor(x/24)+' d '+Math.round(x%24)+' h'}
+function acalc(){
+  const b=$('bdt').value?new Date($('bdt').value):null; if(!b||isNaN(b)){$('acout').textContent='';return}
+  const c=$('cdt').value?new Date($('cdt').value):new Date(), pv=$('pdt').value?new Date($('pdt').value):null;
+  const h=(c-b)/36e5; let t='';
+  if(h<0) t='TSB time is before birth.';
+  else { $('age').value=Math.round(h); t='Age at TSB: '+Math.round(h)+' h ('+hrTxt(h)+')'; }
+  if(pv&&!isNaN(pv)){const ph=(pv-b)/36e5; if(ph<0) t+=' · Previous TSB is before birth.'; else { $('page').value=Math.round(ph); t+=' · Previous TSB age: '+Math.round(ph)+' h'; }}
+  $('acout').textContent=t; calc();
+}
+['bdt','cdt','pdt'].forEach(i=>$(i).addEventListener('input',acalc));
 $('postpt').addEventListener('input',calc);
 buildRF('term'); calc();
 </script></body></html>
