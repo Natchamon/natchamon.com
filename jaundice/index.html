@@ -81,7 +81,7 @@ table.fu td.hlc{outline:2px solid var(--accent);outline-offset:-2px}
   <label class="f"><span class="lb">Hematocrit (optional)</span><span class="inp"><input id="hct" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 52"><i>%</i></span></label>
  </div>
  <div class="g2">
-  <label class="f"><span class="lb">Weight (optional)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.01" placeholder="e.g. 3"><i>kg</i></span></label>
+  <label class="f"><span class="lb">Weight (optional)</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 3000"><i>g</i></span></label>
  </div>
  <div class="lb" id="agenote"></div>
 </div></div>
@@ -163,7 +163,7 @@ function otable(mode,risk,ga,h){
 }
 function box(l,v,u,s,c){return `<div class="kpi ${c||''}"><span>${l}</span><b>${v}${u?`<small> ${u}</small>`:''}</b>${s?`<small class="s">${s}</small>`:''}</div>`}
 function calc(){
-  const ga=parseFloat($('ga').value), h=parseFloat($('age').value), tsb=parseFloat($('tsb').value), kg=parseFloat($('w').value)||0;
+  const ga=parseFloat($('ga').value), h=parseFloat($('age').value), tsb=parseFloat($('tsb').value), kg=(parseFloat($('w').value)||0)/1000;
   const mode=ga>0&&ga<35?'pre':'term'; buildRF(mode);
   const risk=tbm==='risk'||[...document.querySelectorAll('#rf input')].some(c=>c.checked);
   $('agenote').textContent=h>=0?`= ${Math.floor(h/24)} d ${Math.round(h%24)} h`:'';
@@ -219,7 +219,7 @@ function calc(){
   let plan='';
   if(cls==='bad'){
     plan+=`<ul class="act"><li>Move to the sick newborn unit; blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD, albumin</li><li>Double / 360° phototherapy; repeat TSB after 2 h</li><li>NPO, IV fluid</li><li>Group-match blood: 2 × (80 × weight) mL, split FFP group AB ⅓ and PRC group O ⅔</li><li>Exchange immediately once blood is matched if signs of acute bilirubin encephalopathy</li></ul>`;
-    if(wkg){const tot=2*80*kg;plan+=`<div class="big3">${box('Total blood',Math.round(tot),'mL','2 × 80 × '+kg+' kg','')}${box('FFP (AB)',Math.round(tot/3),'mL','⅓','')}${box('PRC (O)',Math.round(tot*2/3),'mL','⅔','')}</div>`}
+    if(wkg){const tot=2*80*kg;plan+=`<div class="big3">${box('Total blood',Math.round(tot),'mL','2 × 80 × '+(Math.round(kg*100)/100)+' kg','')}${box('FFP (AB)',Math.round(tot/3),'mL','⅓','')}${box('PRC (O)',Math.round(tot*2/3),'mL','⅔','')}</div>`}
   } else if(cls==='warn'&&tsb>=photo){
     plan+=`<ul class="act"><li>Blood for CBC, smear, DCT, reticulocyte, ABO/Rh, G6PD${mode==='pre'?', albumin':''}</li><li>Intensive (single) phototherapy</li><li>Repeat TSB ${mode==='pre'?'12–24 h':'12–24 h, more often if isoimmune hemolysis, G6PD, sepsis or instability'} after starting</li></ul>`;
   }
