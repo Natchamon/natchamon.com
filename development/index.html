@@ -160,17 +160,23 @@ function render(){
   ORD.forEach(d=>{const di=its.filter(i=>i.d===d); if(!di.length) return; const s=st[d]; const dn=di.filter(i=>R[i.n]).length;
     const stx=s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':`ยังไม่ครบ (${dn}/${di.length} ข้อ)`;
     L.push(`- ${DOM[d][1]}: ${stx}`);
-    di.forEach(i=>{const r=R[i.n];
-      if(r==='p') L.push('  ✓ '+i.s);
-      else if(r==='f'){L.push('  ✗ '+i.s); if(i.p) L.push('    เกณฑ์ผ่าน: '+i.p.replace(/^ผ่าน:\s*/,'')); tipL(i.t).forEach(x=>L.push('    '+x))}
-      else L.push('  ○ ยังไม่ได้ประเมิน: '+i.s)});});
+    di.forEach(i=>{const r=R[i.n], sk=i.s.replace(/^\s*สามารถ\s*/,'');
+      if(r==='p') L.push('  '+(/^\s*สามารถ/.test(i.s)?'สามารถ'+sk:'สามารถ '+i.s));
+      else if(r==='f') L.push('  ไม่สามารถ '+(/^\s*สามารถ/.test(i.s)?sk:i.s));
+      else L.push('  ยังไม่ได้ประเมิน '+i.s)});});
   S.push(`DSPM ช่วงอายุ ${bi[1]}`);
   ORD.forEach(d=>{const di=its.filter(i=>i.d===d);
     const can=di.filter(i=>R[i.n]==='p').map(i=>i.s), cant=di.filter(i=>R[i.n]==='f').map(i=>i.s);
     if(!can.length&&!cant.length) return;
     if(can.length){S.push(`- ${d} สามารถ ${can.join(', ')}`); if(cant.length) S.push('ไม่สามารถ '+cant.join(', '))} else S.push(`- ${d} ไม่สามารถ ${cant.join(', ')}`)});
-  const advL=(fails.length&&!recheck)?('ไม่สมวัยในด้าน'+failD.map(d=>`${DOM[d][0]} (${d})`).join(', ')+'\n→ '+adv.split('→')[1].trim()):adv.replace(' → ','\n→ ');
-  L.push('สรุป: '+advL); S.push('','ข้อสรุป: '+adv.replace('ยังไม่ผ่าน','ยังไม่สามารถทำได้').replace('ไม่ผ่าน','ไม่สามารถทำได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
+  L.push('');
+  if(fails.length&&!recheck){
+    L.push('สรุป: ไม่สมวัยในด้าน '+failD.map(d=>DOM[d][1]).join(', '));
+    L.push('แนะนำฝึก:');
+    fails.forEach(i=>{ if(fails.length>1) L.push('  - '+i.s); tipL(i.t).forEach(x=>L.push('    '+x.replace(/^แนะนำฝึก:\s*/,''))) });
+    L.push('Follow up: แล้วนัดประเมินซ้ำใน 1 เดือน');
+  } else L.push('สรุป: '+adv.replace(' → ','\n→ '));
+  S.push('','ข้อสรุป: '+adv.replace('ยังไม่ผ่าน','ยังไม่สามารถทำได้').replace('ไม่ผ่าน','ไม่สามารถทำได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
   const cur=repMode==='short'?S:L;
   h+=`<div class="card"><h2>สรุป</h2><div class="body"><div class="note ${cls}">${adv}</div>
    <label class="sw"><input type="checkbox" id="rc" ${recheck?'checked':''}>ประเมินซ้ำหลังฝึก 1 เดือนแล้ว (ข้อที่เคยไม่ผ่าน)</label>
