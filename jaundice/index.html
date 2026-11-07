@@ -37,7 +37,7 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .note{border-radius:10px;padding:8px 12px;font-size:13.5px}
 .note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
 .work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
-.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}.foot p{margin:0 0 8px}
 .btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
 .home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
 
@@ -97,7 +97,10 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 
 <div id="out"></div>
 
-<p class="foot">Reference aid only. Thresholds are transcribed from the PCMC (Pannanonda Bhikkhu Chaipradit Medical Center) guideline, adapted from the Thai Neonatal Society / Royal College of Pediatricians of Thailand clinical practice guideline (2026). Between the table's age columns the threshold is interpolated linearly. Always follow your unit protocol and clinical judgement.</p>
+<div class="foot"><p><b>Disclaimer.</b> This tool is based on the PCMC neonatal jaundice guideline (Version I, 22 April 2026), prepared by the Department of Pediatrics, Pannanonda Bhikkhu Chaipradit Medical Center (PCMC). It is a reference aid only, not a substitute for your unit protocol or clinical judgement, and it is not an official PCMC product.</p>
+<p><b>Sources cited in the guideline:</b></p>
+<ul style="margin:0 0 8px;padding-left:18px"><li>Adapted from: Thai Neonatal Society and Royal College of Pediatricians of Thailand (2026). Clinical practice guideline for the management of neonatal jaundice, B.E. 2568. Bangkok: Thai Neonatal Society.</li><li>American Academy of Pediatrics (2022). Management of hyperbilirubinemia in the newborn infant ≥35 weeks of gestation. Pediatrics, 150(3): e2022058859.</li></ul>
+<p>Thresholds are transcribed from the guideline tables; between the table's age columns the value is interpolated linearly.</p></div>
 </div>
 <script>
 const $=id=>document.getElementById(id);
