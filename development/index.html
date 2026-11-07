@@ -168,8 +168,8 @@ function render(){
   ORD.forEach(d=>{const di=its.filter(i=>i.d===d);
     const can=di.filter(i=>R[i.n]==='p').map(i=>i.s), cant=di.filter(i=>R[i.n]==='f').map(i=>i.s);
     if(!can.length&&!cant.length) return;
-    S.push('- '+d); if(can.length) S.push('ทำได้: '+can.join(', ')); if(cant.length) S.push('ทำไม่ได้: '+cant.join(', '))});
-  L.push('','สรุป: '+adv); S.push('','ข้อสรุป: '+adv.replace('ยังไม่ผ่าน','ยังทำไม่ได้').replace('ไม่ผ่าน','ทำไม่ได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
+    if(can.length){S.push(`- ${d} สามารถ ${can.join(', ')}`); if(cant.length) S.push('ไม่สามารถ '+cant.join(', '))} else S.push(`- ${d} ไม่สามารถ ${cant.join(', ')}`)});
+  L.push('','สรุป: '+adv); S.push('','ข้อสรุป: '+adv.replace('ยังไม่ผ่าน','ยังไม่สามารถทำได้').replace('ไม่ผ่าน','ไม่สามารถทำได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
   const cur=repMode==='short'?S:L;
   h+=`<div class="card"><h2>สรุป</h2><div class="body"><div class="note ${cls}">${adv}</div>
    <label class="sw"><input type="checkbox" id="rc" ${recheck?'checked':''}>ประเมินซ้ำหลังฝึก 1 เดือนแล้ว (ข้อที่เคยไม่ผ่าน)</label>
