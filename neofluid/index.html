@@ -105,7 +105,7 @@ function ovTable(g,a){
   [['term','Term'],['pre','Preterm']].forEach(([k,n])=>{t+=`<tr class="${k===g?'sel':''}"><td>${n}</td>`+AGES.map((l,i)=>`<td class="${i+1===a?'hl':''}">${i<6?TBL[k][i]:i<9?150:'H-S'}</td>`).join('')+'</tr>'});
   return t;
 }
-const OVNOTE='mL/kg/day. From day 7 to 12 months the milk guide uses weight × 150 ÷ number of feeds (150 mL/kg/day). Over 12 months: Holliday-Segar (100 / 50 / 20 mL/kg for the first 10 kg / next 10 kg / the rest).';
+const OVNOTE='mL/kg/day. From day 7 to 12 months the milk guide uses weight × 150 ÷ number of feeds (150 mL/kg/day), with the total capped at 32 oz/day up to 6 months and 24 oz/day from 7 months. Over 12 months: Holliday-Segar (100 / 50 / 20 mL/kg for the first 10 kg / next 10 kg / the rest).';
 function seg(id,fn){document.querySelectorAll('#'+id+' .opt').forEach(x=>x.setAttribute('aria-pressed',String(fn(x.dataset.v))))}
 function copyBtn(getTxt){const b=$('cp');b.onclick=async()=>{try{await navigator.clipboard.writeText(getTxt());b.textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected'}setTimeout(()=>{const x=$('cp');if(x)x.textContent='Copy'},1500)}}
 function orderCard(lines){return `<div class="card"><h2>Order <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div class="rep" id="rep">${lines.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`}
@@ -116,7 +116,9 @@ function calc(){
   const kg=(parseFloat($('w').value)||0)/1000, W=kg>0;
   const nf=Math.max(1,parseFloat($('nf').value)||8);
   const kc=parseFloat($('kc').value)||0, kcalMl=kc/30;
-  const mlkg=tvOf(gest,age,kg);
+  const mlkg0=tvOf(gest,age,kg);
+  const CAP={7:32,8:32,9:24}[age]; let mlkg=mlkg0, capped=false;
+  if(mlkg0!=null&&W&&CAP&&mlkg0*kg/30>CAP){mlkg=CAP*30/kg;capped=true}
   $('ov').innerHTML=ovTable(gest,age); $('ovn').textContent=OVNOTE;
   let h='';
   const lim=age<=6?[0.4,6]:[1,60];
@@ -142,7 +144,7 @@ function calc(){
   const G={7:['0–3 months','Weight (kg) × 150 ÷ 8 = mL per feed (3 kg: 56 mL, give about 56–60 mL ≈ 2 oz). Feed every 2–3 h, 8 feeds a day (for example 06, 09, 12, 15, 18, 21, 24, 03).','Breastfeeding: as often as the baby wants to build supply, 10–15 min on each breast, burp, then switch sides. Expressed milk or formula: every 2–3 h.','Is the mother\'s milk enough? Poops at least 2 times a day, pees at least 6 times a day, let-down reflex present, weight gain 20–30 g/day (600–900 g/month).'],
    8:['4–6 months','Weight (kg) × 150 ÷ 4–6 feeds = mL per feed (6 kg: (150 × 6) ÷ 6 = 150 mL ≈ 5 oz). Total milk per day about 18–24 oz. Start scheduled feeds every 3–4 h (for example 09, 12, 15, 18, 24, 04).','Breastfeeding: burp or hold the baby upright at 30–45° after a feed. Bottle: raise the volume per feed, with bigger meals every 4–6 h.','At this age babies may take less milk, like looking around and start to smile.'],
    9:['7–12 months (the sheet covers 8–12 months)','Weight (kg) × 150 ÷ 4–6 feeds = mL per feed. Total milk per day about 18–24 oz (±1–2 oz). Night feeds can be stopped now; if the baby still takes 1–2, practise stopping when ready.','4–6 milk meals (for example 06, 11, 15, 19); one complementary meal replaces one milk meal. Breastfeeding every 4–6 h; the baby may bite the nipple, tell the baby it hurts.','Is the supply enough? Weight gain about 200–400 g/month.']};
-  const dayOz=enV/30, ozNote=(age>=8&&age<=9&&W&&(dayOz>26||dayOz<16))?`<div class="note warn" style="margin-top:14px">The formula gives ${r1(dayOz)} oz/day (${r0(enV)} mL), but the sheet says about 18–24 oz/day (±1–2 oz). Check against what the baby actually takes.</div>`:'';
+  const ozNote=capped?`<div class="note warn" style="margin-top:14px">Weight × 150 gives ${r1(mlkg0*kg/30)} oz/day (${r0(mlkg0*kg)} mL). The total is capped at ${CAP} oz/day (${CAP*30} mL) ${age===9?'(the sheet says about 18–24 oz/day at this age)':'(the Well baby tool\'s limit)'}, which is ${r1(mlkg)} mL/kg/day.</div>`:(age===9&&W&&enV/30<18?`<div class="note info" style="margin-top:14px">Total is ${r1(enV/30)} oz/day, under the sheet's 18–24 oz/day for this age. Check what the baby takes.</div>`:'');
   if(G[age]) h+=ozNote+`<details class="card ref"><summary>Feeding guide: ${G[age][0]}<small>from the milk sheet</small></summary><div class="body"><p>${G[age][1]}</p><p>${G[age][2]}</p><p>${G[age][3]}</p></div></details>`;
   const og=$('og').checked?' via OG':'';
   const L=[`${lab} (${kc} kcal/oz) sig ${W?r1(perFeed):'__'} ml x ${nf} feeds${og} (TV ${r2(mlkg)}, TC ${r2(tc)})`];
