@@ -137,12 +137,17 @@ function calc(){
   } else h+=`<div class="note info">No milk (NPO).</div>`;
   h+=`</div></div>`;
   h+=`<div class="card"><h2>IV fluid</h2><div class="body">
-   <div class="big3">${k('IV volume',dash(r0(iv)),u('mL/day'),`${r0(ivKg)} mL/kg/day`,'main')}${k('IV rate',dash(r1(rate)),u('mL/h'),'','main')}${k('Total fluid',dash(r0(tot)),u('mL/day'),`${mlkg} mL/kg/day`,'')}</div>
+   <table class="sm"><tr><td>IV volume</td><td>${W?r1(ivKg)+' mL/kg/day':'–'}${W?`<br><small>(${r0(iv)} mL/day)</small>`:''}</td></tr>
+   <tr><td>IV rate</td><td>${dash(r1(rate))}${W?' mL/h':''}</td></tr>
+   <tr><td>Total fluid</td><td>${mlkg} mL/kg/day${W?`<br><small>(${r0(tot)} mL/day)</small>`:''}</td></tr></table>
    ${iv<=0&&W?'<div class="note info">Full enteral feeds, no IV fluid needed.</div>':''}
   </div></div>`;
   h+=`<div class="card"><h2>IV dextrose <small>GIR · D${dx}W</small></h2><div class="body">
-   <div class="big3">${k('GIR',dash(r1(gir)),u('mg/kg/min'),'at this IV rate','main')}${k('IV rate',dash(r1(rate)),u('mL/h'),`D${dx}W`,'main')}${k('Target GIR',g[0]+'–'+g[1],'mg/kg/min',gest==='term'?'term 4–6':'preterm 6–8','')}</div>
-   <div class="big3">${k('Rate for target GIR',dash(r1(rateLo)+'–'+r1(rateHi)),u('mL/h'),`D${dx}W`,'')}${k('If all fluid is D'+dx+'W',r1(girAll),'mg/kg/min','at '+mlkg+' mL/kg/day','')}</div>
+   <table class="sm"><tr><td>GIR at this rate</td><td${W&&iv>0&&(gir<g[0]||gir>g[1])?' style="color:var(--warn)"':''}>${dash(r1(gir))}${W?' mg/kg/min':''}<br><small>(target ${g[0]}–${g[1]}, ${gest==='term'?'term':'preterm'})</small></td></tr>
+   <tr><td>IV rate (D${dx}W)</td><td>${dash(r1(rate))}${W?' mL/h':''}</td></tr>
+   <tr><td>Rate for target GIR</td><td>${dash(r1(rateLo)+'–'+r1(rateHi))}${W?' mL/h':''}</td></tr>
+   <tr><td>If all fluid is D${dx}W</td><td>${r1(girAll)} mg/kg/min<br><small>(at ${mlkg} mL/kg/day)</small></td></tr></table>
+   <div style="height:12px"></div>
    <table><tr><th>Energy</th><th>kcal/day</th><th>kcal/kg/day</th></tr>
     <tr><td>Milk</td><td>${dash(r0(milkK))}</td><td>${dash(r1(tc))}</td></tr>
     <tr><td>Dextrose (IV)</td><td>${dash(r0(dexK))}</td><td>${dash(r1(dexK/(kg||1)))}</td></tr>
