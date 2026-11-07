@@ -31,7 +31,7 @@ h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size
 .kpi span{font-size:12.5px;color:var(--ink-2);display:block}
 .kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
 .kpi.main{background:var(--accent-soft);border-color:var(--accent)}
-table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+table.sm td:last-child{text-align:right;font-weight:600}table.rt td,table.rt th{text-align:right}table.rt td:first-child,table.rt th:first-child{text-align:left}table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
 td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
 th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .note{border-radius:10px;padding:8px 12px;font-size:13.5px}
@@ -118,7 +118,25 @@ function calc(){
   const perFeed=enV/nf;
   h+=`<div class="card"><h2>Milk <small>BM / IF · ${kc} kcal/oz · ${r2(kcalMl)} kcal/mL</small></h2><div class="body">`;
   if(enkg>0){
-   h+=`<div class="big3">${k('Per feed',dash(r1(perFeed)),u('mL'),W?`${r2(perFeed/30)} oz × ${nf} feeds`:'','main')}${k('Total volume',dash(r0(enV)),u('mL/day'),`TV ${r1(enkg)} mL/kg/day`,'main')}${k('Total calories',dash(r0(milkK)),u('kcal/day'),`TC ${r1(tc)} kcal/kg/day`,'main')}</div>`;
+   const rv=pf=>{const v=pf*nf, kgv=kg>0?v/kg:0; return {pf,v,kgv,k:v*kcalMl,kk:kg>0?v*kcalMl/kg:0}};
+   const ex=rv(perFeed), dn=rv(Math.floor(perFeed)), up=rv(Math.ceil(perFeed));
+   const whole=Math.abs(perFeed-Math.round(perFeed))<1e-9;
+   const c=(o,f,d)=>W?r1(o[f])+(d||''):'–';
+   h+=`<table class="sm"><tr><td>Per feed</td><td>${W?r1(perFeed)+' mL':'–'}${W?` <small>(${r2(perFeed/30)} oz × ${nf} feeds)</small>`:''}</td></tr>
+   <tr><td>Total volume (TV)</td><td>${W?r0(enV)+' mL/day':'–'}</td></tr>
+   <tr><td>TV per kg</td><td>${r1(enkg)} mL/kg/day</td></tr>
+   <tr><td>Total calories (TC)</td><td>${W?r0(milkK)+' kcal/day':'–'}</td></tr>
+   <tr><td>TC per kg</td><td>${r1(tc)} kcal/kg/day</td></tr></table>`;
+   if(W){
+    h+=`<div class="lb" style="margin:14px 0 4px">If the per-feed volume is rounded to a whole mL</div>`;
+    if(whole) h+=`<div class="note info">Per feed is already a whole number (${r0(perFeed)} mL).</div>`;
+    else h+=`<table class="rt"><tr><th></th><th>Round down</th><th>Exact</th><th>Round up</th></tr>
+    <tr><td>Per feed (mL)</td><td>${dn.pf>0?dn.pf:'–'}</td><td>${r1(ex.pf)}</td><td>${up.pf}</td></tr>
+    <tr><td>TV (mL/day)</td><td>${dn.pf>0?r0(dn.v):'–'}</td><td>${r0(ex.v)}</td><td>${r0(up.v)}</td></tr>
+    <tr><td>TV (mL/kg/day)</td><td>${dn.pf>0?r1(dn.kgv):'–'}</td><td>${r1(ex.kgv)}</td><td>${r1(up.kgv)}</td></tr>
+    <tr><td>TC (kcal/day)</td><td>${dn.pf>0?r0(dn.k):'–'}</td><td>${r0(ex.k)}</td><td>${r0(up.k)}</td></tr>
+    <tr><td>TC (kcal/kg/day)</td><td>${dn.pf>0?r1(dn.kk):'–'}</td><td>${r1(ex.kk)}</td><td>${r1(up.kk)}</td></tr></table>`;
+   }
   } else h+=`<div class="note info">No milk (NPO).</div>`;
   h+=`</div></div>`;
   h+=`<div class="card"><h2>IV fluid</h2><div class="body">
