@@ -178,7 +178,7 @@ function calc(){
     else {
       rate=(tsb-pt)/(h-pa); const lim=h<=24?0.3:0.2; rflag=rate>=lim;
       rateHTML=`<div class="big3">${box('Rate of rise',(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100),'mg/dL/h',`${r1(tsb)} − ${r1(pt)} over ${Math.round(h-pa)} h`,rflag?'':'')}</div><div class="note ${rflag?'bad':'info'}">${rflag?`Rising fast: at least ${lim} mg/dL/h (${h<=24?'first 24 h':'after 24 h'}). Suspect hemolysis; counts as a follow-up risk factor.`:`Below ${lim} mg/dL/h (${h<=24?'first 24 h':'after 24 h'} limit): not rising fast.`}</div>`;
-      rateRep=`TB rate of rise ${(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100)} mg/dL/h (${r1(pt)} at ${Math.round(pa)} hr to ${r1(tsb)} at ${Math.round(h)} hr)`;
+      rateRep=`TB rate of rise ${Math.abs(Math.round(rate*100)/100)} mg/dL/h (${r1(pt)} at ${Math.round(pa)} hr to ${r1(tsb)} at ${Math.round(h)} hr)`;
     }
   }
   let pR,eR,pN,eN;
@@ -229,12 +229,12 @@ function calc(){
   h2+='</div></div>';
   h2+=`<div class="card"><h2>Threshold in the guideline table</h2><div class="body">${otable(mode,risk,ga,h)}</div></div>`;
   const dbv=parseFloat($('hct').value), dsig=sg(tsb-(risk?pR:pN)), thr=risk?pR:pN;
-  const rateTxt=rate==null?'___':(rate>=0?'+':'−')+Math.abs(Math.round(rate*100)/100)+' mg/dL/h';
+  const rateTxt=rate==null?'___':Math.abs(Math.round(rate*100)/100)+' mg/dL/h';
   const thrAt=hh=>r1(mode==='term'?look(risk?'photoRisk':'photoNo',ga,hh,risk?38:40):pre(ga+hh/168)[risk?0:1]);
   const nr=risk?'':' (no risk)', hv=v=>v>=0?v:'___';
   const lines=[];
   if(pt>0&&pa>=0&&pa<h){const tp=thrAt(pa);lines.push(`Hct/TB at ${Math.round(pa)} hr = ${hv(parseFloat($('phct').value))}/${r1(pt)} (phototherapy threshold${nr} ${tp}, delta ${sg(pt-tp)})`)}
-  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}, delta ${dsig}${rate==null?'':', rate rising '+rateTxt})`);
+  lines.push(`Hct/TB at ${Math.round(h)} hr = ${hv(dbv)}/${r1(tsb)} (phototherapy threshold${nr} ${thr}, delta ${dsig}${rate==null?'':', rate '+(rate>=0?'rising ':'falling ')+rateTxt})`);
   const rep=lines.join('\n');
   h2+=`<div class="card"><h2>Report <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div id="rep" style="font-size:15px;word-break:break-word;white-space:pre-line">${rep}</div></div></div>`;
   out.innerHTML=h2;
