@@ -72,7 +72,7 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
  <div id="ivin" class="body" style="padding:0">
   <div class="g2">
    <label class="f"><span class="lb">Dextrose</span><span class="inp"><input id="dx" type="number" inputmode="decimal" min="1" max="30" step="0.5" value="10"><i>%</i></span></label>
-   <div class="f"><span class="lb">Fluid</span><div class="seg" id="flu"><button class="opt" data-v="dw" aria-pressed="false">D/W</button><button class="opt" data-v="dn5" aria-pressed="true">D/N/5</button></div></div>
+   <div class="f"><span class="lb">Fluid</span><div class="seg" id="flu"><button class="opt" data-v="dw" aria-pressed="false">D/W</button><button class="opt" data-v="dn5" aria-pressed="true">D/N/5</button><button class="opt" data-v="dnss" aria-pressed="false">DNSS</button></div></div>
   </div>
  </div>
  <div id="stin" class="body" style="padding:0;display:none">
@@ -112,7 +112,10 @@ function orderCard(lines){return `<div class="card"><h2>Order <button class="btn
 let tab='npo', gest='term', age=3, flu='dn5', sel='up', ssEdited=false, lastRep='';
 const GIRR={term:[4,6],late:[6,8],pre:[6,8]};
 const STEP={term:[20,30],late:[15,20],pre:[10,15]};
-const FL={dw:'DW',dn5:'D/N/5'};
+const FL={dw:'DW',dn5:'D/N/5',dnss:'DNSS'};
+const fluOf=a=>a<=2?'dw':a<=7?'dn5':'dnss';
+let dxEdited=false;
+function autoFlu(){flu=fluOf(age);if(!dxEdited)$('dx').value=flu==='dnss'?5:10}
 const ceilHalf=x=>Math.ceil(x*2-1e-9)/2;
 const tg=()=>gest==='term'?'term':'pre';
 const girCls=(g,r)=>g<r[0]||g>r[1]?'warn-t':'ok-t';
@@ -145,7 +148,7 @@ function calc(){
      ${girOf(used)<gr[0]||girOf(used)>gr[1]?`<div class="note warn">GIR ${r1(girOf(used))} is outside the target ${gr[0]}–${gr[1]}. The rate can rarely go higher because of the volume limit; the dextrose % can be changed (max 12.5% peripheral).</div>`:`<div class="note info">GIR ${r1(girOf(used))} is within the target.</div>`}
     </div></div>`;
     L.push(`${bag} IV drip rate ${used} ml/hr x 24 hrs (TV ${r1(tvOfRate(used))}, GIR ${r1(girOf(used))})`);
-    h+=`<div class="note info" style="margin-top:14px">NPO + IV if RR &gt; 80/min, or severe birth asphyxia (NPO 4–6 days). Fluid: day 1–2 10% D/W; day 3 onward 10% D/N/5 (D/W is sometimes kept longer).</div>`;
+    h+=`<div class="note info" style="margin-top:14px">NPO + IV if RR &gt; 80/min, or severe birth asphyxia (NPO 4–6 days). Fluid: day 1–2 10% D/W; day 3 to 1 month 10% D/N/5; over 1 month 5% DNSS.</div>`;
   }
   if(tab==='step'){
     const ss=Math.max(0,parseFloat($('ss').value)||0), nf=Math.max(1,parseFloat($('nf').value)||8), kc=parseFloat($('kc').value)||20;
@@ -198,14 +201,15 @@ function sync(){
   setSS(); calc();
 }
 $('day').innerHTML=AGES.map((l,i)=>`<button class="opt" data-v="${i+1}" aria-pressed="false">${l}</button>`).join('');
-document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.v;flu=age<=2?'dw':'dn5';sync()});
+document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.v;autoFlu();sync()});
 document.querySelectorAll('#tab .opt').forEach(b=>b.onclick=()=>{tab=b.dataset.v;sync()});
 document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;ssEdited=false;sync()});
-document.querySelectorAll('#flu .opt').forEach(b=>b.onclick=()=>{flu=b.dataset.v;sync()});
+document.querySelectorAll('#flu .opt').forEach(b=>b.onclick=()=>{flu=b.dataset.v;if(!dxEdited)$('dx').value=flu==='dnss'?5:10;sync()});
 ['w','dx','nf','kc','rc'].forEach(i=>$(i).addEventListener('input',sync));
+$('dx').addEventListener('input',()=>{dxEdited=true});
 $('ss').addEventListener('input',()=>{ssEdited=true;sync()});$('og').addEventListener('change',sync);
 const q=new URLSearchParams(location.search);
 if(q.get('w'))$('w').value=q.get('w'); if(['term','late','pre'].includes(q.get('g')))gest=q.get('g'); if(+q.get('a')>=1&&+q.get('a')<=10)age=+q.get('a');
-flu=age<=2?'dw':'dn5';
+autoFlu();
 sync();
 </script></body></html>
