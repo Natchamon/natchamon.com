@@ -60,10 +60,10 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 <header><h1>Neonatal jaundice<small>Phototherapy and exchange thresholds · follow-up · PCMC guideline v.I, 22/04/2026</small></h1></header>
 
 <div class="card"><h2>Baby</h2><div class="body">
- <details id="agecalc"><summary>Age calculator (date of birth → hours)</summary><div class="body" style="padding:10px 0 0">
+ <details id="agecalc" open><summary>Age calculator (date of birth → hours)</summary><div class="body" style="padding:10px 0 0">
   <label class="f"><span class="lb">Date of birth</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
-  <label class="f"><span class="lb">Measurement date</span><span class="inp"><input id="cdt" type="datetime-local"></span></label>
-  <div class="lb" id="acout"></div>
+  <label class="f"><span class="lb">TSB / TcB measured at</span><span class="inp"><input id="cdt" type="datetime-local"></span></label>
+  <div class="lb" id="acout">Enter date of birth and the Age below fills in automatically.</div>
  </div></details>
  <div class="g2">
   <label class="f"><span class="lb">Gestational age</span><span class="inp"><input id="ga" type="number" inputmode="decimal" min="22" max="44" step="1" placeholder="e.g. 38"><i>weeks</i></span></label>
@@ -80,10 +80,10 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 </div></div>
 
 <div class="card"><h2>Rate of rise <small>optional, from a previous TSB</small></h2><div class="body">
+ <label class="f"><span class="lb">When was the previous TSB taken?</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
+ <div class="lb" id="pcout">Uses the date of birth above, or type the age in hours below.</div>
  <div class="g2">
   <label class="f"><span class="lb">Previous TSB (or TcB)</span><span class="inp"><input id="ptsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>mg/dL</i></span></label>
-  <label class="f"><span class="lb">Previous TSB taken (uses date of birth above)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
-  <div class="lb" id="pcout"></div>
   <label class="f"><span class="lb">Its age</span><span class="inp"><input id="page" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 36"><i>hours</i></span></label>
  </div>
  <label class="f"><span class="lb">Hematocrit then (optional)</span><span class="inp"><input id="phct" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 52"><i>%</i></span></label>
@@ -250,7 +250,7 @@ function calc(){
 function hrTxt(x){return Math.floor(x/24)+' d '+Math.round(x%24)+' h'}
 function nowLocal(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())}
 function acalc(){
-  const b=$('bdt').value?new Date($('bdt').value):null; if(!b||isNaN(b)){$('acout').textContent='';return}
+  const b=$('bdt').value?new Date($('bdt').value):null; if(!b||isNaN(b)){$('acout').textContent='Enter date of birth and the Age below fills in automatically.';return}
   const c=$('cdt').value?new Date($('cdt').value):null;
   if(!c||isNaN(c)){$('acout').textContent='Enter the measurement date and time.';return}
   const h=(c-b)/36e5;
@@ -261,7 +261,7 @@ function acalc(){
 function pcalc(){
   const b=new Date($('bdt').value),c=new Date($('pdt').value);
   if(!$('bdt').value){$('pcout').textContent='Enter date of birth in the age calculator above.';return}
-  if(!$('pdt').value||isNaN(c)){$('pcout').textContent='';return}
+  if(!$('pdt').value||isNaN(c)){$('pcout').textContent='Uses the date of birth above, or type the age in hours below.';return}
   const h=(c-b)/36e5;
   if(h<0){$('pcout').textContent='Previous TSB is before birth.';return}
   $('page').value=Math.round(h);$('pcout').textContent='Age at previous TSB: '+Math.round(h)+' h ('+hrTxt(h)+')';calc();
