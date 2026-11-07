@@ -42,7 +42,7 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
-<header><h1>Paediatric IV fluid calculator<small>Maintenance (Holliday-Segar 4-2-1) + deficit replacement · by weight</small></h1></header>
+<header><h1>Paediatric IV fluid calculator<small>Maintenance (Holliday-Segar 100-50-20) + deficit replacement · by weight</small></h1></header>
 
 <div class="card"><h2>Patient</h2><div class="body">
  <div class="g2">
@@ -93,7 +93,7 @@ function calc(){
         bk=Math.max(0,parseFloat($('b').value)||0);
   const out=$('out');
   if(!(w>0)){out.innerHTML='';return}
-  const bol=bk*w, m=maint(w), mh=m.hr, br=bracket(w);
+  const bol=bk*w, m=maint(w), mh=m.day/24, br=bracket(w);
   const defRaw=w*dp*10, def=Math.max(0,defRaw-bol);
   let h='';
   if(w>150||w<1) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value.</div>`;
@@ -105,7 +105,7 @@ function calc(){
     h+=`<div class="card"><h2>24 h rate <small>${w} kg · maintenance${mp<100?' '+mp+'%':''}${mult>1?' × '+r0(mult*100)+'%':''}</small></h2><div class="body">
      <div class="big"><div class="kpi main"><span>Total rate (even)</span><b>${r1(rate)}<small> mL/h</small></b></div>
      <div class="kpi"><span>Per 24 h</span><b>${r0(rate*24)}<small> mL</small></b></div></div>
-     <div class="work"><div><b>Maintenance</b> (4-2-1): ${m.a}×4 + ${m.b}×2 + ${m.c}×1 = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}${mp<100?` × ${mp}% = ${r1(mhC)} mL/h`:''}</div>
+     <div class="work"><div><b>Maintenance</b> (100-50-20): ${m.a}×100${m.b?` + ${m.b}×50`:''}${m.c?` + ${m.c}×20`:''} = ${r0(m.day)} mL/day ÷ 24 = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}${mp<100?` × ${mp}% = ${r1(mhC)} mL/h`:''}</div>
      ${mult>1?`<div><b>${sev==='mild'?'Mild':'Moderate'}</b>: ${r1(mhC)} × ${r0(mult*100)}% = ${r1(rate)} mL/h → × 24 h = ${r0(rate*24)} mL</div>`:''}
      <div><b>Drip rate</b>: microdrip (60 gtt/mL) = ${r0(rate)} gtt/min · macrodrip (20 gtt/mL) = ${r0(rate/3)} gtt/min</div></div></div></div>`;
     if(bol>0) h+=`<div class="card"><h2>Loading dose <small>given first</small></h2><div class="body"><div class="kpi"><span>${bk} mL/kg × ${w} kg</span><b>${r0(bol)}<small> mL</small></b></div></div></div>`;
@@ -117,8 +117,7 @@ function calc(){
   const ev=mhC+def/24;
   const hd=`${w} kg · maintenance${mp<100?' '+mp+'%':''} + deficit${bol?' − loading':''}`;
   const defTxt=`${w} kg × ${dp}% × 10 = ${r0(defRaw)} mL${bol?` − loading ${bk} mL/kg (${r0(bol)} mL) = ${r0(def)} mL`:''}`;
-  const common=`<div><b>Maintenance</b> (4-2-1): ${m.a}×4${m.b?` + ${m.b}×2`:''}${m.c?` + ${m.c}×1`:''} = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}${mp<100?` × ${mp}% = ${r1(mhC)} mL/h`:''}</div>
-    <div><b>Per day</b> (100-50-20): ${m.a}×100${m.b?` + ${m.b}×50`:''}${m.c?` + ${m.c}×20`:''} = ${r0(m.day)} mL/day (the hourly 4-2-1 rule gives slightly less, ${r0(mh*24)} mL; both are accepted)</div>`;
+  const common=`<div><b>Maintenance</b> (100-50-20): ${m.a}×100${m.b?` + ${m.b}×50`:''}${m.c?` + ${m.c}×20`:''} = ${r0(m.day)} mL/day ÷ 24 = ${r1(mh)} mL/h${w>=40&&mh>100?' → capped at 100':''}${mp<100?` × ${mp}% = ${r1(mhC)} mL/h`:''}</div>`;
   if(md===24){
    h+=`<div class="card"><h2>24 h rate <small>${hd}</small></h2><div class="body">
    <div class="big"><div class="kpi main"><span>Total rate (even)</span><b>${r1(ev)}<small> mL/h</small></b></div>
