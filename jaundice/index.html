@@ -61,6 +61,7 @@ table.fu td,table.fu th{text-align:left;vertical-align:top;font-size:13px}
 table.fu tr.hlr td{background:var(--accent-soft);font-weight:600}
 table.fu td.hlc{outline:2px solid var(--accent);outline-offset:-2px}
 .fuh{font-weight:600;margin:6px 0 4px}
+.aap{margin-top:6px;padding-top:6px;border-top:1px dashed currentColor;font-size:13px;opacity:.95}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Neonatal jaundice<small>Phototherapy and exchange thresholds · follow-up · PCMC guideline v.I, 22/04/2026</small></h1></header>
@@ -137,7 +138,7 @@ const RFF=['Gestational age &lt; 40 weeks','Jaundice in the first 24 h','Hemolys
 let rfMode=null, tbm='risk';
 document.querySelectorAll('#tb .opt').forEach(b=>b.onclick=()=>{tbm=b.dataset.v;document.querySelectorAll('#tb .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));calc()});
 function buildRF(m){ if(rfMode===m)return; rfMode=m; const L=m==='pre'?RF34:RF35;
-  $('rf').innerHTML=L.map((t,i)=>`<label class="chk"><input type="checkbox" data-rf="${i}"><span>${t}</span></label>`).join('');
+  $('rf').innerHTML=L.map((t,i)=>`<label class="chk"><input type="checkbox" data-rf="${i}"><span>${t}</span></label>`).join('')+(m==='pre'?'':'<div class="lb aap"><b>AAP:</b> also counts albumin &lt; 3.0 g/dL as a neurotoxicity risk factor (not in the PCMC list).</div>');
   
   $('rf').querySelectorAll('input').forEach(c=>c.addEventListener('input',calc)); }
 const COLS=Array.from({length:14},(_,i)=>(i+1)*6+'h').concat(['4–7 d','8–14 d']);
@@ -229,12 +230,13 @@ function calc(){
       else if(rate==null) m2='Enter the previous TSB and its age to check the rate of rise (needs to be under 0.2 mg/dL/h to go home).';
       else if(rate<0.2) m2='Below the phototherapy threshold and rate of rise under 0.2 mg/dL/h: can go home, follow up at 48 h.';
       else m2='Below the threshold but rate of rise is 0.2 mg/dL/h or more: does not meet the go-home criteria; repeat TSB and use clinical judgement.';
-      plan+=`<div class="note ${tsb<photo&&rate!=null&&rate<0.2?'info':'warn'}"><b>After phototherapy (rebound check):</b> ${m2}</div>`;
+      plan+=`<div class="note ${tsb<photo&&rate!=null&&rate<0.2?'info':'warn'}"><b>After phototherapy (rebound check):</b> ${m2}${aapTag(AAPSTOP)}</div>`;
     } else plan+=`<div class="note info"><b>After phototherapy:</b> under 35 weeks, repeat TSB 24–48 h after stopping.</div>`;
   }
   if(tsb>=photo){
-    plan+=`<div class="note info">Stop phototherapy when TSB is at least 2 mg/dL below the threshold for the current age: under <b>${r1(photo-2)}</b> mg/dL now.${mode==='term'?' Rebound risk (GA &lt; 38 wk, phototherapy started before 48 h, hemolytic disease): repeat TSB 6–12 h after stopping; go home if below threshold or rising under 0.2 mg/dL/h, follow up at 48 h. Without rebound risk: go home, follow up at 48 h.':' After stopping, repeat TSB at 24–48 h.'}</div>`;
+    plan+=`<div class="note info">Stop phototherapy when TSB is at least 2 mg/dL below the threshold for the current age: under <b>${r1(photo-2)}</b> mg/dL now.${mode==='term'?' Rebound risk (GA &lt; 38 wk, phototherapy started before 48 h, hemolytic disease): repeat TSB 6–12 h after stopping; go home if below threshold or rising under 0.2 mg/dL/h, follow up at 48 h. Without rebound risk: go home, follow up at 48 h.'+aapTag(AAPSTOP):' After stopping, repeat TSB at 24–48 h.'}</div>`;
   }
+  if(mode==='term'&&(dP<3||tsb>=15)) plan+=`<div class="note info"><b>AAP:</b> if this value is a TcB, confirm it with a TSB (TcB within 3.0 mg/dL below the phototherapy threshold, or 15 mg/dL or more).</div>`;
   if(cls==='ok'||(cls==='warn'&&tsb<photo)){
     if(mode==='term'){
       const n3=t3(h);
@@ -265,11 +267,15 @@ function calc(){
   const fr=$('fr'); if(fr){ fr.innerHTML=RFF.map((t,i)=>`<label class="chk"><input type="checkbox" data-fr="${i}" ${(i===0&&ga<40)||(i===2&&rflag)?'checked disabled':''}><span>${t}</span></label>`).join('')+`<label class="chk"><input type="checkbox" id="hbv"><span>Mother has hepatitis B</span></label>`;
     const upd=()=>{const rk=ga<40||[...fr.querySelectorAll('[data-fr]')].some(c=>c.checked);const hb=$('hbv').checked;
       let t; if(dP<2) t='On phototherapy.'; else if(dP<5.5) t=rk?'Follow up after 24–48 hours.':'Follow up after 48–72 hours.'; else t=rk?'Follow up after 72–96 hours.':(hb?'Follow up at age 1 month (mother has hepatitis B).':'Follow up at age 2 months.');
-      hlFU(rk,hb); $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}</div>`};
+      hlFU(rk,hb); $('fu').innerHTML=`<div class="note info"><b>Table 4:</b> threshold − TSB = ${dP} mg/dL, ${rk?'risk factor present':'no risk factor'}. ${t}${aapTag(AAPREC[aapIdx(dP,h)]+(h>=24&&dP>=5.5?'':'')+(dP>=5.5?' (current age used as discharge time)':''))}</div>`};
     fr.addEventListener('input',upd); upd(); }
 }
 ['ga','age','tsb','w','hct','ptsb','page','phct'].forEach(i=>$(i).addEventListener('input',calc));
 
+const AAPREC=['Begin phototherapy.','Delay discharge, consider phototherapy, measure TSB in 4 to 8 hours.','Measure TSB in 4 to 24 hours (delay discharge and consider phototherapy, home phototherapy, or discharge with close follow-up).','TSB or TcB in 4 to 24 hours.','TSB or TcB in 1 to 2 days.','Follow-up within 2 days; TcB or TSB per clinical judgment.','Clinical judgment.','Follow-up within 3 days; TcB or TSB per clinical judgment.','Clinical judgment.'];
+const aapIdx=(d,h)=>d<=0?0:d<2?(h<24?1:2):d<3.5?3:d<5.5?4:d<7?(h<72?5:6):(h<72?7:8);
+const aapTag=t=>`<div class="aap"><b>AAP:</b> ${t}</div>`;
+const AAPSTOP='stop when TSB is at least 2 mg/dL below the threshold at which phototherapy was started; check TSB about 24 h after stopping, or 6–12 h if phototherapy was started before 48 h of age.';
 // ---------- charts and follow-up tables ----------
 let CTX=null; const CH={risk:null};
 const PAL=['#0E8A8F','#D9822B','#9B2D7A','#3FB6B2','#C99700','#E0456F'];
@@ -331,7 +337,7 @@ function hlFU(rk,hb){
   const r4=d<2?0:d<5.5?1:2; const row4=document.querySelector(`#fu4 tr[data-r="${r4}"]`); row4.classList.add('hlr');
   if(r4>0) row4.querySelector(`td[data-c="${rk?1:0}"]`).classList.add('hlc');
   $('fu4n').textContent=`Threshold − TSB = ${d} mg/dL; ${rk?'risk factor present':'no risk factor'}.`+(c.tsb>=c.photo?' TSB is at or above the threshold: phototherapy.':'');
-  const a=d<=0?0:d<2?(c.h<24?1:2):d<3.5?3:d<5.5?4:d<7?(c.h<72?5:6):(c.h<72?7:8);
+  const a=aapIdx(d,c.h);
   document.querySelector(`#fuA tr[data-a="${a}"]`).classList.add('hlr');
 }
 function hrTxt(x){return Math.floor(x/24)+' d '+Math.round(x%24)+' h'}
