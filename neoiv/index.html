@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Neonatal IV & GIR</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
+--f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
+@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
+button,input{font:inherit;color:inherit}
+.app{max-width:640px;margin:0 auto}
+header{padding:18px 0 4px}
+h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
+.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
+.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.body{padding:14px 16px;display:grid;gap:12px}
+.lb{font-size:13px;color:var(--ink-2)}
+.f{display:grid;gap:3px;min-width:0}
+.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
+.inp:focus-within{border-color:var(--accent)}
+.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
+.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
+.seg{display:flex;gap:6px;flex-wrap:wrap}
+.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
+.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
+.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
+.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
+.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
+.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
+.chk{display:flex;gap:10px;align-items:flex-start;font-size:14px;padding:4px 0}.chk input{margin-top:3px;width:18px;height:18px;flex:0 0 auto}table.sm td:last-child{text-align:right;font-weight:600}table.rt td,table.rt th{text-align:right}table.rt td:first-child,table.rt th:first-child{text-align:left;white-space:nowrap}table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
+td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
+th{font-weight:500;color:var(--ink-2);font-size:12.5px}
+.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
+.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
+.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
+.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
+.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+
+.big3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+.kpi small.s{display:block;font:400 12px var(--f-body);margin-top:2px}
+.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+@media (max-width:420px){.big3{grid-template-columns:repeat(2,minmax(0,1fr))}}
+.days .opt{min-width:44px;padding:6px 0;text-align:center}
+
+th.hl,td.hl{background:var(--accent-soft)}
+tr.sel td:first-child{font-weight:600}
+.rep{font:14px/1.6 ui-monospace,Menlo,monospace;word-break:break-word;background:var(--soft);border-radius:10px;padding:10px 12px;display:grid;gap:4px}
+a.btn{display:inline-flex;align-items:center;text-decoration:none}
+details.card>summary{cursor:pointer;padding:10px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);list-style:none}
+details.card>summary small{font:400 12px var(--f-body);color:var(--ink-2);margin-left:8px}
+details.card[open]>summary{border-bottom:1px solid var(--line)}
+.ovw{overflow-x:auto}.ovw table{min-width:520px;font-size:13px}.ovw td,.ovw th{text-align:center;padding:5px 6px}.ovw td:first-child,.ovw th:first-child{text-align:left}
+.ref ul{margin:4px 0 0;padding-left:18px}.ref p{margin:0}.ref b{font-weight:600}
+.ok-t{color:var(--ok);font-weight:600}.warn-t{color:var(--warn);font-weight:600}
+</style></head><body><div class="app">
+<a class="home" href="/tools/">← Ped tools</a>
+<header><h1>Neonatal IV &amp; GIR<small>IV rate and dextrose GIR · step feed with IV · hypoglycemia push · order wording</small></h1></header>
+
+<div class="card"><h2>What do you need?</h2><div class="body">
+ <div class="seg" id="tab"><button class="opt" data-v="npo" aria-pressed="true">NPO, all IV</button><button class="opt" data-v="step" aria-pressed="false">Step feed + IV</button><button class="opt" data-v="hypo" aria-pressed="false">Symptomatic hypoglycemia</button></div>
+</div></div>
+
+<div class="card"><h2>Baby</h2><div class="body">
+ <label class="f"><span class="lb">Weight</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="10" placeholder="e.g. 3200"><i>g</i></span></label>
+ <div class="f"><span class="lb">Gestation</span><div class="seg" id="gest"><button class="opt" data-v="term" aria-pressed="true">Term</button><button class="opt" data-v="late" aria-pressed="false">Late preterm</button><button class="opt" data-v="pre" aria-pressed="false">Preterm</button></div></div>
+ <div class="f"><span class="lb">Day of life / age</span><div class="seg days" id="day"></div></div>
+ <div id="ivin" class="body" style="padding:0">
+  <div class="g2">
+   <label class="f"><span class="lb">Dextrose</span><span class="inp"><input id="dx" type="number" inputmode="decimal" min="1" max="30" step="0.5" value="10"><i>%</i></span></label>
+   <div class="f"><span class="lb">Fluid</span><div class="seg" id="flu"><button class="opt" data-v="dw" aria-pressed="false">D/W</button><button class="opt" data-v="dn5" aria-pressed="true">D/N/5</button></div></div>
+  </div>
+ </div>
+ <div id="stin" class="body" style="padding:0;display:none">
+  <label class="f"><span class="lb">Step feed (oral)</span><span class="inp"><input id="ss" type="number" inputmode="decimal" min="0" step="1" value="20"><i>mL/kg/day</i></span></label>
+  <div class="lb" id="ssh"></div>
+  <div class="g2">
+   <label class="f"><span class="lb">Feeds per day</span><span class="inp"><input id="nf" type="number" inputmode="numeric" min="1" max="24" step="1" value="8"><i>feeds</i></span></label>
+   <label class="f"><span class="lb">Milk energy</span><span class="inp"><input id="kc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label>
+  </div>
+  <label class="chk"><input type="checkbox" id="og"><span>Fed by OG tube (adds "via OG" to the order)</span></label>
+ </div>
+ <label class="f" id="rcw"><span class="lb">Use my own IV rate (optional)</span><span class="inp"><input id="rc" type="number" inputmode="decimal" min="0" step="0.1" placeholder="optional"><i>mL/h</i></span></label>
+</div></div>
+
+<div id="out"></div>
+
+<details class="card"><summary>Fluid requirement table<small>mL/kg/day</small></summary><div class="body"><div class="ovw"><table id="ov"></table></div><div class="lb" id="ovn"></div></div></details>
+
+<p class="foot">Calculation aid only. Based on the Newborn Feeding calculation sheet and the PCMC maintenance table; check against your unit protocol and the baby's clinical state. GIR = % dextrose × rate (mL/h) ÷ (6 × weight kg). Target GIR: term 4–6, preterm 6–8 mg/kg/min. Rates are rounded up to the next 0.5 mL/h as in the sheet. Dextrose is counted at 3.4 kcal/g.</p>
+</div>
+<script>
+const $=id=>document.getElementById(id);
+const r0=Math.round, r1=x=>Math.round(x*10)/10, r2=x=>Math.round(x*100)/100;
+const TBL={term:[65,65,80,100,120,150],pre:[60,80,100,120,140,160]};
+const AGES=['1','2','3','4','5','6','7 d–1 mo','1–6 mo','6–12 mo','>12 mo'];
+const hs=kg=>100*Math.min(kg,10)+50*Math.min(Math.max(kg-10,0),10)+20*Math.max(kg-20,0);
+function tvOf(g,a,kg){if(a<=6)return TBL[g][a-1];if(a===7)return 150;if(a===8)return 120;if(a===9)return 110;return kg>0?hs(kg)/kg:null}
+function ovTable(g,a){
+  let t='<tr><th></th>'+AGES.map((l,i)=>`<th class="${i+1===a?'hl':''}">${l}</th>`).join('')+'</tr>';
+  [['term','Term'],['pre','Preterm']].forEach(([k,n])=>{t+=`<tr class="${k===g?'sel':''}"><td>${n}</td>`+AGES.map((l,i)=>`<td class="${i+1===a?'hl':''}">${i<6?TBL[k][i]:i===6?150:i===7?120:i===8?110:'H-S'}</td>`).join('')+'</tr>'});
+  return t;
+}
+const OVNOTE='mL/kg/day. Day 7 to 1 month stays at 150. From 1 month the sheet gives one set of values (used for preterm too). Over 12 months: Holliday-Segar (100 / 50 / 20 mL/kg for the first 10 kg / next 10 kg / the rest).';
+function seg(id,fn){document.querySelectorAll('#'+id+' .opt').forEach(x=>x.setAttribute('aria-pressed',String(fn(x.dataset.v))))}
+function copyBtn(getTxt){const b=$('cp');b.onclick=async()=>{try{await navigator.clipboard.writeText(getTxt());b.textContent='Copied'}catch(e){const r=document.createRange();r.selectNodeContents($('rep'));const s=getSelection();s.removeAllRanges();s.addRange(r);b.textContent='Selected'}setTimeout(()=>{const x=$('cp');if(x)x.textContent='Copy'},1500)}}
+function orderCard(lines){return `<div class="card"><h2>Order <button class="btn" id="cp" type="button" style="min-height:30px;padding:2px 12px;font-size:13px">Copy</button></h2><div class="body"><div class="rep" id="rep">${lines.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`}
+let tab='npo', gest='term', age=3, flu='dn5', sel='up', ssEdited=false, lastRep='';
+const GIRR={term:[4,6],late:[6,8],pre:[6,8]};
+const STEP={term:[20,30],late:[15,20],pre:[10,15]};
+const FL={dw:'DW',dn5:'D/N/5'};
+const ceilHalf=x=>Math.ceil(x*2-1e-9)/2;
+const tg=()=>gest==='term'?'term':'pre';
+const girCls=(g,r)=>g<r[0]||g>r[1]?'warn-t':'ok-t';
+function calc(){
+  const kg=(parseFloat($('w').value)||0)/1000, W=kg>0;
+  const dx=tab==='hypo'?10:(parseFloat($('dx').value)||10);
+  const goal=tvOf(tg(),age,kg), gr=GIRR[gest];
+  $('ov').innerHTML=ovTable(tg(),age); $('ovn').textContent=OVNOTE;
+  const fl=FL[flu], bag=`${dx}% ${fl} 500 ml`;
+  const girOf=r=>dx*r/(6*kg), tvOfRate=r=>r*24/kg;
+  const cu=parseFloat($('rc').value)>0?parseFloat($('rc').value):null;
+  let h='';
+  const lim=age<=7?[0.4,6]:[1,60];
+  if(W&&(kg<lim[0]||kg>lim[1])) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
+  if(dx>12.5) h+=`<div class="note warn" style="margin-top:14px">Dextrose above 12.5% cannot go through a peripheral line; it needs a central line (UVC).</div>`;
+  if(!W||goal==null){ $('out').innerHTML=h+`<div class="note info" style="margin-top:14px">Enter the weight to see the result.</div>`; return }
+  const L=[];
+  if(tab==='npo'){
+    const ex=kg*goal/24, up=ceilHalf(ex), used=cu||up;
+    const cols=[['Exact',ex,r2(ex)],['Round up',up,up]]; if(cu) cols.push(['Your rate',cu,cu]);
+    const row=(lab,f)=>`<tr><td>${lab}</td>${cols.map(c=>`<td>${f(c[1],c[2])}</td>`).join('')}</tr>`;
+    h+=`<div class="card"><h2>IV fluid <small>${bag} · required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day</small></h2><div class="body">
+     <table class="rt"><tr><th></th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr>
+      ${row('Rate (mL/h)',(v,t)=>t)}
+      ${row('mL/day',v=>r0(v*24))}
+      ${row('TV (mL/kg/day)',v=>r1(tvOfRate(v)))}
+      ${row('GIR (mg/kg/min)',v=>`<span class="${girCls(girOf(v),gr)}">${r1(girOf(v))}</span>`)}
+     </table>
+     <div class="lb">Target GIR ${gr[0]}–${gr[1]} mg/kg/min (${gest==='term'?'term':'preterm'}). Dextrose energy at the rate used: ${r1(girOf(used)*1.44*3.4)} kcal/kg/day.</div>
+     ${girOf(used)<gr[0]||girOf(used)>gr[1]?`<div class="note warn">GIR ${r1(girOf(used))} is outside the target ${gr[0]}–${gr[1]}. The rate can rarely go higher because of the volume limit; the dextrose % can be changed (max 12.5% peripheral).</div>`:`<div class="note info">GIR ${r1(girOf(used))} is within the target.</div>`}
+    </div></div>`;
+    L.push(`${bag} IV drip rate ${used} ml/hr x 24 hrs (TV ${r1(tvOfRate(used))}, GIR ${r1(girOf(used))})`);
+    h+=`<div class="note info" style="margin-top:14px">NPO + IV if RR &gt; 80/min, or severe birth asphyxia (NPO 4–6 days). Fluid: day 1–2 10% D/W; day 3 onward 10% D/N/5 (D/W is sometimes kept longer).</div>`;
+  }
+  if(tab==='step'){
+    const ss=Math.max(0,parseFloat($('ss').value)||0), nf=Math.max(1,parseFloat($('nf').value)||8), kc=parseFloat($('kc').value)||20;
+    const oralDay=ss*kg, pfx=oralDay/nf;
+    const opts={exact:r1(pfx), down:Math.floor(pfx/5)*5, up:Math.ceil(pfx/5)*5};
+    if(sel==='down'&&opts.down<=0) sel='up';
+    const pf=opts[sel], oralTV=pf*nf/kg, ivTV=Math.max(0,goal-oralTV);
+    const exR=ivTV*kg/24, upR=ceilHalf(exR), used=cu||upR;
+    const gir=girOf(used), totTV=tvOfRate(used)+oralTV, tcK=oralTV*kc/30;
+    const lab=kc===24?'HMF/PF':kc===20?'BM/IF':'BM/IF/HMF', og=$('og').checked?' via OG':'';
+    const st=STEP[gest];
+    h+=`<div class="card"><h2>Oral per feed <small>step feed ${ss} mL/kg/day = ${r1(oralDay)} mL/day</small></h2><div class="body">
+     <div class="seg" id="sel"><button class="opt" data-v="down" aria-pressed="${sel==='down'}" ${opts.down<=0?'disabled style="opacity:.4"':''}>Down · ${opts.down} mL</button><button class="opt" data-v="exact" aria-pressed="${sel==='exact'}">Exact · ${opts.exact} mL</button><button class="opt" data-v="up" aria-pressed="${sel==='up'}">Up · ${opts.up} mL</button></div>
+     <div class="lb">Rounded to the nearest 5 mL per feed. Picked: <b>${pf} mL × ${nf} feeds</b>.</div>
+    </div></div>`;
+    h+=`<div class="card"><h2>With this per-feed volume <small>goal ${goal===r0(goal)?goal:r1(goal)} mL/kg/day</small></h2><div class="body"><table class="sm">
+     <tr><td>Oral TV</td><td>${r1(oralTV)} mL/kg/day<br><small>(${r0(pf*nf)} mL/day · TC ${r1(tcK)} kcal/kg/day)</small></td></tr>
+     <tr><td>IV TV still needed</td><td>${r1(ivTV)} mL/kg/day<br><small>(goal − oral)</small></td></tr>
+     <tr><td>IV rate</td><td>${r2(exR)} → <b>${cu?cu+' (yours)':upR}</b> mL/h<br><small>(rounded up to 0.5)</small></td></tr>
+     <tr><td>Total TV</td><td>${r1(totTV)} mL/kg/day</td></tr>
+     <tr><td>GIR of the IV</td><td class="${gir>=2?'ok-t':'warn-t'}">${r1(gir)} mg/kg/min<br><small>(keep at 2 or more)</small></td></tr>
+     <tr><td>Lowest rate with GIR 2</td><td>${r1(2*6*kg/dx)} mL/h<br><small>(do not taper below this)</small></td></tr></table>
+     ${gir<2?`<div class="note warn">GIR is under 2: risk of hypoglycemia. Do not reduce the IV any further.</div>`:`<div class="note info">Reduce the IV slowly; keep GIR at 2 or more so the baby does not become hypoglycemic.</div>`}
+     ${ss<st[0]||ss>st[1]?`<div class="note warn">Step feed ${ss} is outside the usual ${st[0]}–${st[1]} mL/kg/day for this group.</div>`:''}
+    </div></div>`;
+    L.push(`${lab} (${kc} kcal/oz) ${pf} ml x ${nf} feed${og} (TV ${r1(oralTV)} ml/kg/day, TC ${r1(tcK)} kcal/kg/day)`);
+    L.push(`${bag} IV drip rate ${used} ml/hr x 24 hrs (TV ${r1(tvOfRate(used))}, GIR ${r1(gir)})`);
+    L.push(`If feeds well 2 meals, reduce IV to ${bag} IV drip rate __ ml/hr x 24 hrs`);
+  }
+  if(tab==='hypo'){
+    const bol=2*kg, rate=kg*goal/24, up=ceilHalf(rate), used=cu||up, gir=girOf(used);
+    h+=`<div class="card"><h2>Symptomatic hypoglycemia <small>10% DW</small></h2><div class="body"><table class="sm">
+     <tr><td>Mini-bolus</td><td>${r1(bol)} → <b>${r0(bol)}</b> mL<br><small>(10% DW 2 mL/kg/dose, slow push)</small></td></tr>
+     <tr><td>Then IV rate</td><td>${r2(rate)} → <b>${cu?cu+' (yours)':up}</b> mL/h<br><small>(required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day, rounded up to 0.5)</small></td></tr>
+     <tr><td>TV at this rate</td><td>${r1(tvOfRate(used))} mL/kg/day</td></tr>
+     <tr><td>GIR</td><td class="${girCls(gir,gr)}">${r1(gir)} mg/kg/min<br><small>(target ${gr[0]}–${gr[1]})</small></td></tr></table></div></div>`;
+    L.push(`10%DW ${r0(bol)} ml IV slowly push`);
+    L.push(`then 10% DW 500 ml IV rate ${used} ml/hr (TV ${r1(tvOfRate(used))}, GIR ${r1(gir)})`);
+  }
+  lastRep=L.join('\n'); h+=orderCard(L);
+  const qs=`?w=${encodeURIComponent($('w').value||'')}&g=${tg()}&a=${age}`;
+  h+=`<div style="margin-top:14px"><a class="btn" href="/neofluid/${qs}">Milk calculator →</a></div>`;
+  $('out').innerHTML=h; copyBtn(()=>lastRep);
+  document.querySelectorAll('#sel .opt').forEach(b=>b.onclick=()=>{if(b.disabled)return;sel=b.dataset.v;calc()});
+}
+function setSS(){ if(!ssEdited) $('ss').value={term:20,late:15,pre:10}[gest]; const s=STEP[gest]; $('ssh').textContent=`Usual step feed for this group: ${s[0]}–${s[1]} mL/kg/day.` }
+function sync(){
+  seg('tab',v=>v===tab);seg('gest',v=>v===gest);seg('day',v=>+v===age);seg('flu',v=>v===flu);
+  $('ivin').style.display=tab==='hypo'?'none':''; $('stin').style.display=tab==='step'?'':'none';
+  setSS(); calc();
+}
+$('day').innerHTML=AGES.map((l,i)=>`<button class="opt" data-v="${i+1}" aria-pressed="false">${l}</button>`).join('');
+document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.v;flu=age<=2?'dw':'dn5';sync()});
+document.querySelectorAll('#tab .opt').forEach(b=>b.onclick=()=>{tab=b.dataset.v;sync()});
+document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;ssEdited=false;sync()});
+document.querySelectorAll('#flu .opt').forEach(b=>b.onclick=()=>{flu=b.dataset.v;sync()});
+['w','dx','nf','kc','rc'].forEach(i=>$(i).addEventListener('input',sync));
+$('ss').addEventListener('input',()=>{ssEdited=true;sync()});$('og').addEventListener('change',sync);
+const q=new URLSearchParams(location.search);
+if(q.get('w'))$('w').value=q.get('w'); if(['term','late','pre'].includes(q.get('g')))gest=q.get('g'); if(+q.get('a')>=1&&+q.get('a')<=10)age=+q.get('a');
+flu=age<=2?'dw':'dn5';
+sync();
+</script></body></html>
