@@ -131,8 +131,8 @@ function calc(){
     h+=`<div class="lb" style="margin:14px 0 4px">If the per-feed volume is rounded to a whole mL</div>`;
     if(whole) h+=`<div class="note info">Per feed is already a whole number (${r0(perFeed)} mL).</div>`;
     else {
-     const rr=(lab,o,ok,fmt)=>`<tr><td>${lab}</td><td>${ok?fmt(o.pf):'–'}</td><td>${ok?r1(o.kgv):'–'}</td><td>${ok?r1(o.kk):'–'}</td></tr>`;
-     h+=`<table class="rt"><tr><th></th><th>Per feed<br>mL</th><th>TV<br>mL/kg/d</th><th>TC<br>kcal/kg/d</th></tr>${rr('Round down',dn,dn.pf>0,x=>x)}${rr('Exact volume',ex,true,r1)}${rr('Round up',up,true,x=>x)}</table>`;
+     const rr=(lab,o,ok,fmt)=>`<tr><td>${lab}</td><td>${ok?fmt(o.pf):'–'}</td><td>${ok?r1(o.kgv)+' <small>('+r0(o.v)+')</small>':'–'}</td><td>${ok?r1(o.kk):'–'}</td></tr>`;
+     h+=`<table class="rt"><tr><th></th><th>Per feed<br>mL</th><th>TV<br>mL/kg/d <small>(mL/d)</small></th><th>TC<br>kcal/kg/d</th></tr>${rr('Round down',dn,dn.pf>0,x=>x)}${rr('Exact volume',ex,true,r1)}${rr('Round up',up,true,x=>x)}</table>`;
     }
    }
   } else h+=`<div class="note info">No milk (NPO).</div>`;
