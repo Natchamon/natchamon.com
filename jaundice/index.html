@@ -62,9 +62,8 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 <div class="card"><h2>Baby</h2><div class="body">
  <details id="agecalc"><summary>Age calculator (date of birth → hours)</summary><div class="body" style="padding:10px 0 0">
   <label class="f"><span class="lb">Date of birth</span><span class="inp"><input id="bdt" type="datetime-local"></span></label>
-  <div class="f"><span class="lb">TSB / TcB taken</span><div class="seg" id="cm"><button class="opt" data-v="now" aria-pressed="true">Now</button><button class="opt" data-v="before" aria-pressed="false">Before now</button></div></div>
-  <label class="f" id="cdtw" hidden><span class="lb">TSB / TcB date and time</span><span class="inp"><input id="cdt" type="datetime-local"></span></label>
-  <label class="f"><span class="lb">Previous TSB taken at (optional)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
+  <label class="f"><span class="lb">Measurement date</span><span class="inp"><input id="cdt" type="datetime-local"></span></label>
+  <div><button class="btn" id="acb" type="button">Calculate age</button></div>
   <div class="lb" id="acout"></div>
  </div></details>
  <div class="g2">
@@ -84,6 +83,9 @@ details summary{cursor:pointer;font-weight:500;color:var(--accent);padding:4px 0
 <div class="card"><h2>Rate of rise <small>optional, from a previous TSB</small></h2><div class="body">
  <div class="g2">
   <label class="f"><span class="lb">Previous TSB (or TcB)</span><span class="inp"><input id="ptsb" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>mg/dL</i></span></label>
+  <label class="f"><span class="lb">Previous TSB taken (uses date of birth above)</span><span class="inp"><input id="pdt" type="datetime-local"></span></label>
+  <div><button class="btn" id="pcb" type="button">Calculate age</button></div>
+  <div class="lb" id="pcout"></div>
   <label class="f"><span class="lb">Its age</span><span class="inp"><input id="page" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 36"><i>hours</i></span></label>
  </div>
  <label class="f"><span class="lb">Hematocrit then (optional)</span><span class="inp"><input id="phct" type="number" inputmode="decimal" min="0" max="100" step="0.1" placeholder="e.g. 52"><i>%</i></span></label>
@@ -248,20 +250,29 @@ function calc(){
 }
 ['ga','age','tsb','w','hct','ptsb','page','phct'].forEach(i=>$(i).addEventListener('input',calc));
 function hrTxt(x){return Math.floor(x/24)+' d '+Math.round(x%24)+' h'}
+function nowLocal(){const d=new Date(),p=n=>String(n).padStart(2,'0');return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'T'+p(d.getHours())+':'+p(d.getMinutes())}
 function acalc(){
   const b=$('bdt').value?new Date($('bdt').value):null; if(!b||isNaN(b)){$('acout').textContent='';return}
-  const c=cmode==='now'?new Date():($('cdt').value?new Date($('cdt').value):null), pv=$('pdt').value?new Date($('pdt').value):null;
-  if(!c||isNaN(c)){$('acout').textContent='Enter the date and time of the TSB.';return}
-  const h=(c-b)/36e5; let t='';
-  if(h<0) t='TSB time is before birth.';
-  else { $('age').value=Math.round(h); t='Age at TSB: '+Math.round(h)+' h ('+hrTxt(h)+')'; }
-  if(pv&&!isNaN(pv)){const ph=(pv-b)/36e5; if(ph<0) t+=' · Previous TSB is before birth.'; else { $('page').value=Math.round(ph); t+=' · Previous TSB age: '+Math.round(ph)+' h'; }}
-  $('acout').textContent=t; calc();
+  const c=$('cdt').value?new Date($('cdt').value):null;
+  if(!c||isNaN(c)){$('acout').textContent='Enter the measurement date and time.';return}
+  const h=(c-b)/36e5;
+  if(h<0) $('acout').textContent='Measurement date is before birth.';
+  else { $('age').value=Math.round(h); $('acout').textContent='Age at measurement: '+Math.round(h)+' h ('+hrTxt(h)+')'; }
+  calc();
 }
-let cmode='now';
-document.querySelectorAll('#cm .opt').forEach(b=>b.onclick=()=>{cmode=b.dataset.v;document.querySelectorAll('#cm .opt').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));$('cdtw').hidden=cmode==='now';acalc()});
-['bdt','cdt','pdt'].forEach(i=>$(i).addEventListener('input',acalc));
-setInterval(()=>{if(cmode==='now'&&$('bdt').value) acalc()},60000);
+function pcalc(){
+  const b=new Date($('bdt').value),c=new Date($('pdt').value);
+  if(!$('bdt').value){$('pcout').textContent='Enter date of birth in the age calculator above.';return}
+  if(!$('pdt').value||isNaN(c)){$('pcout').textContent='';return}
+  const h=(c-b)/36e5;
+  if(h<0){$('pcout').textContent='Previous TSB is before birth.';return}
+  $('page').value=Math.round(h);$('pcout').textContent='Age at previous TSB: '+Math.round(h)+' h ('+hrTxt(h)+')';calc();
+}
+$('pdt').addEventListener('input',pcalc);$('pcb').onclick=pcalc;$('bdt').addEventListener('input',()=>{if($('pdt').value)pcalc()});
+$('cdt').value=nowLocal();
+['bdt','cdt'].forEach(i=>$(i).addEventListener('input',acalc));
+$('acb').onclick=()=>{ if($('cdt').dataset.edited!=='1') $('cdt').value=nowLocal(); acalc(); };
+$('cdt').addEventListener('input',()=>{$('cdt').dataset.edited='1'});
 $('postpt').addEventListener('input',calc);
 buildRF('term'); calc();
 </script></body></html>
