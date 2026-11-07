@@ -157,18 +157,19 @@ function render(){
   else adv='ผ่านทุกข้อที่ประเมินแล้ว · ประเมินให้ครบทุกข้อ';
   const tip=t=>{const ls=(t||'').split('\n').map(x=>x.replace(/^\s*\d+\.\s*/,'').trim()).filter(Boolean);return ls.slice(0,2).join('; ')};
   const L=[`DSPM ช่วงอายุ ${bi[1]} (ประเมินแล้ว ${done}/${its.length} ข้อ)`], S=[];
-  const sh=[];
   ORD.forEach(d=>{const di=its.filter(i=>i.d===d); if(!di.length) return; const s=st[d]; const dn=di.filter(i=>R[i.n]).length;
     const stx=s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':`ยังไม่ครบ (${dn}/${di.length} ข้อ)`;
     L.push('',`${d} ${DOM[d][0]} (${DOM[d][1]}): ${stx}`);
     di.forEach(i=>{const r=R[i.n];
       if(r==='p') L.push('  ✓ '+i.s);
       else if(r==='f'){L.push('  ✗ '+i.s); if(i.p) L.push('    เกณฑ์ผ่าน: '+i.p.replace(/^ผ่าน:\s*/,'')); const tp=tip(i.t); if(tp) L.push('    แนะนำฝึก: '+tp)}
-      else L.push('  ○ ยังไม่ได้ประเมิน: '+i.s)});
-    sh.push(`${d} ${s==='f'?'ไม่ผ่าน':s==='p'?'ผ่าน':'ยังไม่ครบ'}`)});
-  S.push(`DSPM ${bi[1]}: ${sh.join(' | ')}`);
-  const fl=its.filter(i=>R[i.n]==='f'); if(fl.length) S.push('ไม่ผ่าน: '+fl.map(i=>i.s).join('; '));
-  L.push('','สรุป: '+adv); S.push('สรุป: '+adv);
+      else L.push('  ○ ยังไม่ได้ประเมิน: '+i.s)});});
+  S.push(`DSPM ช่วงอายุ ${bi[1]}`);
+  ORD.forEach(d=>{const di=its.filter(i=>i.d===d); if(!di.length) return;
+    const can=di.filter(i=>R[i.n]==='p').map(i=>i.s), cant=di.filter(i=>R[i.n]==='f').map(i=>i.s), no=di.filter(i=>!R[i.n]).map(i=>i.s);
+    const parts=[]; if(can.length) parts.push('ทำได้: '+can.join(', ')); if(cant.length) parts.push('ทำไม่ได้: '+cant.join(', ')); if(no.length) parts.push('ยังไม่ได้ประเมิน: '+no.join(', '));
+    S.push(`${d} ${DOM[d][0]} — ${parts.join(' · ')}`)});
+  L.push('','สรุป: '+adv); S.push('','สรุป: '+adv.replace('ยังไม่ผ่าน','ยังทำไม่ได้').replace('ไม่ผ่าน','ทำไม่ได้').replace('ผ่านทุกข้อ','ทำได้ทุกข้อ'));
   const cur=repMode==='short'?S:L;
   h+=`<div class="card"><h2>สรุป</h2><div class="body"><div class="note ${cls}">${adv}</div>
    <label class="sw"><input type="checkbox" id="rc" ${recheck?'checked':''}>ประเมินซ้ำหลังฝึก 1 เดือนแล้ว (ข้อที่เคยไม่ผ่าน)</label>
