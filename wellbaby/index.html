@@ -205,6 +205,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .prog b{color:var(--ink);font-weight:600;white-space:nowrap}
 .todo{margin:0;padding-left:18px;columns:2;font-size:14px}
 @media (max-width:520px){.todo{columns:1}}
+.bmitg{margin-top:10px}.bmifig{position:relative;margin-top:8px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.bmifig img{display:block;width:100%;height:auto}.bmifig i{position:absolute;width:2.4%;aspect-ratio:1;border-radius:50%;background:#d4141c;border:2px solid #fff;box-shadow:0 0 0 1.5px #d4141c;transform:translate(-50%,-50%)}.bmicap{font-size:12.5px;color:var(--ink-2);margin-top:6px}
 .idbox{margin-top:10px;border:1px dashed var(--line);border-radius:8px;padding:8px 12px}
 .idbox summary{cursor:pointer;color:var(--ink-2);font-size:13.5px}
 .idbox[open] summary{margin-bottom:8px}
@@ -350,6 +351,15 @@ function bmiSDS(bmi,sex,m){ const t=BMIC[sex]; if(!t||!(bmi>0)||m==null||m<0||m>
   if(old){ if(bmi>=25||z>2){cls='ob';txt='อ้วน (Obesity)';} else if(z>1||bmi>=23){cls='ow';txt='น้ำหนักเกิน (Overweight)';} else if(z<-2){cls='low';txt='ต่ำกว่า −2 SDS';} else {cls='n';txt='อยู่ในเกณฑ์';} }
   else { if(z>3){cls='ob';txt='อ้วน (Obesity)';} else if(z>2){cls='ow';txt='น้ำหนักเกิน (Overweight)';} else if(z<-2){cls='low';txt='ต่ำกว่า −2 SDS';} else {cls='n';txt='อยู่ในเกณฑ์';} }
   return {z,pct:phi(z)*100,lo:null,hi:null,bmi,cls,txt,old}; }
+let bmiOn=false;
+function bmiChartHTML(){ const {R,g}=growthCalc(), r=R.bmi; if(!r||!r.res||r.res.out) return '';
+  const m=g.m, yrs=m/12, boy=S.sex==='M', old=m>=60, bmi=r.res.bmi;
+  const file='bmi-'+(boy?'boys':'girls')+(old?'-5-19':'-0-5')+'.jpg';
+  const x=old?118+(yrs-5)/14*1005:118+yrs/5*1004, y=old?236+(40-bmi)/30*1417:236+(30-bmi)/21*1417;
+  const ok=x>=118&&x<=1124&&y>=236&&y<=1654;
+  const btn=`<button type="button" class="btn ghost" id="btn-bmichart" aria-pressed="${bmiOn}">${bmiOn?'ซ่อนกราฟ BMI':'ดูกราฟ BMI (SDS)'}</button>`;
+  if(!bmiOn) return `<div class="bmitg">${btn}</div>`;
+  return `<div class="bmitg">${btn}<div class="bmifig"><img src="${file}" alt="กราฟ BMI SDS ${boy?'เด็กชาย':'เด็กหญิง'} ${old?'5–19':'0–5'} ปี" loading="lazy">${ok?`<i style="left:${(x/1241*100).toFixed(2)}%;top:${(y/1754*100).toFixed(2)}%"></i>`:''}</div><div class="bmicap">จุดสีแดง = BMI ${bmi.toFixed(1)} กก./ม.² ที่อายุ ${(m/12).toFixed(1)} ปี (SDS ${zTxt(r.res.z)}) · กราฟ BMI Z-score (SDS) สมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย ปี 2565 · ${old?'อ้างอิง National Growth References 5–19 ปี 2563 กรมอนามัย':'อ้างอิง WHO Growth Standard 0–5 ปี 2549'}</div></div>`; }
 function bmiLine(r){ return 'BMI '+r.res.bmi.toFixed(1)+' กก./ม.² · SDS '+zTxt(r.res.z)+' · '+r.res.txt; }
 function wfhChart(wt,len,sex){ const vs=chVals(CH[sex==='M'?'bwh':'gwh'].weight_for_height,len,0); return vs?chCalc(vs,wt):null; }
 
@@ -672,7 +682,7 @@ function renderForm(){
     <div class="g2"><div id="agebox-dob" class="fld">${txt('dob','วันเกิด','', 'date')}</div><div id="agebox-age" class="fld" hidden>${numrow([['age_y','อายุ (ปี)','','1'],['age_m','เดือน','','1']])}</div>${txt('vd','วันที่ตรวจ','', 'date')}
       ${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
     <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
-    ${segTxt('who','ผู้พาเด็กมา',[['m','มารดา'],['f','บิดา'],['g','ปู่ย่าตายาย'],['o','อื่น ๆ']],'ระบุ (ถ้ามี)')}
+    <div class="row"><span class="lb">ผู้พาเด็กมา <small>(เลือกได้หลายคน)</small></span><div class="line2">${chips('who',[['m','มารดา'],['f','บิดา'],['g','ปู่ย่าตายาย'],['o','อื่น ๆ']])}<span class="inp"><input type="text" data-k="who_t" id="f_who_t" placeholder="ระบุ (ถ้ามี)" value="${E(S.who_t)}"></span></div></div>
     <details class="idbox"${(S.name||S.hn)?' open':''}><summary>ข้อมูลระบุตัวตน (ไม่บังคับ — เว้นว่างได้)</summary>
       <div class="grid">${txt('name','ชื่อ-สกุล')}${txt('hn','HN')}</div>
       <p class="hint">ใช้เฉพาะเพื่อแสดงในรายงานฉบับเต็ม Chart note ไม่ได้ใส่ชื่อ/HN อยู่แล้ว และไม่มีการบันทึกข้อมูลใดไว้ที่ไหน ใช้วันเกิดเพื่อคำนวณอายุเท่านั้น</p>
@@ -731,6 +741,7 @@ function renderForm(){
     ${numrow([['wt','น้ำหนัก','กก.','0.01'],['len',v>=24?'ส่วนสูง':'ความยาว','ซม.','0.1'],['hc','รอบศีรษะ','ซม.','0.1']])}
     ${v<=18?`<div class="fontan"><div class="fld"><span class="lb">กระหม่อมหน้า (AF)<small> ซม.</small></span><span class="afx"><span class="inp"><input type="number" inputmode="decimal" step="0.5" min="0" id="f_af_w" data-k="af_w" value="${E(S.af_w)}" aria-label="AF กว้าง"></span><b>×</b><span class="inp"><input type="number" inputmode="decimal" step="0.5" min="0" id="f_af_l" data-k="af_l" value="${E(S.af_l)}" aria-label="AF ยาว"></span></span></div>${v===2?`<div class="fld"><span class="lb">กระหม่อมหลัง (PF)</span>${seg('pf',[['c','ปิดแล้ว'],['o','ยังเปิด']])}</div>`:''}</div>`:''}
     <div class="gtable" id="gtable"></div>
+    <div id="bmichart"></div>
     <div id="gevinfo" class="hint"></div>
     ${segTxt('geval','สรุปการเจริญเติบโต',v>=12?GEV:NA)}`);
 
@@ -878,7 +889,7 @@ function refresh(){
       const odd=Math.abs(res.z)>5?'<span class="pill bad">ค่านอกช่วงที่น่าเป็นไปได้ ตรวจสอบตัวเลข/หน่วย</span>':'';
       return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">${rngTxt(res)}<small>(${exTxt(res)}) · z ${zTxt(res.z)}</small></div>${stripHTML(res.z)}<div class="age">${tag}${extra}${whoTag}${odd}</div></div></div>`; }).join('');
     h+=`<details class="idbox"><summary>อายุที่ใช้คำนวณ ${g.m.toFixed(1)} เดือน — วิธีคำนวณ</summary><p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · ช่วงเปอร์เซ็นไทล์อ่านจากเส้นของกราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย (2565) ส่วนค่าในวงเล็บคำนวณโดยประมาณจากตำแหน่งระหว่างเส้น (รอบศีรษะใช้ตาราง WHO 2006)</p></details>`;
-    gt.innerHTML=h; }
+    gt.innerHTML=h; const bc=$('#bmichart'); if(bc) bc.innerHTML=bmiChartHTML(); }
   const gi=$('#gevinfo'); if(gi){ const big=S.visit>=12, nm=S.visit>=24?'ส่วนสูง':'ความยาว';
     if(S.gevalManual) gi.innerHTML='เลือกเอง (ไม่ใช้ค่าอัตโนมัติ) <button type="button" class="btn ghost" id="btn-gauto">ใช้ค่าอัตโนมัติ</button>';
     else if(S._gz==null) gi.textContent='สรุปอัตโนมัติจากน้ำหนักตาม'+nm+' เมื่อกรอกเพศ น้ำหนัก และ'+nm+'ครบ';
@@ -899,7 +910,7 @@ function model(){
   const v=S.visit, late=v>=6, tod=v>=18, out=[]; const add=(t,rows)=>{const r=rows.filter(x=>x[1]!==''&&x[1]!=null); out.push({t,rows:r.length?r:[['','ไม่ได้บันทึก']]});};
   const a=ageInfo();
   add('ข้อมูลผู้ป่วย',[['ชื่อ-สกุล',S.name||''],['HN',S.hn||''],['เพศ',S.sex==='M'?'ชาย':S.sex==='F'?'หญิง':''],['วันเกิด',ageMode()==='age'?'':thDate(S.dob)],['วันที่ตรวจ',thDate(S.vd)],
-    ['อายุ',a?(a.approx?ageYM(a):`${a.m} เดือน ${a.d} วัน`)+(a.pre>0?` (คลอดก่อนกำหนด GA ${S.ga} สัปดาห์)`:''):''],['ผู้พาเด็กมา',st('who')],['อาการสำคัญ',S.cc||'']]);
+    ['อายุ',a?(a.approx?ageYM(a):`${a.m} เดือน ${a.d} วัน`)+(a.pre>0?` (คลอดก่อนกำหนด GA ${S.ga} สัปดาห์)`:''):''],['ผู้พาเด็กมา',[cl('who'),S.who_t].filter(Boolean).join(' — ')],['อาการสำคัญ',S.cc||'']]);
   add('ครอบครัวและการเลี้ยงดู',[['การประเมินครอบครัว',st('fam')],['ประเด็นที่พูดคุย',cl('rear')]]);
   const nr=[['ชนิดนม',cl('milk')],['ความถี่',unit('feeds','ครั้ง/วัน')]];
   if(!late) nr.push(['ระยะเวลากินนม',unit('feedmin','นาที/มื้อ')]);
@@ -963,7 +974,7 @@ function setView(which){
 function switchVisit(v){ S.visit=v; renderVisits(); renderForm(); document.body.dataset.visit=v; refresh(); }
 function example(){
   const t=parseISO(todayISO()); const dob=addMonthsUTC(t,-9)-3*864e5;
-  Object.assign(S,{example:true,visit:9,name:'ตัวอย่าง ทารกหญิง (ไม่ใช่ผู้ป่วยจริง)',hn:'000000',sex:'F',dob:fromT(dob),vd:todayISO(),who:'m',elim:'n',nprob:'n',sl_p:'n',cc:'มาตรวจตามนัด',
+  Object.assign(S,{example:true,visit:9,name:'ตัวอย่าง ทารกหญิง (ไม่ใช่ผู้ป่วยจริง)',hn:'000000',sex:'F',dob:fromT(dob),vd:todayISO(),who:['m'],elim:'n',nprob:'n',sl_p:'n',cc:'มาตรวจตามนัด',
     wt:'8.4',len:'70.5',hc:'44.0',af:'1.5 × 1.5 ซม. นูนเล็กน้อย',milk:['bf','if'],feeds:'5',oz:'2',cmeals:'2',fg:['grain','veg','fruit','meat','iron'],
     stoolfreq:'1–2 ครั้ง/วัน',stoolcons:'ก้อนนิ่ม',sl_n:'10',sl_nw:'1',sl_d:'3',sl_dn:'2',act_move:'y',act_walker:'y',act_stroller:'y',
     fam:'none',teeth:'y',teethn:'2',fluor:'y',brush:'y',dent:'n',vx:['mmr1','je1'],anemia:'n',hb:'11.8',lead:'ni',eval:'n',geval:'n'});
@@ -976,6 +987,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val&&k!=='agemode') delete S[k]; else S[k]=t.dataset.val;
     if(k==='exall'){ if(!S.exall) SYS.forEach(x=>{delete S['ex_'+x[0]];}); else if(S.exall==='n') SYS.forEach(x=>{S['ex_'+x[0]]='n';}); else SYS.forEach(x=>{ if(!S['ex_'+x[0]]) S['ex_'+x[0]]='n'; }); }
     refresh(); if(document.querySelector('[data-sx="'+k+'"]')&&S[k]){ const f=document.getElementById('f_'+k+'_t'); if(f&&f.offsetParent) try{f.focus({preventScroll:true})}catch(_){} } if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
+  if(t.id==='btn-bmichart'){ bmiOn=!bmiOn; refresh(); return; }
   if(t.dataset.chipall){ const k=t.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; S[k]=all.every(x=>cur.indexOf(x)>-1)?[]:all.slice(); refresh(); return; }
   if(t.dataset.chip){ const k=t.dataset.chip, a=(S[k]||[]).slice(), i=a.indexOf(t.dataset.val); if(i>-1) a.splice(i,1); else a.push(t.dataset.val); S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
