@@ -205,7 +205,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
 .prog b{color:var(--ink);font-weight:600;white-space:nowrap}
 .todo{margin:0;padding-left:18px;columns:2;font-size:14px}
 @media (max-width:520px){.todo{columns:1}}
-.bmitg{margin-top:10px}.bmifig{position:relative;margin-top:8px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.bmifig img{display:block;width:100%;height:auto}.bmifig i{position:absolute;width:2.4%;aspect-ratio:1;border-radius:50%;background:#d4141c;border:2px solid #fff;box-shadow:0 0 0 1.5px #d4141c;transform:translate(-50%,-50%)}.bmicap{font-size:12.5px;color:var(--ink-2);margin-top:6px}
+.bmitg{margin-top:10px}.bmifig{position:relative;margin-top:8px;border-radius:8px;overflow:hidden;border:1px solid var(--line)}.bmifig img{display:block;width:100%;height:auto}.bmifig i{position:absolute;width:2.4%;aspect-ratio:1;border-radius:50%;background:#d4141c;border:2px solid #fff;box-shadow:0 0 0 1.5px #d4141c;transform:translate(-50%,-50%)}.bmicap{font-size:12.5px;color:var(--ink-2);margin:6px 0 14px}.gfig{margin:0}
 .idbox{margin-top:10px;border:1px dashed var(--line);border-radius:8px;padding:8px 12px}
 .idbox summary{cursor:pointer;color:var(--ink-2);font-size:13.5px}
 .idbox[open] summary{margin-bottom:8px}
@@ -352,14 +352,32 @@ function bmiSDS(bmi,sex,m){ const t=BMIC[sex]; if(!t||!(bmi>0)||m==null||m<0||m>
   else { if(z>3){cls='ob';txt='อ้วน (Obesity)';} else if(z>2){cls='ow';txt='น้ำหนักเกิน (Overweight)';} else if(z<-2){cls='low';txt='ต่ำกว่า −2 SDS';} else {cls='n';txt='อยู่ในเกณฑ์';} }
   return {z,pct:phi(z)*100,lo:null,hi:null,bmi,cls,txt,old}; }
 let bmiOn=false;
-function bmiChartHTML(){ const {R,g}=growthCalc(), r=R.bmi; if(!r||!r.res||r.res.out) return '';
-  const m=g.m, yrs=m/12, boy=S.sex==='M', old=m>=60, bmi=r.res.bmi;
-  const file='bmi-'+(boy?'boys':'girls')+(old?'-5-19':'-0-5')+'.jpg';
-  const x=old?118+(yrs-5)/14*1005:118+yrs/5*1004, y=old?236+(40-bmi)/30*1417:236+(30-bmi)/21*1417;
-  const ok=x>=118&&x<=1124&&y>=236&&y<=1654;
-  const btn=`<button type="button" class="btn ghost" id="btn-bmichart" aria-pressed="${bmiOn}">${bmiOn?'ซ่อนกราฟ BMI':'ดูกราฟ BMI (SDS)'}</button>`;
+const GCH={b0:{x:[20.0836,56.572],len:[-11.8334,1237.751],wt:[-29.5489,852.723]},g0:{x:[20.0769,56.680],len:[-11.8487,1238.596],wt:[-29.5480,852.724]},
+  b2:{x:[28.3499,0.0011],len:[-5.2334,1107.726],wt:[-5.2330,819.886]},g2:{x:[28.3500,-0.0001],len:[-5.6693,1133.857],wt:[-5.6700,822.080]}};
+const WHC={b:{x:[5.3533,-425.1],y:[-9.071,883.8]},g:{x:[6.0239,-485.4]}};
+function gFig(file,alt,dots,cap){ const pg=(x,y)=>[(x/595.276*100).toFixed(2),(y/841.89*100).toFixed(2)];
+  const ds=dots.filter(d=>d.x>=40&&d.x<=556&&d.y>=95&&d.y<=810).map(d=>{const q=pg(d.x,d.y); return `<i style="left:${q[0]}%;top:${q[1]}%;background:${d.c};box-shadow:0 0 0 1.5px ${d.c}"></i>`;}).join('');
+  return `<figure class="gfig"><div class="bmifig"><img src="${file}" alt="${alt}" loading="lazy">${ds}</div><figcaption class="bmicap">${cap}</figcaption></figure>`; }
+function bmiChartHTML(){ const {R,g}=growthCalc(); const m=g.m, boy=S.sex==='M'; if(!S.sex) return '';
+  const w=+S.wt, l=+S.len, h=[];
+  const btn=`<button type="button" class="btn ghost" id="btn-bmichart" aria-pressed="${bmiOn}">${bmiOn?'ซ่อนกราฟการเจริญเติบโต':'ดูกราฟการเจริญเติบโต'}</button>`;
+  if(!(w>0||l>0)) return '';
   if(!bmiOn) return `<div class="bmitg">${btn}</div>`;
-  return `<div class="bmitg">${btn}<div class="bmifig"><img src="${file}" alt="กราฟ BMI SDS ${boy?'เด็กชาย':'เด็กหญิง'} ${old?'5–19':'0–5'} ปี" loading="lazy">${ok?`<i style="left:${(x/1241*100).toFixed(2)}%;top:${(y/1754*100).toFixed(2)}%"></i>`:''}</div><div class="bmicap">จุดสีแดง = BMI ${bmi.toFixed(1)} กก./ม.² ที่อายุ ${(m/12).toFixed(1)} ปี (SDS ${zTxt(r.res.z)}) · กราฟ BMI Z-score (SDS) สมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย ปี 2565 · ${old?'อ้างอิง National Growth References 5–19 ปี 2563 กรมอนามัย':'อ้างอิง WHO Growth Standard 0–5 ปี 2549'}</div></div>`; }
+  const src='กราฟการเจริญเติบโต สมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย ปี 2565';
+  // weight + length/height for age
+  const k=(boy?'b':'g')+(m<24?'0':'2'), c=GCH[k], X=m<24?c.x[0]*m+c.x[1]:c.x[0]*(m/12)+c.x[1], dots=[];
+  if(w>0) dots.push({x:X,y:c.wt[0]*w+c.wt[1],c:'#d4141c'}); if(l>0) dots.push({x:X,y:c.len[0]*l+c.len[1],c:'#1550c8'});
+  if(m<=228) h.push(gFig('gc-'+k+'.jpg','กราฟน้ำหนักและ'+(m<24?'ความยาว':'ส่วนสูง')+'ตามอายุ',dots,`${m<24?'0–2 ปี':'2–19 ปี'} · จุดสีแดง = น้ำหนัก ${w>0?w+' กก.':'-'} · จุดสีน้ำเงิน = ${m<24?'ความยาว':'ส่วนสูง'} ${l>0?l+' ซม.':'-'} · อายุ ${(m/12).toFixed(1)} ปี · ${src}`));
+  // weight for height (2y+ chart, height 90+)
+  if(w>0&&l>=90&&l<=(boy?180:170)&&m>=24){ const cx=boy?WHC.b.x:WHC.g.x, x=cx[0]*l+cx[1], y=WHC.b.y[0]*w+WHC.b.y[1];
+    h.push(gFig(boy?'gc-bwh.jpg':'gc-gwh.jpg','กราฟน้ำหนักตามส่วนสูง',[{x,y,c:'#d4141c'}],`น้ำหนักตามส่วนสูง · จุดสีแดง = ${w} กก. ที่ส่วนสูง ${l} ซม. · ${src}`)); }
+  // BMI
+  const r=R.bmi; if(r&&r.res&&!r.res.out){ const old=m>=60, bmi=r.res.bmi, yrs=m/12;
+    const file='bmi-'+(boy?'boys':'girls')+(old?'-5-19':'-0-5')+'.jpg';
+    const x=old?118+(yrs-5)/14*1005:118+yrs/5*1004, y=old?236+(40-bmi)/30*1417:236+(30-bmi)/21*1417;
+    const ok=x>=118&&x<=1124&&y>=236&&y<=1654;
+    h.push(`<figure class="gfig"><div class="bmifig"><img src="${file}" alt="กราฟ BMI SDS ${boy?'เด็กชาย':'เด็กหญิง'} ${old?'5–19':'0–5'} ปี" loading="lazy">${ok?`<i style="left:${(x/1241*100).toFixed(2)}%;top:${(y/1754*100).toFixed(2)}%"></i>`:''}</div><figcaption class="bmicap">BMI ${bmi.toFixed(1)} กก./ม.² ที่อายุ ${yrs.toFixed(1)} ปี (SDS ${zTxt(r.res.z)}) · กราฟ BMI Z-score (SDS) สมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย ปี 2565 · ${old?'อ้างอิง National Growth References 5–19 ปี 2563 กรมอนามัย':'อ้างอิง WHO Growth Standard 0–5 ปี 2549'}</figcaption></figure>`); }
+  return `<div class="bmitg">${btn}${h.join('')}</div>`; }
 function bmiLine(r){ return 'BMI '+r.res.bmi.toFixed(1)+' กก./ม.² · SDS '+zTxt(r.res.z)+' · '+r.res.txt; }
 function wfhChart(wt,len,sex){ const vs=chVals(CH[sex==='M'?'bwh':'gwh'].weight_for_height,len,0); return vs?chCalc(vs,wt):null; }
 
