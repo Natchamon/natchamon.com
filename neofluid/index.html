@@ -78,6 +78,11 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
  <label class="chk"><input type="checkbox" id="og"><span>Fed by OG tube (adds "via OG" to the order)</span></label>
 </div></div>
 
+<div class="card"><h2>Custom volume per feed <small>your own mL</small></h2><div class="body">
+ <label class="f"><span class="lb">mL per feed</span><span class="inp"><input id="cm" type="number" inputmode="decimal" min="0" step="1" placeholder="e.g. 60"><i>mL</i></span></label>
+ <div id="cout"></div>
+</div></div>
+
 <div id="out"></div>
 
 <details class="card ref"><summary>Can we feed? Which route?<small>reference</small></summary><div class="body">
@@ -124,7 +129,7 @@ function calc(){
   const lim=age<=6?[0.4,6]:[1,60];
   if(W&&(kg<lim[0]||kg>lim[1])) h+=`<div class="note bad" style="margin-top:14px">Weight looks out of range — check the value (grams).</div>`;
   if(mlkg==null){ h+=`<div class="note info" style="margin-top:14px">Enter the weight to get the Holliday-Segar volume.</div>`; $('out').innerHTML=h; return }
-  const enV=mlkg*kg, perFeed=enV/nf, tc=mlkg*kcalMl, milkK=tc*kg;
+  window._tv=mlkg; const enV=mlkg*kg, perFeed=enV/nf, tc=mlkg*kcalMl, milkK=tc*kg;
   const lab=kc===24?'HMF/PF':kc===20?'BM/IF':'BM/IF/HMF';
   h+=`<div class="card"><h2>Milk <small>${lab} · ${kc} kcal/oz · ${r2(kcalMl)} kcal/mL</small></h2><div class="body">`;
   const rv=pf=>{const v=pf*nf, kgv=kg>0?v/kg:0; return {pf,v,kgv,k:v*kcalMl,kk:kg>0?v*kcalMl/kg:0}};
@@ -154,13 +159,25 @@ function calc(){
   h+=`<div style="margin-top:14px"><a class="btn" href="/neoiv/${qs}">Need IV fluid or step feed? Open Neonatal IV &amp; GIR →</a></div>`;
   $('out').innerHTML=h; copyBtn(()=>lastRep);
 }
+function ccalc(){
+  const kg=(parseFloat($('w').value)||0)/1000, nf=Math.max(1,parseFloat($('nf').value)||8), kc=parseFloat($('kc').value)||0, kcalMl=kc/30, cm=parseFloat($('cm').value)||0, o=$('cout');
+  if(!(cm>0)){o.innerHTML='<div class="lb">Type the mL you want to give per feed. Uses the weight, feeds per day and milk energy above.</div>';return}
+  const day=cm*nf, lab=kc===24?'HMF/PF':kc===20?'BM/IF':'BM/IF/HMF';
+  let h=`<table class="sm"><tr><td>Per feed</td><td>${r1(cm)} mL <small>(${r2(cm/30)} oz × ${nf} feeds)</small></td></tr>`;
+  h+=`<tr><td>Total volume</td><td>${kg>0?r1(day/kg)+' mL/kg/day<br>':''}<small>(${r0(day)} mL/day)</small></td></tr>`;
+  h+=`<tr><td>Total calories</td><td>${kg>0?r1(day*kcalMl/kg)+' kcal/kg/day<br>':''}<small>(${r0(day*kcalMl)} kcal/day)</small></td></tr></table>`;
+  if(kg<=0) h+='<div class="note info" style="margin-top:12px">Enter the weight above to get mL/kg/day and kcal/kg/day.</div>';
+  else if(window._tv!=null){ const d=day/kg-window._tv; h+=`<div class="note ${Math.abs(d)<=5?'info':'warn'}" style="margin-top:12px">Target ${r1(window._tv)} mL/kg/day for this age: ${Math.abs(d)<0.05?'matches the target':r1(Math.abs(d))+' mL/kg/day '+(d>0?'above':'below')+' the target'} (${r0(Math.abs(day-window._tv*kg))} mL/day).</div>`; }
+  const og=$('og').checked?' via OG':'', L=`${lab} (${kc} kcal/oz) sig ${r1(cm)} ml x ${nf} feeds${og}${kg>0?` (TV ${r2(day/kg)}, TC ${r2(day*kcalMl/kg)})`:''}`;
+  h+=`<div class="rep" id="rep2" style="margin-top:12px"><div>${L}</div></div><button class="btn" id="cp2" type="button" style="margin-top:8px;min-height:30px;padding:2px 12px;font-size:13px">Copy</button>`;
+  o.innerHTML=h; const b=$('cp2'); b.onclick=async()=>{try{await navigator.clipboard.writeText(L);b.textContent='Copied'}catch(e){}}}
 function build(){ $('day').innerHTML=AGES.map((l,i)=>`<button class="opt" data-v="${i+1}" aria-pressed="false">${l}</button>`).join('');
   document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.v;nfEdited=false;sync()}) }
 document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;sync()});
 document.querySelectorAll('#kp .opt').forEach(b=>b.onclick=()=>{$('kc').value=b.dataset.v;sync()});
 function sync(){ if(!nfEdited) $('nf').value=NFDEF[age]||8; $('nfh').textContent=NFHINT[age]?('Sheet: '+NFHINT[age]+'.'):'';
-  seg('gest',v=>v===gest);seg('day',v=>+v===age);seg('kp',v=>+v===(parseFloat($('kc').value)||0));calc()}
-['w','kc'].forEach(i=>$(i).addEventListener('input',sync));$('nf').addEventListener('input',()=>{nfEdited=true;sync()});$('og').addEventListener('change',sync);
+  seg('gest',v=>v===gest);seg('day',v=>+v===age);seg('kp',v=>+v===(parseFloat($('kc').value)||0));calc();ccalc()}
+['w','kc','cm'].forEach(i=>$(i).addEventListener('input',sync));$('nf').addEventListener('input',()=>{nfEdited=true;sync()});$('og').addEventListener('change',sync);
 build();
 const q=new URLSearchParams(location.search);
 if(q.get('w'))$('w').value=q.get('w'); if(q.get('g'))gest=q.get('g')==='term'?'term':'pre'; if(+q.get('a')>=1&&+q.get('a')<=10)age=+q.get('a');
