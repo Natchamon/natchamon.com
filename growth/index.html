@@ -197,7 +197,7 @@ function calc(){
     $('res'+i).innerHTML=h;
   });
   const E=P.filter(e=>e.ok&&(e.rw||e.rl)).sort((a,b)=>a.m0-b.m0);
-  if(!E.length){$('out').innerHTML='';return}
+  if(!E.length){$('out').innerHTML=chartCardHTML([],null,null);bindChart();return}
   const last=E[E.length-1], nmL=last.m0<24?'length':'height', NmL=last.m0<24?'Length':'Height';
   const F=[];
   if(last.rw&&last.rl){const d=last.rw.z-last.rl.z; if(d<=-1.34) F.push(['warn',`Weight percentile is much lower than ${nmL} (z difference ${r1(d)}). Check how thin the child is.`]); else if(d>=1.34) F.push(['warn',`Weight percentile is much higher than ${nmL} (z difference +${r1(d)}). Check how heavy the child is.`]);}
@@ -225,18 +225,7 @@ function calc(){
     }
     h+=`<div class="card"><h2>Trend</h2><div class="body">${t}<div class="work">${vel.join('')}</div></div></div>`;
   }
-  // optional chart
-  h+=`<div class="card"><h2>Growth chart <small><button class="btn" id="tc" type="button">${showChart?'Hide':'Show on chart'}</button></small></h2>`;
-  if(showChart){
-    const toPlot=plotAll?E:[last];
-    const useR=range==='auto'?(last.m<24?'0':'2'):range;
-    h+=`<div class="body"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between"><div class="seg" id="rg"><button class="opt" data-v="0" aria-pressed="${useR==='0'}">0–24 mo</button><button class="opt" data-v="2" aria-pressed="${useR==='2'}">2–19 y</button></div>
-      <label class="sw"><input type="checkbox" id="pa" ${plotAll?'checked':''}>Plot all visits</label></div>
-      <label class="sw"><input type="checkbox" id="zm" ${zoom?'checked':''}>Zoom in (scroll sideways)</label>
-      <div class="cwrap ${zoom?'zoom':''}">${chartSVG(useR,toPlot,mph)}</div>
-      <span class="hint">${plotAll?'Numbers are visit numbers.':'Showing the latest visit only.'} Points are placed on the original chart.</span></div>`;
-  }
-  h+='</div>';
+  h+=chartCardHTML(E,last,mph);
   // report
   const L=[`Growth (${sex==='b'?'boy':'girl'})${mode==='dob'&&dob?', DOB '+dob:''}`];
   E.forEach(e=>{const parts=[]; if(e.rw) parts.push(`Wt ${e.w} kg (≈P${pct(e.rw)}, ${band(e.rw)})`); if(e.rl) parts.push(`${e.m0<24?'Length':'Height'} ${e.l} cm (≈P${pct(e.rl)}, ${band(e.rl)})`); L.push(`${e.date?e.date+' · ':''}${ageTxt(e.m0)}${e.corr?' (corrected '+ageTxt(e.m)+')':''}: ${parts.join(', ')}`)});
@@ -244,14 +233,23 @@ function calc(){
   if(mph) L.push(`MPH ${r1(mph)} cm (range ${r1(mph-8.5)}–${r1(mph+8.5)})`);
   h+=`<div class="card"><h2>Report <small><button class="btn" id="cp" type="button">Copy</button></small></h2><div class="body"><div class="rep">${L.map(x=>`<div>${x}</div>`).join('')}</div></div></div>`;
   $('out').innerHTML=h;
-  $('tc').onclick=()=>{showChart=!showChart;calc()};
-  if(showChart){
-    document.querySelectorAll('#rg .opt').forEach(b=>b.onclick=()=>{range=b.dataset.v;calc()});
-    $('pa').onchange=e=>{plotAll=e.target.checked;calc()}; $('zm').onchange=e=>{zoom=e.target.checked;calc()};
-  }
+  bindChart();
   $('cp').onclick=()=>{try{navigator.clipboard.writeText(L.join('\n'));$('cp').textContent='Copied'}catch(e){}setTimeout(()=>{if($('cp'))$('cp').textContent='Copy'},1200)};
 }
 
+function chartCardHTML(E,last,mph){
+  const toPlot=E.length?(plotAll?E:[last]):[];
+  const useR=range==='auto'?(last&&last.m>=24?'2':'0'):range;
+  return `<div class="card"><h2>Growth chart <small>${E.length?'baby plotted':'enter a measurement to plot'}</small></h2><div class="body"><div style="display:flex;gap:10px;flex-wrap:wrap;align-items:center;justify-content:space-between"><div class="seg" id="rg"><button class="opt" data-v="0" aria-pressed="${useR==='0'}">0–24 mo</button><button class="opt" data-v="2" aria-pressed="${useR==='2'}">2–19 y</button></div>
+      <label class="sw"><input type="checkbox" id="pa" ${plotAll?'checked':''}>Plot all visits</label></div>
+      <label class="sw"><input type="checkbox" id="zm" ${zoom?'checked':''}>Zoom in (scroll sideways)</label>
+      <div class="cwrap ${zoom?'zoom':''}">${chartSVG(useR,toPlot,mph)}</div>
+      <span class="hint">${E.length?(plotAll?'Numbers are visit numbers.':'Showing the latest visit only.')+' ':''}Points are placed on the original chart.</span></div></div>`;
+}
+function bindChart(){
+  document.querySelectorAll('#rg .opt').forEach(b=>b.onclick=()=>{range=b.dataset.v;calc()});
+  if($('pa')) $('pa').onchange=e=>{plotAll=e.target.checked;calc()}; if($('zm')) $('zm').onchange=e=>{zoom=e.target.checked;calc()};
+}
 function chartSVG(R,pts,mph){
   const c=CAL[sex+R], px=m=>c.x[0]*(R==='0'?m:m/12)+c.x[1], yl=v=>c.len[0]*v+c.len[1], yw=v=>c.wt[0]*v+c.wt[1];
   let s=`<svg viewBox="20 95 555 717" role="img" aria-label="Growth chart with patient points"><image href="chart-${sex}${R}.jpg" x="20" y="95" width="555" height="717"/>`;
