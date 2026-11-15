@@ -353,6 +353,7 @@ textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
 .gr .nm{font-size:13px}.gr .nm small{font-size:11px}
 .gr .big{font-size:18px}
 .gr.empty{padding:5px 12px}
+.grid{display:flex;flex-wrap:wrap;gap:8px 18px}.grid>*{flex:1 1 220px}.grid>label.fld:has(input[type=number]),.grid>label.fld:has(input[type=time]){flex:0 0 170px}
 .toprow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px}.toprow .vdf{display:flex;align-items:center;gap:8px}.toprow .vdf .inp{width:170px}.g4 .lb:empty{display:none}
 @media (min-width:700px){
   .gr{grid-template-columns:170px minmax(0,1fr)}
@@ -1082,8 +1083,7 @@ function renderForm(){
     ${pre?`<div class="row"><span class="lb">การฝึกขับถ่าย (toilet training)</span>${seg('toilet',TT)}</div>`:''}`);
 
   P['การนอนหลับ']=card('การนอนหลับ',`แนะนำ ${VN[v].sleep[0]}–${VN[v].sleep[1]} ชม./วัน รวมนอนกลางวัน`,pre?`
-    <div class="grid">${txt('bedtime','เวลาเข้านอน','','time')}${txt('waketime','เวลาตื่น','','time')}</div>
-    <div class="grid">${num('sl_n','นอนกลางคืน','ชม./คืน','0.5')}${num('sl_d','นอนกลางวัน (ถ้ามี)','ชม./วัน','0.5')}</div>
+    <div class="grid">${txt('bedtime','เวลาเข้านอน','','time')}${txt('waketime','เวลาตื่น','','time')}${num('sl_n','นอนกลางคืน','ชม./คืน','0.5')}${num('sl_d','นอนกลางวัน (ถ้ามี)','ชม./วัน','0.5')}</div>
     <div class="row inl"><span class="lb">นอนกลางวัน (naps)</span>${seg('nap',[['n','ไม่นอน'],['y','นอน']])}</div>
     <div class="age" id="sleepinfo"></div><div class="keep2">${segTxt('sl_p','ปัญหาการนอน',[['n','ไม่มี','ok'],['y','มี','warn']],'ระบุปัญหา')}</div>`:`
     <div class="g4">${[['sl_n','นอนคืน','ชม.','0.5'],['sl_nw','ตื่นคืน','ครั้ง','1'],['sl_d','นอนวัน','ชม.','0.5'],['sl_dn','งีบ','ครั้ง','1']].map(x=>`<label class="fld"><span class="lb">${x[1]}<small> (${x[2]})</small></span><span class="inp"><input type="number" inputmode="decimal" step="${x[3]}" min="0" id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>
