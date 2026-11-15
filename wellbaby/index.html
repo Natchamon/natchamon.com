@@ -295,6 +295,85 @@ body.rep #btn-rep2{background:var(--surface);border-color:var(--line);color:var(
 }
 @media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
 @media print{.homew{display:none}}
+
+/* ---------- compact layout ---------- */
+.card{margin-top:8px;border-radius:12px}
+.card>h2{padding:10px 14px 0;font-size:15px}
+.card>h2 small{font-size:11.5px}
+.body{padding:8px 14px 12px;gap:10px 22px;display:flex;flex-wrap:wrap;align-items:center}
+.body>*,.keep2>*{flex:1 1 100%;min-width:0}
+.keep2{display:contents}
+.body:has(.g2){gap:10px 22px}
+.note{margin-top:8px;padding:8px 12px;font-size:13px}
+.duebar{margin-top:8px;padding:7px 12px}
+.duebar summary{font-size:13.5px}
+.lb{font-size:12.5px}
+.hint{font-size:11.5px;line-height:1.45}
+.inp{min-height:36px;padding:0 10px;border-radius:8px}
+.inp input,.inp select{padding:5px 0;font-size:15px}
+textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
+.btn{min-height:36px;padding:5px 12px;font-size:13.5px}
+.opt{min-height:34px;padding:5px 11px;font-size:13.5px;border-radius:8px}
+.seg,.chips{gap:5px}
+.chips .opt::before{width:14px;height:14px;margin-right:6px;vertical-align:-2px}
+.grid{gap:8px 14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.fld{gap:3px}
+/* label + choices on one line; short yes/no rows sit side by side */
+.row{display:flex;flex-wrap:wrap;align-items:center;gap:5px 10px}
+.row>.lb{flex:0 1 auto}
+.row.inl .lb{min-width:0}
+.body>.row:not(:has(.chips)),.keep2>.row:not(:has(.chips)){flex:0 1 auto}
+.body>label.fld{flex:1 1 320px}
+.row:not(:has(.chips))>.line2{flex:0 1 auto;flex-wrap:nowrap}.row:not(:has(.chips))>.line2>.inp{flex:0 1 220px}
+.todo{columns:auto;display:flex;flex-wrap:wrap;gap:4px 16px;list-style:none;padding:0;font-size:13px}
+.g2{display:flex;flex-wrap:wrap;align-items:flex-end}.g2>*{flex:1 1 170px}.g2>.fld:has(.g4){flex:0 0 auto}.g2 .g4{flex-wrap:nowrap}
+.line2{display:flex;flex-wrap:wrap;align-items:center;gap:5px 8px;flex:1 1 260px}
+.line2>.inp{flex:1 1 160px;min-width:120px}
+.line2>.chips,.line2>.seg{flex:0 1 auto}
+/* small number boxes: label, box, unit */
+.g4{display:flex;flex-wrap:wrap;gap:6px 18px;align-items:center}
+.g4 .fld{display:flex;align-items:center;gap:6px}
+.g4 .lb{white-space:nowrap;font-size:12.5px}
+.g4 .lb small{display:inline;margin-left:3px}
+.g4 .inp{width:auto;min-height:34px;padding:0 8px}
+.g4 .inp input{width:3.2em;padding:4px 0;text-align:center}
+.g4 .inp.dec input{width:4.2em}
+.g4 .inp i{font-size:11.5px}
+.g2{gap:8px 14px;grid-template-columns:repeat(auto-fit,minmax(min(100%,180px),1fr))}
+.g2 .inp{min-height:36px}
+.afx .inp{width:64px;min-height:34px}
+.fontan{gap:10px 22px;align-items:center}.fontan .fld{display:flex;align-items:center;gap:6px}
+.idbox{margin-top:0;padding:6px 10px}
+.idbox summary{font-size:12.5px}
+.age{font-size:13px;gap:6px}
+.pill{padding:2px 9px;font-size:12px}
+/* growth results */
+.gtable{gap:6px}
+.gr{padding:7px 12px;border-radius:9px;gap:2px 14px}
+.gr .nm{font-size:13px}.gr .nm small{font-size:11px}
+.gr .big{font-size:18px}
+.gr.empty{padding:5px 12px}
+@media (min-width:700px){
+  .gr{grid-template-columns:170px minmax(0,1fr)}
+  .gr:not(.empty) .rs{grid-template-columns:minmax(220px,auto) minmax(0,1fr);grid-template-areas:"big strip" "tag strip" "int int";column-gap:18px;row-gap:2px;align-items:center}
+  .gr .rs>.big{grid-area:big}.gr .rs>.age{grid-area:tag}.gr .rs>.strip{grid-area:strip;margin:0 0 12px}.gr .rs>.bmi-int{grid-area:int}
+  .gr .big{font-size:16px}.gr .big small{display:block;margin:1px 0 0}
+}
+.gr.empty .nm small{display:inline;margin-left:6px}
+.strip{margin:6px 0 13px}
+/* development */
+.dev{padding:6px 0;gap:4px 12px}
+.dev .dm{font-size:13.5px;line-height:1.4}
+.dev .dm b{font-size:11px;display:inline;margin-right:6px}
+.dev .dm span{display:inline}
+.dev .dm em{font-size:11px}
+.dev .opt{min-height:32px;padding:4px 10px}
+@media (max-width:520px){
+  .body{padding:8px 12px 12px;gap:9px 16px}
+  .dev{grid-template-columns:minmax(0,1fr) auto}
+  .dev .opt{padding:4px 8px;font-size:12.5px}
+  .gr{grid-template-columns:1fr}
+}
 </style>
 </head><body>
 
@@ -861,7 +940,7 @@ function seg(k,opts){reg(k,opts);return `<div class="seg" role="group">${opts.ma
 function chips(k,opts){reg(k,opts);return `<div class="chips">${opts.map(o=>`<button type="button" class="opt" data-chip="${k}" data-val="${o[0]}" aria-pressed="false">${o[1]}</button>`).join('')}</div>`;}
 function afTxt(){ return (S.af_w||S.af_l)?(S.af_w||'?')+' × '+(S.af_l||'?')+' ซม.':''; }
 function pfTxt(){ return S.pf==='c'?'ปิดแล้ว':S.pf==='o'?'ยังเปิดอยู่':''; }
-function numrow(a){return `<div class="g4" style="grid-template-columns:repeat(${a.length},minmax(0,1fr))">${a.map(x=>`<label class="fld"><span class="lb">${x[1]}<small>${x[2]}</small></span><span class="inp"><input ${x[4]==='t'?'type="text"':`type="number" inputmode="decimal" step="${x[3]||'any'}" min="0"`} id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}"></span></label>`).join('')}</div>`;}
+function numrow(a){return `<div class="g4">${a.map(x=>`<label class="fld"><span class="lb">${x[1]}</span><span class="inp${(x[3]&&+x[3]<1)?' dec':''}"><input ${x[4]==='t'?'type="text"':`type="number" inputmode="decimal" step="${x[3]||'any'}" min="0"`} id="f_${x[0]}" data-k="${x[0]}" value="${E(S[x[0]])}">${x[2]?`<i>${x[2]}</i>`:''}</span></label>`).join('')}</div>`;}
 function segTxt(k,label,opts,ph){const tone=opts.filter(o=>o[2]==='warn'||o[2]==='bad').map(o=>o[0]);return `<div class="row"><span class="lb">${label}</span><div class="line2"${tone.length?` data-sx="${k}" data-sxv="${tone.join(',')}"`:''}>${seg(k,opts)}<span class="inp"><input type="text" data-k="${k}_t" id="f_${k}_t" placeholder="${ph||'ระบุ'}" value="${E(S[k+'_t'])}"></span></div></div>`;}
 const NA=[['n','ปกติ','ok'],['a','ผิดปกติ','bad']];
 const YN=[['y','ใช่','ok'],['n','ไม่ใช่','warn']];
