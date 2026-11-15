@@ -219,6 +219,7 @@ const V=[
 ];
 /* Visits: vaccine id + label, EPI then optional; mirrors the visit form. */
 const VIS={
+ 1:{e:[['hb','HB 2 เฉพาะแม่ HBsAg บวก'],['bcg','BCG ถ้ายังไม่ได้รับตอนแรกเกิด']],o:[]},
  2:{e:[['dtp','DTwP-HB-Hib 1'],['polio','IPV 1'],['rota','Rota 1'],['pcv','PCV10 1']],o:[['dtp','Hexaxim/Infanrix-hexa 1 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + IPV'],['pcv','PCV13/15/20 1 แทน PCV10'],['menb','MenB 1'],['rsv','RSV mAb (มิ.ย.–ต.ค.)']]},
  4:{e:[['dtp','DTwP-HB-Hib 2'],['polio','IPV 2'],['rota','Rota 2'],['pcv','PCV10 2']],o:[['dtp','Hexaxim/Infanrix-hexa 2 (DTaP-HB-Hib-IPV)'],['pcv','PCV13/15/20 2'],['menb','MenB 2'],['rsv','RSV mAb (มิ.ย.–ต.ค.)']]},
  6:{e:[['dtp','DTwP-HB-Hib 3'],['polio','bOPV 1'],['rota','Rota 3 (เฉพาะชนิด 3 ครั้ง)'],['flu','ไข้หวัดใหญ่ (ปีแรก 2 เข็ม ห่าง 1 เดือน)']],o:[['dtp','Hexaxim/Infanrix-hexa 3 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + bOPV'],['pcv','PCV13/15/20 3 (แบบ 3+1)'],['ev71','EV71 1 (2 เข็ม ห่าง 1 เดือน)'],['rsv','RSV mAb (มิ.ย.–ต.ค.)']]},
@@ -227,9 +228,11 @@ const VIS={
  18:{e:[['dtp','DTwP กระตุ้น 1'],['polio','bOPV กระตุ้น 1'],['mmr','MMR 2'],['flu','ไข้หวัดใหญ่']],o:[['dtp','DTaP-IPV-Hib(-HB) กระตุ้น (Penta/Hexavalent) แทน DTwP + bOPV'],['hav','HAV 2'],['vzv','VZV 2 หรือ MMRV 2']]},
  24:{e:[['je','Live JE 2 (2–2½ ปี)'],['flu','ไข้หวัดใหญ่']],o:[['hav','HAV 2 หากยังไม่ได้'],['vzv','VZV 2']]},
  30:{e:[['je','Live JE 2 หากยังไม่ได้'],['flu','ไข้หวัดใหญ่']],o:[['vzv','VZV 2']]},
- 48:{e:[['dtp','DTwP กระตุ้น 2'],['polio','bOPV กระตุ้น 2'],['flu','ไข้หวัดใหญ่']],o:[['dtp','DTaP-IPV หรือ Tdap-IPV/TdaP-IPV แทน DTwP + bOPV'],['den','Dengue 1 (≥ 4 ปี)'],['vzv','VZV 2 หากยังไม่ได้']]}
+ 36:{e:[['je','Live JE 2 หากยังไม่ได้'],['flu','ไข้หวัดใหญ่']],o:[['vzv','VZV 2 หากยังไม่ได้'],['hav','HAV หากยังไม่ได้ครบ'],['ev71','EV71 (อายุต่ำกว่า 6 ปี)']]},
+ 48:{e:[['dtp','DTwP กระตุ้น 2'],['polio','bOPV กระตุ้น 2'],['flu','ไข้หวัดใหญ่']],o:[['dtp','DTaP-IPV หรือ Tdap-IPV/TdaP-IPV แทน DTwP + bOPV'],['den','Dengue 1 (≥ 4 ปี)'],['vzv','VZV 2 หากยังไม่ได้']]},
+ 60:{e:[['dtp','DTwP กระตุ้น 2 หากยังไม่ได้ตอน 4 ปี'],['polio','bOPV กระตุ้น 2 หากยังไม่ได้ตอน 4 ปี'],['flu','ไข้หวัดใหญ่']],o:[['dtp','DTaP-IPV หรือ Tdap-IPV/TdaP-IPV แทน DTwP + bOPV'],['den','Dengue (2 เข็ม ห่าง 3 เดือน)'],['vzv','VZV 2 หากยังไม่ได้'],['hav','HAV หากยังไม่ได้']]}
 };
-const VN={2:'2 เดือน',4:'4 เดือน',6:'6 เดือน',9:'9 เดือน',12:'12 เดือน',18:'18 เดือน',24:'2 ปี',30:'2½ ปี',48:'4 ปี'};
+const VN={1:'1 เดือน',2:'2 เดือน',4:'4 เดือน',6:'6 เดือน',9:'9 เดือน',12:'12 เดือน',18:'18 เดือน',24:'2 ปี',30:'2½ ปี',36:'3 ปี',48:'4 ปี',60:'5 ปี'};
 const CT=`<div class="tw"><table class="ct"><tr><th>อายุที่เริ่มฉีด</th><th>จำนวนครั้งที่ฉีด</th><th>การฉีดกระตุ้น</th></tr>
 <tr><td>เด็กปกติและเด็กเสี่ยง 2–6 เดือน</td><td>PCV 3 ครั้ง ห่างกัน 4–8 สัปดาห์</td><td>PCV 1 ครั้ง อายุ 12–15 เดือน</td></tr>
 <tr><td>เด็กปกติและเด็กเสี่ยง 7–11 เดือน</td><td>PCV 2 ครั้ง ห่างกัน 4–8 สัปดาห์</td><td>PCV 1 ครั้ง อายุ 12–15 เดือน</td></tr>
