@@ -1380,15 +1380,18 @@ function ccParse(txt){ const i=String(txt||'').indexOf('WB1.'); if(i<0) return {
   catch(_){ return {err:'อ่านรหัสไม่ได้ กรุณาคัดลอกใหม่'}; } }
 function ccLoad(txt){ const o=ccParse(txt); if(o.err){ HISTMSG=o.err; return false; }
   HIST=o; HISTMSG='';
-  const last=o.r[o.r.length-1]; let tv=S.visit; if(last.d!==todayISO()&&VIS.indexOf(last.n)>-1) tv=last.n; else if(last.d===todayISO()) tv=last.v;
-  /* start today's visit on a clean form: earlier measurements stay in the history only, never in today's fields */
-  VS[S.visit]=S; delete VS[tv];
+  const blank=st=>!Object.keys(st).some(k=>['visit','vd','cc','agemode','_view','gd','gdTouched','_imp','sex','dob','ga','age_y','age_m'].indexOf(k)<0&&st[k]!==''&&st[k]!=null&&!(Array.isArray(st[k])&&!st[k].length));
+  const last=o.r[o.r.length-1], cur=S.visit, today=todayISO();
+  /* stay on the age the user already picked when it comes after the last visit in the code; otherwise go to the appointment the code asked for */
+  let tv=cur;
+  if(cur<=last.v) tv=VIS.indexOf(last.n)>-1?last.n:last.v;
+  if(tv===cur&&cur>last.v){ /* keep anything already typed for this visit */ delete S._imp; }
+  else { if(!blank(S)) VS[cur]=S; else delete VS[cur]; delete VS[tv]; S={visit:tv,vd:today,cc:DEFCC,agemode:'age'}; }
   /* visits in the code that hold nothing typed this session open on their imported summary */
-  const blank=st=>!Object.keys(st).some(k=>['visit','vd','cc','agemode','_view','gd','gdTouched','_imp'].indexOf(k)<0&&st[k]!==''&&st[k]!=null&&!(Array.isArray(st[k])&&!st[k].length));
   o.r.forEach(r=>{ if(r.v!==tv&&VS[r.v]&&blank(VS[r.v])) delete VS[r.v]; });
-  HIST.tv=tv; S={visit:tv,vd:todayISO(),cc:DEFCC,agemode:'age'};
-  if(o.s) S.sex=o.s; if(o.b) S.dob=o.b; if(o.g) S.ga=o.g;
-  if(!o.b&&last.d){ const t0=parseISO(last.d), t1=parseISO(S.vd); if(t0!=null&&t1!=null&&t1>=t0){ const m=Math.round(last.a+(t1-t0)/864e5/30.4375); S.age_y=String(Math.floor(m/12)); S.age_m=String(m%12); } }
+  HIST.tv=tv;
+  if(o.s&&!S.sex) S.sex=o.s; if(o.b&&!S.dob) S.dob=o.b; if(o.g&&!S.ga) S.ga=o.g;
+  if(!S.dob&&!(+S.age_y>0||+S.age_m>0)&&last.d){ const t0=parseISO(last.d), t1=parseISO(S.vd||today); if(t0!=null&&t1!=null&&t1>=t0){ let m=Math.round(last.a+(t1-t0)/864e5/30.4375); if(tv>last.v&&m<tv-(tv>=18?2:1)) m=tv; S.age_y=String(Math.floor(m/12)); S.age_m=String(m%12); } }
   return true; }
 function vxName(id){ for(const v of VIS){ const x=(VAX[v]||[]).find(o=>o[0]===id); if(x) return x[1].split(' (')[0].replace(/ หากยังไม่ได้.*$/,''); } return id; }
 const VXREQ=[[2,'dtp1',['hex@2']],[2,'ipv1',['hex@2']],[2,'rota1'],[2,'pcv10@2',['pcvx@2']],[4,'dtp2',['hex@4']],[4,'ipv2',['hex@4']],[4,'rota2'],[4,'pcv10@4',['pcvx@4']],[6,'dtp3',['hex@6']],[6,'opv1',['hex@6']],[9,'mmr1',['mmrv1']],[9,'je1'],[12,'pcv10b',['pcv4']],[18,'dtp4',['pent']],[18,'opv4',['pent']],[18,'mmr2',['mmrv2']],[24,'je2'],[48,'dtp5',['dtapipv']],[48,'opv5',['dtapipv']]];
@@ -1482,7 +1485,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.setall==='dev'){ DEV[S.visit].forEach(d=>S['dev_'+S.visit+'_'+d[0]]='p'); refresh(); return; }
   if(t.dataset.setall==='exam'){ SYS.forEach(s=>S['ex_'+s[0]]='n'); S.exall='n'; refresh(); return; }
   switch(t.id){
-    case 'btn-hist-load': { const el=document.getElementById('hist-in'); ccLoad(el?el.value:''); renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh(); break; }
+    case 'btn-hist-load': { const el=document.getElementById('hist-in'); ccLoad(el?el.value:''); renderVisits(); document.body.dataset.visit=S.visit; renderForm(); refresh(); if(!$('#view-report').hidden) renderReport(); break; }
     case 'btn-hist-clear': HIST=null; HISTMSG=''; renderForm(); refresh(); break;
     case 'tab-form': setView('form'); break;
     case 'tab-report': case 'btn-toreport': setView('report'); break;
