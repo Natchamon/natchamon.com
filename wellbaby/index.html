@@ -265,7 +265,7 @@ textarea.ta{width:100%;border:1.5px solid var(--line);border-radius:9px;backgrou
       <li>เป็นเครื่องมือช่วยบันทึกและคำนวณเบื้องต้น ไม่ใช่เอกสารทางการแพทย์ และไม่ทดแทนดุลยพินิจของแพทย์</li>
       <li>ผู้ตรวจต้องตรวจทานข้อมูลและผลคำนวณทุกครั้งก่อนบันทึกลงเวชระเบียนหรือลงนาม</li>
       <li>เปอร์เซ็นไทล์คำนวณด้วยการแทรกค่าระหว่างเส้นของกราฟสมาคมต่อมไร้ท่อเด็กฯ ที่แปลงเป็นตัวเลขแล้ว จึงมีความคลาดเคลื่อนเล็กน้อยจากการแปลงเส้นกราฟ (ไม่ได้อ่านด้วยสายตา)</li>
-      <li>การเจริญเติบโตใช้กราฟสมาคมต่อมไร้ท่อเด็กฯ (2565) เท่านั้น: น้ำหนัก/ความยาว/ส่วนสูงตามอายุ, น้ำหนักตามส่วนสูง (≥ 2 ปี), BMI SDS และรอบศีรษะ (0–5 ปี, กราฟสมาคมฯ อ้างอิง WHO 2006) · ชุดกราฟนี้ไม่มีน้ำหนักตามความยาว 0–2 ปี จึงตั้งใจไม่คำนวณ ไม่ใช่ข้อผิดพลาด · สรุปอัตโนมัติใช้ BMI SDS เป็นตัวช่วย แก้ไขเองได้</li>
+      <li>การเจริญเติบโตใช้กราฟสมาคมต่อมไร้ท่อเด็กฯ (2565) เท่านั้น: น้ำหนัก/ความยาว/ส่วนสูงตามอายุ, น้ำหนักตามส่วนสูง (≥ 2 ปี), BMI SDS และรอบศีรษะ (0–5 ปี, กราฟสมาคมฯ อ้างอิง WHO 2006) · สรุปอัตโนมัติใช้ BMI SDS เป็นตัวช่วย แก้ไขเองได้</li>
     </ul>
     <h3>แหล่งข้อมูล</h3>
     <ul>
@@ -383,8 +383,8 @@ function bmiChartHTML(){ const {R,g}=growthCalc(); const m=g.m, boy=S.sex==='M';
 function bmiThai(res,sex,m){ const who=(sex==='M'?'เด็กชาย':'เด็กหญิง')+'อายุเท่ากัน', p=Math.round(res.pct);
   const where=res.z<-2?'ต่ำกว่าเด็กส่วนใหญ่มาก':res.z<-1?'ค่อนไปทางต่ำ':res.z<=1?'อยู่กลาง ๆ':res.z<=2?'ค่อนไปทางสูง':'สูงกว่าเด็กส่วนใหญ่มาก';
   const mean=res.cls==='ob'?'เข้าเกณฑ์อ้วน ควรประเมินอาหาร กิจกรรม และติดตามใกล้ชิด':res.cls==='ow'?'เข้าเกณฑ์น้ำหนักเกิน ควรให้คำแนะนำเรื่องอาหารและกิจกรรม':res.cls==='low'?'ผอม/น้ำหนักน้อยเทียบส่วนสูง ควรหาสาเหตุและติดตาม':'สมส่วน น้ำหนักเหมาะสมกับส่วนสูง';
-  return `BMI ${res.bmi.toFixed(1)} กก./ม.² = SDS ${zTxt(res.z)} (สูงกว่าประมาณ ${p}% ของ${who}, ${where}) → ${mean}`; }
-function bmiLine(r){ return 'BMI '+r.res.bmi.toFixed(1)+' กก./ม.² · SDS '+zTxt(r.res.z)+' (≈ P'+Math.round(r.res.pct)+') · '+r.res.txt+' — '+bmiThai(r.res,S.sex,growthAge().m).split(' → ')[1]; }
+  return `สูงกว่าประมาณ ${p}% ของ${who} (${where}) → ${mean}`; }
+function bmiLine(r){ return 'BMI '+r.res.bmi.toFixed(1)+' กก./ม.² · อยู่ที่ ≈ '+exTxt(r.res)+' (SDS '+zTxt(r.res.z)+') · '+r.res.txt+' — '+bmiThai(r.res,S.sex,growthAge().m).split(' → ')[1]; }
 function wfhChart(wt,len,sex){ const vs=chVals(CH[sex==='M'?'bwh':'gwh'].weight_for_height,len,0); return vs?chCalc(vs,wt):null; }
 
 const $=s=>document.querySelector(s);
@@ -864,11 +864,8 @@ function growthCalc(){
   R.wfa={name:'น้ำหนักตามอายุ',en:'Weight-for-age',raw:+S.wt,res:(+S.wt>0&&sex)?chartRes('w',+S.wt,sex,g.m):null};
   R.lfa={name:std?'ส่วนสูงตามอายุ':'ความยาวตามอายุ',en:std?'Height-for-age':'Length-for-age',raw:+S.len,res:(+S.len>0&&sex)?chartRes('l',+S.len,sex,g.m):null};
   R.hcfa={name:'รอบศีรษะตามอายุ',en:'Head circumference-for-age',raw:+S.hc,res:(+S.hc>0&&sex)?hcRes(+S.hc,sex,g.m):null};
-  R.wfl={name:std?'น้ำหนักตามส่วนสูง':'น้ำหนักตามความยาว',en:std?'Weight-for-height':'Weight-for-length',raw:(+S.wt>0&&+S.len>0)?1:0,res:null};
-  if(+S.wt>0&&+S.len>0&&sex){
-    let r=std?wfhChart(+S.wt,+S.len,sex):null;
-    if(!r) r={out:true,noref:!std};
-    R.wfl.res=r; }
+  if(std){ R.wfl={name:'น้ำหนักตามส่วนสูง',en:'Weight-for-height',raw:(+S.wt>0&&+S.len>0)?1:0,res:null};
+    if(+S.wt>0&&+S.len>0&&sex) R.wfl.res=wfhChart(+S.wt,+S.len,sex)||{out:true}; }
   { const w=+S.wt, l=+S.len; R.bmi={name:'BMI ตามอายุ',en:'BMI-for-age (SDS)',raw:(w>0&&l>0)?1:0,res:null};
     if(w>0&&l>0&&sex) R.bmi.res=bmiSDS(w/Math.pow(l/100,2),sex,g.m); }
   Object.keys(R).forEach(k=>{ if(R[k].res&&!R[k].res.out) zBand(R[k].res); });
@@ -918,14 +915,14 @@ function refresh(){
     if(!S.sex) h+='<div class="note">เลือกเพศเพื่อคำนวณเปอร์เซ็นไทล์</div>';
     h+=Object.keys(R).map(k=>{ const r=R[k]; const res=r.res;
       if(k==='bmi'&&res&&!res.out){ const tag=res.cls==='n'?'<span class="pill ok">อยู่ในเกณฑ์</span>':res.cls==='low'?'<span class="pill warn">'+res.txt+'</span>':'<span class="pill bad">'+res.txt+'</span>'; const rule=res.old?'เกณฑ์ 5–19 ปี: Overweight SDS &gt; +1 ถึง +2 หรือ BMI ≥ 23–24.9 · Obesity SDS &gt; +2 หรือ BMI ≥ 25 (ถ้าเกณฑ์ไม่ตรงกัน ใช้ที่รุนแรงกว่า)':'เกณฑ์ 0–5 ปี: Overweight SDS &gt; +2 ถึง +3 · Obesity SDS &gt; +3';
-        return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">SDS ${zTxt(res.z)}<small>BMI ${res.bmi.toFixed(1)} กก./ม.² · ≈ P${Math.round(res.pct)}</small></div>${stripHTML(res.z)}<div class="age">${tag}<span class="pill">${rule}</span></div><p class="hint">แปลผล: ${bmiThai(res,S.sex,g.m)}</p></div></div>`; }
+        return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">BMI ${res.bmi.toFixed(1)} กก./ม.²<small>อยู่ที่ ≈ ${exTxt(res)} · SDS ${zTxt(res.z)}</small></div><p class="hint bmi-int">แปลผล: ${bmiThai(res,S.sex,g.m)}</p>${stripHTML(res.z)}<div class="age">${tag}<span class="pill">${rule}</span></div></div></div>`; }
       if(!res) return `<div class="gr empty"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs">${r.raw?'รอข้อมูลเพศ':'กรอกค่าเพื่อคำนวณ'}</div></div>`;
-      if(res.out) return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><span class="pill warn">${k==='wfl'?(g.m>=24?'ส่วนสูงอยู่นอกช่วงกราฟ 90–'+(S.sex==='M'?180:170)+' ซม.':'ตั้งใจไม่คำนวณ (ไม่ใช่ข้อผิดพลาด): ชุดกราฟสมาคมฯ 2565 มีน้ำหนักตามส่วนสูงเฉพาะอายุ 2 ปีขึ้นไป (ส่วนสูง ≥ 90 ซม.) ไม่มีฉบับน้ำหนักตามความยาว 0–2 ปี — ใช้น้ำหนักตามอายุ ความยาวตามอายุ และ BMI ตามอายุแทน'):k==='hcfa'?'กราฟรอบศีรษะครอบคลุมอายุ 0–5 ปี':'อายุอยู่นอกช่วง 0–19 ปี'}</span></div></div>`;
+      if(res.out) return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><span class="pill warn">${k==='wfl'?'ส่วนสูงอยู่นอกช่วงกราฟ 90–'+(S.sex==='M'?180:170)+' ซม.':k==='hcfa'?'กราฟรอบศีรษะครอบคลุมอายุ 0–5 ปี':'อายุอยู่นอกช่วง 0–19 ปี'}</span></div></div>`;
       const b=band(res); const tag=b==='low'?'<span class="pill warn">ต่ำกว่า P3</span>':b==='high'?'<span class="pill warn">สูงกว่า P97</span>':'<span class="pill ok">อยู่ในช่วง P3–P97</span>'; const whoTag='';
-      let extra=''; if(k==='wfl'){ if(res.z<-2) extra='<span class="pill bad">ผอม (z &lt; −2)</span>'; else if(res.z>2) extra='<span class="pill bad">น้ำหนักเกินเทียบความยาว (z &gt; +2)</span>'; }
+      let extra=''; if(k==='wfl'){ if(res.z<-2) extra='<span class="pill bad">ผอม (z &lt; −2)</span>'; else if(res.z>2) extra='<span class="pill bad">น้ำหนักเกินเทียบส่วนสูง (z &gt; +2)</span>'; }
       const odd=Math.abs(res.z)>5?'<span class="pill bad">ค่านอกช่วงที่น่าเป็นไปได้ ตรวจสอบตัวเลข/หน่วย</span>':'';
       return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">${rngTxt(res)}<small>≈ ${exTxt(res)} · z ${zTxt(res.z)}${res.lms?'':' (แปลงจากเปอร์เซ็นไทล์)'}</small></div>${stripHTML(res.z)}<div class="age">${tag}${extra}${whoTag}${odd}</div></div></div>`; }).join('');
-    h+=`<details class="idbox"><summary>อายุที่ใช้คำนวณ ${g.m.toFixed(1)} เดือน — วิธีคำนวณ</summary><p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · ช่วงเปอร์เซ็นไทล์และ z คำนวณจากค่าที่กรอก โดยแทรกค่า (interpolation) ระหว่างเส้นเปอร์เซ็นไทล์ P3–P97 ของกราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย (2565) ตามอายุที่ใช้คำนวณ; ค่า z ของแถวเหล่านี้แปลงมาจากเปอร์เซ็นไทล์ (ไม่ใช่ z จากสูตร LMS); BMI คำนวณ SDS จากเส้น SDS ของกราฟเดียวกัน; รอบศีรษะใช้ตาราง LMS ของ WHO 2006 ซึ่งเป็นข้อมูลต้นทางของกราฟรอบศีรษะสมาคมฯ (0–5 ปี) จึงตรงกับเส้นกราฟ; น้ำหนักตามความยาว 0–2 ปี ไม่มีในชุดกราฟนี้ จึงตั้งใจไม่คำนวณ. ความแม่นยำขึ้นกับการแปลงเส้นกราฟเป็นตัวเลข (ประมาณ ±1–2 เปอร์เซ็นไทล์ในช่วงกลาง)</p></details>`;
+    h+=`<details class="idbox"><summary>อายุที่ใช้คำนวณ ${g.m.toFixed(1)} เดือน — วิธีคำนวณ</summary><p class="hint">คำนวณจากอายุที่ใช้: ${g.from}${S.dob?'':' (ยังไม่ได้กรอกวันเกิด)'} ${g.m.toFixed(1)} เดือน · ช่วงเปอร์เซ็นไทล์และ z คำนวณจากค่าที่กรอก โดยแทรกค่า (interpolation) ระหว่างเส้นเปอร์เซ็นไทล์ P3–P97 ของกราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย (2565) ตามอายุที่ใช้คำนวณ; ค่า z ของแถวเหล่านี้แปลงมาจากเปอร์เซ็นไทล์ (ไม่ใช่ z จากสูตร LMS); BMI คำนวณ SDS จากเส้น SDS ของกราฟเดียวกัน; รอบศีรษะใช้ตาราง LMS ของ WHO 2006 ซึ่งเป็นข้อมูลต้นทางของกราฟรอบศีรษะสมาคมฯ (0–5 ปี) จึงตรงกับเส้นกราฟ. ความแม่นยำขึ้นกับการแปลงเส้นกราฟเป็นตัวเลข (ประมาณ ±1–2 เปอร์เซ็นไทล์ในช่วงกลาง)</p></details>`;
     gt.innerHTML=h; const bc=$('#bmichart'); if(bc) bc.innerHTML=bmiChartHTML(); }
   const gi=$('#gevinfo'); if(gi){ const big=S.visit>=12, nm=S.visit>=24?'ส่วนสูง':'ความยาว';
     if(S.gevalManual) gi.innerHTML='เลือกเอง (ไม่ใช้ค่าอัตโนมัติ) <button type="button" class="btn ghost" id="btn-gauto">ใช้ค่าอัตโนมัติ</button>';
