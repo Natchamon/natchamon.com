@@ -353,6 +353,7 @@ textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
 .gr .nm{font-size:13px}.gr .nm small{font-size:11px}
 .gr .big{font-size:18px}
 .gr.empty{padding:5px 12px}
+.vxmiss{color:var(--bad);font-weight:600}.vxcrow{background:var(--bad-bg);border-radius:10px;padding:8px 10px}.vxcrow .lb{color:var(--bad);font-weight:600}
 .htab small.hp{display:inline-block;margin-left:4px;padding:0 6px;border-radius:99px;background:var(--soft);color:var(--ink-2);font-size:11px}.htab small.hp.bad{background:var(--bad-bg);color:var(--bad);font-weight:600}
 .vbtn.imp:not([aria-pressed="true"]){background:var(--ok-bg)}.vbtn .impt{display:inline-block;margin-left:6px;padding:0 6px;border-radius:99px;background:var(--ok);color:#fff;font:600 10px/16px var(--f-body);vertical-align:2px}
 .imptab th{width:170px;color:var(--ink-3);font-weight:500}.impsum{border-left:4px solid var(--ok)}
@@ -930,6 +931,7 @@ function chartNote(){
   if(scl.length){ L.push('','Screening :'); scl.forEach(x=>L.push('- '+x)); }
   L.push('','Vaccination :');
   const vx=[...(S.vx||[]),...(S.vxo||[])].map(id=>{const o=VAX[v].find(x=>x[0]===id); return o&&o[2];}).filter(Boolean);
+  (S.vxc||[]).forEach(k=>vx.push('Catch-up: '+vxName(k)));
   if(S.vx_t) vx.push(S.vx_t);
   if(vx.length) vx.forEach(x=>L.push('- '+x)); else L.push('- (ไม่ได้บันทึก)');
   L.push('','Advice :'); c.adv.forEach(a=>L.push('- '+a));
@@ -1165,6 +1167,7 @@ function renderForm(){
   P['วัคซีนและยา']=card('วัคซีนและยา',`<a class="vxinfo" href="vaccines.html#visit-${v}" target="_blank" rel="noopener">ข้อมูลวัคซีนสำหรับให้คำแนะนำ ↗</a>`,`
     <div class="row"><span class="lb">วัคซีนพื้นฐาน (EPI ฟรีตามแผนฯ)</span>${chips('vx',vxE(v))}</div>
     <div class="row"><span class="lb">วัคซีนทางเลือก/เสริม (เสียค่าใช้จ่าย)</span>${chips('vxo',vxO(v))}</div>
+    ${(()=>{ const od=vxOverdue(v); return od.length?`<div class="row vxcrow"><span class="lb">วัคซีนที่ค้างจากครั้งก่อน <small>(เลือกถ้าให้ชดเชยวันนี้)</small></span>${chips('vxc',od.map(q=>[q[1],vxName(q[1])+' · ค้างจาก '+vl(q[0])+(q[1]==='rota1'?' (เข็มแรกไม่ควรเริ่มหลังอายุ 15 สัปดาห์)':'')]))}</div>`:''; })()}
     ${txt('vx_t','วัคซีนอื่น/เลื่อนฉีด/ฉีดตามหลัง (catch-up)')}
     ${late?segTxt('iron','เสริมธาตุเหล็ก',[['no','ไม่ได้ให้'],['yes','ให้']]):''}
     ${txt('med','ยาที่ใช้')}`);
@@ -1331,7 +1334,7 @@ function model(){
   if(v>=18) sr.push(['ความเสี่ยงไขมันในเลือดสูง/เบาหวาน',st('dm')]);
   if(v>=6) sr.push(['การสัมผัสสารตะกั่ว',st('lead')]); add('การคัดกรอง',sr);
   add('สุขภาพช่องปาก',late?[...(v<36?[['ฟันขึ้นแล้ว',sl('teeth')+(S.teethn?' '+S.teethn+' ซี่':'')]]:[]),...(tod?[[v>=36?'ฟันผุ/คราบฟัน':'ฟันผุ',sl('caries')]]:[]),['ยาสีฟันฟลูออไรด์ 1000 ppm',sl('fluor')],['แปรงฟันวันละ 2 ครั้ง',sl('brush')],[tod?'พบทันตแพทย์ทุก 6–12 เดือน':'นัดทันตแพทย์ครั้งแรก',sl('dent')]]:[['เยื่อบุช่องปาก',sl('oralm')],['เช็ดเหงือกทุกวัน',sl('gum')]]);
-  add('วัคซีนและยา',[['วัคซีนพื้นฐาน (EPI)',cl('vx')],['วัคซีนทางเลือก/เสริม',cl('vxo')],['อื่น ๆ',S.vx_t||''],...(late?[['เสริมธาตุเหล็ก',st('iron')]]:[]),['ยา',S.med||'']]);
+  add('วัคซีนและยา',[['วัคซีนพื้นฐาน (EPI)',cl('vx')],['วัคซีนทางเลือก/เสริม',cl('vxo')],['วัคซีนที่ค้าง ให้ชดเชยวันนี้',(S.vxc||[]).map(vxName).join(', ')],['อื่น ๆ',S.vx_t||''],...(late?[['เสริมธาตุเหล็ก',st('iron')]]:[]),['ยา',S.med||'']]);
   add('สรุปผลการประเมิน',[['ผลการประเมินรวม',st('eval')],['คำแนะนำ/แผนการดูแล',S.advice||''],['ปัญหาที่ต้องติดตามครั้งหน้า',S.fu||'']]);
   add('คำแนะนำที่ให้',[['',cl('gd')]]);
   add('นัดครั้งต่อไป',[['อายุ','อายุ '+vl(VN[v].next)],['แผน',S.plan||'']]);
@@ -1362,6 +1365,7 @@ const b64d=s=>{ s=s.replace(/-/g,'+').replace(/_/g,'/'); while(s.length%4) s+='=
 function ccSum(s){ let h=2166136261; for(let i=0;i<s.length;i++){ h^=s.charCodeAt(i); h=Math.imul(h,16777619); } return (h>>>0).toString(36).padStart(7,'0').slice(-5); }
 function ccNow(){ const v=S.visit, a=ageInfo();
   const ids=(VAX[v]||[]).map(x=>x[0]); const x=(S.vx||[]).concat(S.vxo||[]).filter((id,i,arr)=>ids.indexOf(id)>-1&&arr.indexOf(id)===i);
+  (S.vxc||[]).forEach(k=>{ if(VXREQ.some(q=>q[1]===k)&&x.indexOf(k)<0) x.push(k); });
   const fails=(DEV[v]||[]).filter(d=>S['dev_'+v+'_'+d[0]]==='f').map(d=>d[0]);
   const p=[S.fu||'', fails.length?'พัฒนาการสงสัยไม่ผ่าน: '+fails.join(', '):''].filter(Boolean).join(' · ').slice(0,300);
   const r={v, d:S.vd||'', a:a?Math.round((a.m+(a.d||0)/30.4375)*10)/10:v, w:+S.wt>0?+S.wt:0, l:+S.len>0?+S.len:0, h:+S.hc>0?+S.hc:0, x, n:VN[v]?VN[v].next:0};
@@ -1394,8 +1398,13 @@ function ccLoad(txt){ const o=ccParse(txt); if(o.err){ HISTMSG=o.err; return fal
   if(o.s&&!S.sex) S.sex=o.s; if(o.b&&!S.dob) S.dob=o.b; if(o.g&&!S.ga) S.ga=o.g;
   if(!S.dob&&!(+S.age_y>0||+S.age_m>0)&&last.d){ const t0=parseISO(last.d), t1=parseISO(S.vd||today); if(t0!=null&&t1!=null&&t1>=t0){ let m=Math.round(last.a+(t1-t0)/864e5/30.4375); if(tv>last.v&&m<tv-(tv>=18?2:1)) m=tv; S.age_y=String(Math.floor(m/12)); S.age_m=String(m%12); } }
   return true; }
-function vxName(id){ for(const v of VIS){ const x=(VAX[v]||[]).find(o=>o[0]===id); if(x) return x[1].split(' (')[0].replace(/ หากยังไม่ได้.*$/,''); } return id; }
+function vxName(id){ const at=+String(id).split('@')[1]; id=String(id).split('@')[0]; if(at&&VAX[at]){ const y=VAX[at].find(o=>o[0]===id); if(y) return y[1].split(' (')[0].replace(/ หากยังไม่ได้.*$/,''); } for(const v of VIS){ const x=(VAX[v]||[]).find(o=>o[0]===id); if(x) return x[1].split(' (')[0].replace(/ หากยังไม่ได้.*$/,''); } return id; }
 const VXREQ=[[2,'dtp1',['hex@2']],[2,'ipv1',['hex@2']],[2,'rota1'],[2,'pcv10@2',['pcvx@2']],[4,'dtp2',['hex@4']],[4,'ipv2',['hex@4']],[4,'rota2'],[4,'pcv10@4',['pcvx@4']],[6,'dtp3',['hex@6']],[6,'opv1',['hex@6']],[9,'mmr1',['mmrv1']],[9,'je1'],[12,'pcv10b',['pcv4']],[18,'dtp4',['pent']],[18,'opv4',['pent']],[18,'mmr2',['mmrv2']],[24,'je2'],[48,'dtp5',['dtapipv']],[48,'opv5',['dtapipv']]];
+/* vaccines the schedule expected but the imported visits never recorded */
+function vxGiven(recs){ const G={}; recs.forEach(r=>(r.x||[]).forEach(id=>{ G[id]=1; G[id+'@'+r.v]=1; })); return G; }
+function vxLack(G,q){ return !(G[q[1]]||(q[2]||[]).some(k=>G[k])); }
+function vxOverdue(v){ if(!HIST||!HIST.r.length) return []; const past=HIST.r.filter(r=>r.v<v), first=HIST.r[0].v, G=vxGiven(past); return VXREQ.filter(q=>q[0]<v&&q[0]>=first&&vxLack(G,q)); }
+function vxMissAt(r){ if(!HIST) return []; const first=HIST.r[0].v, G=vxGiven(HIST.r.filter(o=>o.v<=r.v)); return VXREQ.filter(q=>q[0]<=r.v&&q[0]>=first&&vxLack(G,q)); }
 function histCard(){ const n=HIST?HIST.r.length:0;
   return `<details class="card hist" id="histcard"${(n||HISTMSG||window.__histOpen)?' open':''}><summary><h2><span>ประวัติจากครั้งก่อน</span><small>${n?'กู้คืนแล้ว '+n+' ครั้ง':'วางรหัสครั้งก่อน (ไม่บังคับ)'}</small></h2></summary><div class="body">
     <label class="fld"><span class="lb">วางรหัสต่อเนื่องจากบันทึกครั้งก่อน (วางทั้ง Chart note ก็ได้)</span><textarea class="ta" id="hist-in" style="min-height:52px" placeholder="WB1...."></textarea></label>
@@ -1425,7 +1434,8 @@ function pctCell(kind,val,a,sex){ if(!(val>0)) return '-'; let res=null; if(sex&
 function impRec(v){ return (HIST&&S._imp)?HIST.r.find(r=>r.v===v)||null:null; }
 function impSummary(r){ const sex=S.sex||HIST.s, ag=r.a!=null?(r.a>=24?ageYM({m:Math.round(r.a)}):(Math.round(r.a*10)/10)+' เดือน'):vl(r.v);
   const rows=[['วันที่ตรวจ',thDate(r.d)||'-'],['อายุขณะตรวจ',ag],['น้ำหนัก (กก.)',pctCell('w',r.w,r.a,sex)],[r.a>=24?'ส่วนสูง (ซม.)':'ความยาว (ซม.)',pctCell('l',r.l,r.a,sex)],['รอบศีรษะ (ซม.)',pctCell('h',r.h,r.a,sex)],
-    ['วัคซีนที่ได้รับ',(r.x||[]).length?r.x.map(id=>E(vxName(id))).join(', '):'ไม่มีบันทึกวัคซีน'],r.t?['วัคซีนอื่น/ฉีดตามหลัง',E(r.t)]:null,['ปัญหาที่ต้องติดตาม',r.p?E(r.p):'ไม่มี'],r.q?['แผนการติดตาม',E(r.q)]:null,['นัดครั้งต่อไป',r.n?E(vl(r.n)||r.n+' เดือน'):'-']].filter(Boolean);
+    ['วัคซีนที่ได้รับ',(r.x||[]).length?r.x.map(id=>E(vxName(id))).join(', '):'ไม่มีบันทึกวัคซีน'],
+    ...(()=>{ const m=vxMissAt(r); return m.length?[['ยังไม่ได้รับตามกำหนด',`<span class="vxmiss">${m.map(q=>E(vxName(q[1]))+(q[0]<r.v?' (ค้างจาก '+E(vl(q[0]))+')':'')).join(', ')}</span>`]]:[]; })(),r.t?['วัคซีนอื่น/ฉีดตามหลัง',E(r.t)]:null,['ปัญหาที่ต้องติดตาม',r.p?E(r.p):'ไม่มี'],r.q?['แผนการติดตาม',E(r.q)]:null,['นัดครั้งต่อไป',r.n?E(vl(r.n)||r.n+' เดือน'):'-']].filter(Boolean);
   return `<section class="card impsum"><h2><span>สรุปการตรวจอายุ ${E(vl(r.v))}</span><small>นำเข้าจากรหัสครั้งก่อน</small></h2><div class="body">
     <table class="htab imptab"><tbody>${rows.map(x=>`<tr><th>${x[0]}</th><td>${x[1]}</td></tr>`).join('')}</tbody></table>
     <p class="hint">รหัสต่อเนื่องเก็บเฉพาะข้อมูลข้างต้น (ไม่มีรายละเอียดการซักประวัติ/ตรวจร่างกาย) ข้อมูลนี้ไม่ถูกนำไปใส่ในแบบฟอร์มวันนี้</p>
@@ -1441,8 +1451,8 @@ function histView(){ if(!HIST) return ''; const v=S.visit, now=Object.assign(ccN
   const first=HIST.r[0].v; const base=k=>k.split('@')[0]; const ok=q=>G[q[1]]||(q[2]||[]).some(k=>G[k]);
   const over=VXREQ.filter(q=>q[0]<v&&q[0]>=first&&!ok(q)), due=VXREQ.filter(q=>q[0]===v&&!ok(q));
   h+=`<div class="sub">วัคซีน</div>`;
-  if(over.length) h+=`<div class="sugg"><span><b>อาจยังไม่ได้รับ (เลยกำหนด):</b> ${over.map(q=>E(vxName(base(q[1])))+' ('+E(vl(q[0]))+')').join(', ')}</span></div>`;
-  h+=`<ul class="hvx">${past.map(r=>`<li><b>${E(vl(r.v))}:</b> ${(r.x||[]).length?r.x.map(id=>E(vxName(id))).join(', '):'ไม่มีบันทึกวัคซีน'}${r.t?' · '+E(r.t):''}</li>`).join('')}<li><b>วันนี้ (${E(vl(v))}):</b> ${now.x.length?now.x.map(id=>E(vxName(id))).join(', '):'ยังไม่ได้เลือก'}${due.length?' · <span class="f">ตามกำหนดวันนี้ยังไม่ได้เลือก: '+due.map(q=>E(vxName(base(q[1])))).join(', ')+'</span>':''}</li></ul>`;
+  if(over.length) h+=`<div class="sugg"><span><b>อาจยังไม่ได้รับ (เลยกำหนด):</b> ${over.map(q=>E(vxName(q[1]))+' ('+E(vl(q[0]))+')').join(', ')}</span></div>`;
+  h+=`<ul class="hvx">${past.map(r=>`<li><b>${E(vl(r.v))}:</b> ${(r.x||[]).length?r.x.map(id=>E(vxName(id))).join(', '):'ไม่มีบันทึกวัคซีน'}${r.t?' · '+E(r.t):''}</li>`).join('')}<li><b>วันนี้ (${E(vl(v))}):</b> ${now.x.length?now.x.map(id=>E(vxName(id))).join(', '):'ยังไม่ได้เลือก'}${due.length?' · <span class="f">ตามกำหนดวันนี้ยังไม่ได้เลือก: '+due.map(q=>E(vxName(q[1]))).join(', ')+'</span>':''}</li></ul>`;
   h+=`<p class="hint">${first>2?'ไม่มีข้อมูลก่อนอายุ '+E(vl(first))+' ในรหัสนี้ · ':''}สถานะวัคซีนคำนวณจากที่เลือกในเครื่องมือเท่านั้น (ไม่รวมข้อความ “วัคซีนอื่น/ฉีดตามหลัง”) กรุณาตรวจสอบกับสมุดวัคซีนทุกครั้ง</p>`;
   // problems
   const pr=past.filter(r=>r.p||r.q).reverse();
