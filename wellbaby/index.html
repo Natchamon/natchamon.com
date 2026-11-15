@@ -1349,11 +1349,13 @@ function histView(){ if(!HIST) return ''; const v=S.visit, now=Object.assign(ccN
 
 /* ---------- events ---------- */
 function setView(which){
-  const rep=which==='report';
+  const rep=which==='report'; S._view=rep?'report':'form';
   $('#view-form').hidden=rep; $('#view-report').hidden=!rep; document.body.classList.toggle('rep',rep); { const b=$('#btn-rep2'); if(b) b.textContent=rep?'← กลับไปฟอร์ม':'ดูรายงาน'; }
   if(rep) renderReport(); window.scrollTo(0,0);
 }
-function switchVisit(v){ if(S.visit!==v){ VS[S.visit]=S; S=VS[v]||freshS(v); S.visit=v; } renderVisits(); renderForm(); document.body.dataset.visit=v; refresh(); }
+function switchVisit(v){ const changed=S.visit!==v; if(changed){ VS[S.visit]=S; S=VS[v]||freshS(v); S.visit=v; } renderVisits(); renderForm(); document.body.dataset.visit=v; refresh();
+  /* each visit remembers whether it was on the form or the report; a new visit opens on the form */
+  if(changed||$('#view-report').hidden!==(S._view!=='report')) setView(S._view==='report'?'report':'form'); }
 function example(){
   Object.assign(S,{example:true,visit:9,name:'ตัวอย่าง ทารกหญิง (ไม่ใช่ผู้ป่วยจริง)',hn:'000000',sex:'F',age_m:'9',vd:todayISO(),who:['m'],elim:'n',nprob:'n',sl_p:'n',cc:'มาตรวจตามนัด',
     wt:'8.4',len:'70.5',hc:'44.0',af:'1.5 × 1.5 ซม. นูนเล็กน้อย',milk:['bf','if'],feeds:'5',oz:'2',cmeals:'2',fg:['grain','veg','fruit','meat','iron'],
