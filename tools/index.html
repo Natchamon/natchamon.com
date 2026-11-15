@@ -1,83 +1,171 @@
 <!doctype html>
-<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>Ped Tools</title>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="color-scheme" content="only light">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="description" content="Free paediatric and neonatal calculators and checklists by Natchamon. Runs in your browser, nothing is saved.">
+<meta name="theme-color" content="#1D4ED8">
+<title>Ped tools · Natchamon</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans+Thai:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap">
 <style>
-:root{--bg:#F3F5FB;--surface:#fff;--ink:#1B2559;--ink-2:#4B5580;--line:#DADFF0;--soft:#EEF1FA;--accent:#2B3BA0;--accent-soft:#E4E8FB;--ok:#1D7A59;--ok-bg:#E1F3EA;--warn:#A8500F;--warn-bg:#FCEBDA;--bad:#B0203F;--bad-bg:#FBE4EA;--tint:#E4E8FB;
---f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;--f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif}
-@media (prefers-color-scheme:dark){:root{--bg:#0F1329;--surface:#181E3C;--ink:#E8EBFC;--ink-2:#A9B1D8;--line:#2B3363;--soft:#1F2650;--accent:#93A5FF;--accent-soft:#27306A;--ok:#5FD3A1;--ok-bg:#12372C;--warn:#F2A56D;--warn-bg:#40250F;--bad:#FF8AA3;--bad-bg:#431626;--tint:#232B5C}}
+/* One screen of tools: search + category filter on top, a dense grid of tiles below. Same type and blue as the home page. */
+:root{color-scheme:light;
+  --bg:#F6F7F9;--surface:#FFFFFF;--ink:#0F1720;--ink-2:#4A5565;--line:#E3E7ED;--line-2:#D5DBE3;--accent:#1D4ED8;--accent-soft:#E6EDFD;
+  --c-clinic:#1A3FB0;--b-clinic:#E6EDFD;--c-newborn:#9A3412;--b-newborn:#FDEBDF;--c-fluid:#0F6B4F;--b-fluid:#DFF3EC;
+  --f-body:"IBM Plex Sans Thai",system-ui,sans-serif;--f-head:"Space Grotesk","IBM Plex Sans Thai",system-ui,sans-serif;--f-mono:"IBM Plex Mono",ui-monospace,monospace}
 *{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);padding:0 16px 40px}
-button,input{font:inherit;color:inherit}
-.app{max-width:720px;margin:0 auto}
-header{padding:18px 0 4px}
-h1{margin:0;font:600 20px/1.3 var(--f-head)}header small{display:block;font-size:12.5px;color:var(--ink-2)}
-.card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
-.card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
-.card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
-.body{padding:14px 16px;display:grid;gap:12px}
-.lb{font-size:13px;color:var(--ink-2)}
-.f{display:grid;gap:3px;min-width:0}
-.g2{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.inp{display:flex;align-items:center;gap:6px;border:1.5px solid var(--line);border-radius:9px;background:var(--surface);padding:0 10px;min-height:42px}
-.inp:focus-within{border-color:var(--accent)}
-.inp input{border:0;background:transparent;width:100%;min-width:0;padding:6px 0;outline:0;font-variant-numeric:tabular-nums;font-size:16px}
-.inp i{font-style:normal;color:var(--ink-2);font-size:12.5px;white-space:nowrap}
-.seg{display:flex;gap:6px;flex-wrap:wrap}
-.opt{border:1.5px solid var(--line);background:var(--surface);border-radius:9px;padding:6px 12px;cursor:pointer;min-height:40px}
-.opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
-.big{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px}
-.kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft)}
-.kpi span{font-size:12.5px;color:var(--ink-2);display:block}
-.kpi b{font:600 26px/1.2 var(--f-head);font-variant-numeric:tabular-nums}.kpi b small{font:400 13px var(--f-body);color:var(--ink-2)}
-.kpi.main{background:var(--accent-soft);border-color:var(--accent)}
-table{width:100%;border-collapse:collapse;font-size:14px;font-variant-numeric:tabular-nums}
-td,th{padding:6px 4px;border-bottom:1px solid var(--line);text-align:right}td:first-child,th:first-child{text-align:left}
-th{font-weight:500;color:var(--ink-2);font-size:12.5px}
-.note{border-radius:10px;padding:8px 12px;font-size:13.5px}
-.note.warn{background:var(--warn-bg);color:var(--warn)}.note.bad{background:var(--bad-bg);color:var(--bad)}.note.info{background:var(--soft);color:var(--ink-2)}
-.work{font-size:13px;color:var(--ink-2);display:grid;gap:3px}.work b{color:var(--ink)}
-.foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
-.btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
-.home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.55 var(--f-body);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+:focus-visible{outline:3px solid var(--accent);outline-offset:2px;border-radius:10px}
+.wrap{max-width:1120px;margin:0 auto;padding:0 max(16px,env(safe-area-inset-left))}
+/* top bar */
+.bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 0}
+.logo{display:flex;align-items:center;gap:10px;font:700 17px var(--f-head);letter-spacing:-.01em}
+.logo span{width:28px;height:28px;border-radius:8px;background:var(--accent);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.bar nav{display:flex;gap:4px;font-size:14.5px}
+.bar nav a{padding:8px 12px;border-radius:10px}.bar nav a:hover{background:var(--surface)}
+/* head */
+.head{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px;padding:14px 0 18px}
+h1{margin:0;font:700 clamp(32px,5vw,44px)/1 var(--f-head);letter-spacing:-.035em}
+.lead{margin:8px 0 0;color:var(--ink-2);font-size:14.5px;max-width:52ch}
+.search{flex:1 1 300px;max-width:420px;display:flex;align-items:center;gap:10px;background:var(--surface);border:1px solid var(--line-2);border-radius:12px;padding:0 14px;min-height:48px}
+.search:focus-within{border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.search svg{flex:none;color:var(--ink-2)}
+.search input{border:0;outline:0;background:transparent;font:inherit;font-size:16px;width:100%;min-width:0;color:var(--ink)}
+.search kbd{font:500 11px var(--f-mono);color:var(--ink-2);border:1px solid var(--line-2);border-radius:6px;padding:1px 6px}
+/* filters */
+.chips{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px;margin-bottom:14px;scrollbar-width:none}.chips::-webkit-scrollbar{display:none}
+.chip{flex:none;border:1px solid var(--line-2);background:var(--surface);color:var(--ink);border-radius:999px;padding:0 14px;min-height:38px;font:500 14px var(--f-body);cursor:pointer;display:inline-flex;align-items:center;gap:8px}
+.chip b{font:500 11.5px var(--f-mono);color:var(--ink-2)}
+.chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:#fff}.chip[aria-pressed="true"] b{color:#C9D2DE}
+/* recent */
+.recent{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin:-4px 0 14px;font-size:13px;color:var(--ink-2)}
+.recent a{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-weight:500}
+.recent a:hover{border-color:var(--accent)}
+/* grid */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.t{position:relative;display:grid;grid-template-columns:44px 1fr;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:84px;transition:border-color .15s,box-shadow .15s,transform .15s}
+.t:hover{border-color:var(--line-2);box-shadow:0 6px 20px rgba(15,23,32,.07);transform:translateY(-1px)}
+.t .ic{grid-row:1/3;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font:600 13px var(--f-mono);letter-spacing:.02em}
+.t[data-c="clinic"] .ic{background:var(--b-clinic);color:var(--c-clinic)}
+.t[data-c="newborn"] .ic{background:var(--b-newborn);color:var(--c-newborn)}
+.t[data-c="fluid"] .ic{background:var(--b-fluid);color:var(--c-fluid)}
+.t b{font:600 16px/1.25 var(--f-head);letter-spacing:-.01em;align-self:end}
+.t small{font-size:13px;line-height:1.4;color:var(--ink-2);align-self:start;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.t .go{position:absolute;right:14px;top:14px;color:var(--line-2);transition:color .15s}.t:hover .go{color:var(--accent)}
+.t b{padding-right:18px}
+.empty{grid-column:1/-1;padding:28px;text-align:center;color:var(--ink-2);background:var(--surface);border:1px dashed var(--line-2);border-radius:14px}
+.foot{display:flex;flex-wrap:wrap;justify-content:space-between;gap:8px 20px;margin:22px 0 36px;font-size:13px;color:var(--ink-2)}
+.foot a{text-decoration:underline;text-underline-offset:2px}
+[hidden]{display:none!important}
+@media (max-width:560px){
+  .bar nav a.hide-s{display:none}
+  .grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .t{grid-template-columns:34px 1fr;gap:10px;padding:10px;min-height:60px;border-radius:12px}
+  .t .ic{grid-row:auto;width:34px;height:34px;border-radius:9px;font-size:11.5px}
+  .t b{font-size:14.5px;line-height:1.25;padding-right:0;align-self:center}
+  .t small{display:none}
+  .t .go{display:none}
+  .head{padding-top:6px}
+  .search kbd{display:none}
+}
+@media (prefers-reduced-motion:reduce){.t,.t:hover{transition:none;transform:none}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="bar">
+    <a class="logo" href="/"><span>N</span>natchamon.com</a>
+    <nav aria-label="Main"><a href="/">Home</a><a class="hide-s" href="/#built">What I've built</a><a class="hide-s" href="/#about">About</a></nav>
+  </header>
 
-.lead{margin:6px 0 0;color:var(--ink-2);font-size:14px}
-.grid{display:grid;gap:12px;margin-top:16px}
-a.t{display:block;text-decoration:none;color:inherit;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px 16px}
-a.t:hover,a.t:focus-visible{border-color:var(--accent);outline:none}
-a.t .tag{display:inline-block;font-size:11.5px;font-weight:500;color:var(--accent);background:var(--accent-soft);border-radius:999px;padding:1px 9px;margin-bottom:6px}
-a.t b{display:block;font:600 16px/1.35 var(--f-head)}
-a.t span.d{display:block;margin-top:3px;font-size:13.5px;color:var(--ink-2)}
-a.t .go{display:inline-block;margin-top:8px;font-size:13px;font-weight:500;color:var(--accent)}
-.h2{margin:22px 0 0;font:600 13px var(--f-head);color:var(--ink-2);letter-spacing:.04em;text-transform:uppercase}
-.top{background:#2B3BA0;color:#fff;margin:0 -16px;padding:10px 16px}.top a{color:#fff;text-decoration:none;font:600 15px var(--f-head);letter-spacing:.01em}.top-in{max-width:720px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:10px}.top small{font-size:12px;opacity:.85}
-</style></head><body><div class="top"><div class="top-in"><a href="/">natchamon.com</a><small>Ped tools</small></div></div><div class="app">
-<header><h1>Ped tools<small>Small calculators and checklists for paediatric and neonatal work</small></h1></header>
-<p class="lead">Free to use, runs in your browser, and no patient data is saved or sent anywhere. Works on a phone.</p>
+  <div class="head">
+    <div>
+      <h1>Ped tools</h1>
+      <p class="lead">Calculators and checklists for paediatric and neonatal work. Runs in your browser, nothing is saved or sent.</p>
+    </div>
+    <label class="search">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="7"></circle><path d="M20 20l-3.5-3.5"></path></svg>
+      <input id="q" type="search" placeholder="ค้นหา เช่น jaundice, น้ำเกลือ, วัคซีน" aria-label="Search tools" autocomplete="off">
+      <kbd>/</kbd>
+    </label>
+  </div>
 
-<div class="h2">Growth</div>
-<div class="grid">
-<a class="t" href="/growth/"><span class="tag">Growth</span><b>Growth plotter</b><span class="d">Weight and length/height percentiles on the Thai pediatric endocrine charts, 0–19 y, with trends and charts.</span><span class="go">Open →</span></a>
-<a class="t" href="/fenton/"><span class="tag">Preterm</span><b>Fenton Plotter</b><span class="d">Plot weight, head circumference and length on the Fenton 2013 charts, with approximate percentiles.</span><span class="go">Open →</span></a>
-<a class="t" href="/wellbaby/"><span class="tag">Well-baby clinic</span><b>Well baby clinic</b><span class="d">Tap-based well-baby visit record with Thai growth charts, CHS 2026 form and a Thai report for the chart.</span><span class="go">Open →</span></a>
-<a class="t" href="/development/"><span class="tag">Development</span><b>Development (DSPM)</b><span class="d">Milestones by age band for all five domains with how to assess, pass criteria and how to train, from the DSPM manual.</span><span class="go">Open →</span></a>
+  <div class="chips" role="group" aria-label="Filter by category">
+    <button type="button" class="chip" data-f="all" aria-pressed="true">All <b>12</b></button>
+    <button type="button" class="chip" data-f="clinic" aria-pressed="false">Clinic &amp; growth <b>4</b></button>
+    <button type="button" class="chip" data-f="newborn" aria-pressed="false">Newborn <b>8</b></button>
+    <button type="button" class="chip" data-f="fluid" aria-pressed="false">Fluids &amp; nutrition <b>4</b></button>
+  </div>
+
+  <div class="recent" id="recent" hidden></div>
+
+  <main class="grid" id="grid">
+    <a class="t" data-c="clinic" data-f="clinic" href="/wellbaby/" data-k="well baby clinic chs วัคซีน เด็กดี vaccine report">
+      <span class="ic" aria-hidden="true">WB</span><b>Well baby clinic</b><small>Visit record 1 month–5 years with a Thai report for the chart</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="clinic" data-f="clinic" href="/growth/" data-k="growth percentile weight height การเจริญเติบโต น้ำหนัก ส่วนสูง bmi">
+      <span class="ic" aria-hidden="true">GR</span><b>Growth plotter</b><small>Thai endocrine chart percentiles, 0–19 years, with trends</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="clinic" data-f="clinic" href="/development/" data-k="development dspm milestone พัฒนาการ">
+      <span class="ic" aria-hidden="true">DS</span><b>Development (DSPM)</b><small>Milestones by age band: how to assess, pass and train</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="clinic" data-f="clinic newborn" href="/fenton/" data-k="fenton preterm growth คลอดก่อนกำหนด head circumference">
+      <span class="ic" aria-hidden="true">FN</span><b>Fenton plotter</b><small>Preterm weight, length and head on Fenton 2013</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/jaundice/" data-k="jaundice bilirubin phototherapy exchange ตัวเหลือง ส่องไฟ tsb">
+      <span class="ic" aria-hidden="true">BI</span><b>Neonatal jaundice</b><small>Phototherapy and exchange thresholds by GA, age and TSB</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/nrp/" data-k="nrp resuscitation ett epinephrine uvc กู้ชีพ ใส่ท่อ neopuff spo2">
+      <span class="ic" aria-hidden="true">NR</span><b>Neonatal resuscitation</b><small>ETT, drugs, Neopuff and UVC by weight and GA (NCPR 2025)</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/screening/" data-k="screening thyroid hearing cchd rop คัดกรอง ทารก">
+      <span class="ic" aria-hidden="true">SC</span><b>Newborn screening</b><small>Thyroid, hearing, CCHD, ROP and more: what applies and when</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/exchange/" data-k="exchange transfusion hct เปลี่ยนถ่ายเลือด polycythemia">
+      <span class="ic" aria-hidden="true">ET</span><b>Exchange transfusion</b><small>Total and partial exchange volumes, cycles and duration</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="fluid" data-f="fluid newborn" href="/neofluid/" data-k="milk feed calories นม ป้อนนม tv tc">
+      <span class="ic" aria-hidden="true">MK</span><b>Milk calculator</b><small>Feeds by day of life and weight, calories and the order</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="fluid" data-f="fluid newborn" href="/neoiv/" data-k="neonatal iv gir npo hypoglycemia น้ำเกลือ ทารก d10 น้ำตาลต่ำ">
+      <span class="ic" aria-hidden="true">GI</span><b>Neonatal IV &amp; GIR</b><small>NPO rate, step feeds with IV, hypoglycaemia push, GIR</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="fluid" data-f="fluid newborn" href="/tpn/" data-k="tpn parenteral nutrition lipid amino d10 osmolarity สารอาหารทางหลอดเลือด">
+      <span class="ic" aria-hidden="true">TP</span><b>Neonatal TPN</b><small>Milk advance, lipid cut, TPN or D10 bags, GIR and order lines</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="fluid" data-f="fluid" href="/ivfluid/" data-k="iv fluid maintenance holliday segar deficit dehydration น้ำเกลือ drip">
+      <span class="ic" aria-hidden="true">IV</span><b>Paediatric IV fluids</b><small>Maintenance 100-50-20 plus deficit, loading dose and drip rate</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <p class="empty" id="empty" hidden>No tool matches that search.</p>
+  </main>
+
+  <footer class="foot">
+    <span>Reference aids only. Check against your unit protocol and the clinical picture before acting.</span>
+    <span>Made by Natchamon · <a href="/">natchamon.com</a></span>
+  </footer>
 </div>
-
-<div class="h2">Fluids</div>
-<div class="grid">
-<a class="t" href="/ivfluid/"><span class="tag">IV fluids</span><b>Paediatric IV Fluid Calculator</b><span class="d">Holliday-Segar maintenance plus deficit replacement by weight, with loading dose, 24 h or 8 h / 16 h rates and drip rate.</span><span class="go">Open →</span></a>
-<a class="t" href="/neoiv/"><span class="tag">Newborn IV</span><b>Neonatal IV &amp; GIR</b><span class="d">IV rate for NPO babies, step feed with IV, symptomatic hypoglycemia push, GIR check and order wording.</span><span class="go">Open →</span></a>
-</div>
-
-<div class="h2">Newborn</div>
-<div class="grid">
-<a class="t" href="/neofluid/"><span class="tag">Milk</span><b>Milk calculator</b><span class="d">Oral feeds by day of life and weight: volume per feed, calories, rounding up or down, and the order.</span><span class="go">Open →</span></a>
-<a class="t" href="/jaundice/"><span class="tag">Jaundice</span><b>Neonatal Jaundice</b><span class="d">Phototherapy and exchange thresholds by GA, age and TSB, escalation of care, stopping criteria and follow-up (PCMC guideline, 2026).</span><span class="go">Open →</span></a>
-<a class="t" href="/nrp/"><span class="tag">Resuscitation</span><b>Neonatal Resuscitation</b><span class="d">ETT size and depth, blade, mask, Neopuff settings, epinephrine, UVC depth and glucose by weight and GA, with the SpO₂ target table (NCPR 2025).</span><span class="go">Open →</span></a>
-<a class="t" href="/screening/"><span class="tag">Screening</span><b>Newborn Screening</b><span class="d">What applies and when: thyroid, hearing, CCHD pulse oximetry, ROP, head ultrasound, osteopenia and anemia of prematurity.</span><span class="go">Open →</span></a>
-<a class="t" href="/exchange/"><span class="tag">Transfusion</span><b>Exchange Transfusion Calculator</b><span class="d">Total and partial exchange volumes by weight and Hct, with cycles and duration.</span><span class="go">Open →</span></a>
-<a class="t" href="/tpn/"><span class="tag">Fluids &amp; calories</span><b>Neonatal TPN</b><span class="d">Milk advance by day, lipid cut, then TPN or D10: bag volumes, rates, GIR, osmolarity and EMR-ready order lines.</span><span class="go">Open →</span></a>
-</div>
-
-<p class="foot">Reference aids only. Always check against your unit protocol and the clinical picture before acting. Made by Natchamon · <a href="/" style="color:inherit">natchamon.com</a></p>
-</div></body></html>
+<script>
+(function(){
+  var tiles=[].slice.call(document.querySelectorAll('.t')), q=document.getElementById('q'), chips=[].slice.call(document.querySelectorAll('.chip')), empty=document.getElementById('empty'), f='all';
+  function apply(){ var s=(q.value||'').trim().toLowerCase(), n=0;
+    tiles.forEach(function(t){ var inCat=f==='all'||t.dataset.f.split(' ').indexOf(f)>-1;
+      var hit=!s||(t.textContent+' '+t.dataset.k).toLowerCase().indexOf(s)>-1; var show=inCat&&hit; t.hidden=!show; if(show) n++; });
+    empty.hidden=n>0; }
+  chips.forEach(function(c){ c.addEventListener('click',function(){ f=c.dataset.f; chips.forEach(function(x){ x.setAttribute('aria-pressed',x===c); }); apply(); }); });
+  q.addEventListener('input',apply);
+  document.addEventListener('keydown',function(e){ if(e.key==='/'&&document.activeElement!==q&&!e.metaKey&&!e.ctrlKey){ e.preventDefault(); q.focus(); } });
+  q.addEventListener('keydown',function(e){ if(e.key==='Enter'){ var first=tiles.filter(function(t){return !t.hidden})[0]; if(first) first.click(); } });
+  /* recently opened tools: kept only in this browser, for quick access */
+  var KEY='ped-recent', rec=[]; try{ rec=JSON.parse(localStorage.getItem(KEY)||'[]'); }catch(e){}
+  var box=document.getElementById('recent'), byHref={}; tiles.forEach(function(t){ byHref[t.getAttribute('href')]=t; });
+  rec=rec.filter(function(h){ return byHref[h]; }).slice(0,3);
+  if(rec.length){ box.innerHTML='<span>Recent</span>'+rec.map(function(h){ return '<a href="'+h+'">'+byHref[h].querySelector('b').textContent+'</a>'; }).join(''); box.hidden=false; }
+  tiles.forEach(function(t){ t.addEventListener('click',function(){ var h=t.getAttribute('href'); var r=[h].concat(rec.filter(function(x){return x!==h;})).slice(0,3); try{ localStorage.setItem(KEY,JSON.stringify(r)); }catch(e){} }); });
+})();
+</script>
+</body>
+</html>

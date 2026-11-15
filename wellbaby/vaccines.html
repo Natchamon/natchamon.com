@@ -1,11 +1,12 @@
 <!doctype html>
 <html lang="th">
 <head>
-<meta charset="utf-8">
+<meta charset="utf-8"><meta name="color-scheme" content="only light">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <title>Vaccine guide</title>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
 <style>
+html{color-scheme:light}
 /* Reference page for the well baby clinic: per-visit vaccine list, then one card per vaccine. Content follows the PIDST 2569 schedule. */
 :root{
   --bg:#F3F5FB; --surface:#FFFFFF; --ink:#1B2559; --ink-2:#4B5580; --line:#DADFF0; --soft:#EEF1FA;
@@ -13,18 +14,8 @@
   --f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
   --f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif;
 }
-@media (prefers-color-scheme: dark){
-  :root:not([data-theme="light"]){
-    --bg:#0F1329; --surface:#181E3C; --ink:#E8EBFC; --ink-2:#A9B1D8; --line:#2B3363; --soft:#1F2650;
-    --accent:#93A5FF; --accent-soft:#27306A; --epi:#5FD3A1; --epi-bg:#12372C; --opt:#F2A56D; --opt-bg:#3C2716; --warn-bg:#3A3117; --warn-line:#7A6326;
-    color-scheme:dark;
-  }
-}
-:root[data-theme="dark"]{
-  --bg:#0F1329; --surface:#181E3C; --ink:#E8EBFC; --ink-2:#A9B1D8; --line:#2B3363; --soft:#1F2650;
-  --accent:#93A5FF; --accent-soft:#27306A; --epi:#5FD3A1; --epi-bg:#12372C; --opt:#F2A56D; --opt-bg:#3C2716; --warn-bg:#3A3117; --warn-line:#7A6326;
-  color-scheme:dark;
-}
+
+
 *{box-sizing:border-box}
 html{scroll-behavior:smooth;scroll-padding-top:84px}
 body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--f-body);-webkit-text-size-adjust:100%}
