@@ -1291,25 +1291,15 @@ function ccParse(txt){ const i=String(txt||'').indexOf('WB1.'); if(i<0) return {
     if(!r.length) throw 0; return {s:o.s==='M'||o.s==='F'?o.s:'', b:/^\d{4}-\d{2}-\d{2}$/.test(o.b)?o.b:'', g:o.g?String(o.g).slice(0,4):'', r}; }
   catch(_){ return {err:'อ่านรหัสไม่ได้ กรุณาคัดลอกใหม่'}; } }
 function ccLoad(txt){ const o=ccParse(txt); if(o.err){ HISTMSG=o.err; return false; }
-  HIST=o; HISTMSG=''; if(o.s) S.sex=o.s; if(o.b) S.dob=o.b; if(o.g&&!S.ga) S.ga=o.g;
-  const last=o.r[o.r.length-1]; let tv=S.visit; if(last.d!==todayISO()&&VIS.indexOf(last.n)>-1) tv=last.n; else if(last.d===todayISO()) tv=last.v; S.visit=tv; return true; }
+  HIST=o; HISTMSG='';
+  const last=o.r[o.r.length-1]; let tv=S.visit; if(last.d!==todayISO()&&VIS.indexOf(last.n)>-1) tv=last.n; else if(last.d===todayISO()) tv=last.v;
+  /* start today's visit on a clean form: earlier measurements stay in the history only, never in today's fields */
+  S={visit:tv,vd:S.vd||todayISO(),cc:DEFCC,agemode:'age'};
+  if(o.s) S.sex=o.s; if(o.b) S.dob=o.b; if(o.g) S.ga=o.g;
+  if(!o.b&&last.d){ const t0=parseISO(last.d), t1=parseISO(S.vd); if(t0!=null&&t1!=null&&t1>=t0){ const m=Math.round(last.a+(t1-t0)/864e5/30.4375); S.age_y=String(Math.floor(m/12)); S.age_m=String(m%12); } }
+  return true; }
 function vxName(id){ for(const v of VIS){ const x=(VAX[v]||[]).find(o=>o[0]===id); if(x) return x[1].split(' (')[0].replace(/ หากยังไม่ได้.*$/,''); } return id; }
 const VXREQ=[[2,'dtp1',['hex@2']],[2,'ipv1',['hex@2']],[2,'rota1'],[2,'pcv10@2',['pcvx@2']],[4,'dtp2',['hex@4']],[4,'ipv2',['hex@4']],[4,'rota2'],[4,'pcv10@4',['pcvx@4']],[6,'dtp3',['hex@6']],[6,'opv1',['hex@6']],[9,'mmr1',['mmrv1']],[9,'je1'],[12,'pcv10b',['pcv4']],[18,'dtp4',['pent']],[18,'opv4',['pent']],[18,'mmr2',['mmrv2']],[24,'je2'],[48,'dtp5',['dtapipv']],[48,'opv5',['dtapipv']]];
-function pcv(kind,sex,m){ if(!sex) return null; const boy=sex==='M'; if(m<24){ const c=CH[boy?'b02':'g02']; return chVals(kind==='w'?c.weight:c.length,m,0.05); } const c=CH[boy?'b219':'g219']; return chVals(kind==='w'?c.weight:c.height,m/12,0.005); }
-function trendSVG(kind,recs,sex){ const key=kind==='w'?'w':'l'; const pts=recs.filter(r=>r[key]>0).map(r=>({a:r.a,y:r[key],now:r.now})); if(!pts.length) return '';
-  const W=320,H=180,L=36,R=12,T=14,B=26; let x0=Math.max(0,Math.min(...pts.map(p=>p.a))-1), x1=Math.max(...pts.map(p=>p.a))+1; if(x1-x0<6) x1=x0+6;
-  const cur=[]; if(sex) for(let i=0;i<=24;i++){ const m=x0+(x1-x0)*i/24; const vs=pcv(kind,sex,m); if(vs) cur.push({m,lo:vs[0],md:vs[3],hi:vs[6]}); }
-  const ys=pts.map(p=>p.y).concat(cur.map(c=>c.lo),cur.map(c=>c.hi)); let y0=Math.min(...ys), y1=Math.max(...ys); const pad=(y1-y0)*0.08||1; y0-=pad; y1+=pad;
-  const X=m=>(L+(m-x0)/(x1-x0)*(W-L-R)).toFixed(1), Y=v=>(T+(y1-v)/(y1-y0)*(H-T-B)).toFixed(1);
-  let g=''; if(cur.length>1){ g+=`<path d="M${cur.map(c=>X(c.m)+' '+Y(c.lo)).join(' L')} L${cur.slice().reverse().map(c=>X(c.m)+' '+Y(c.hi)).join(' L')} Z" style="fill:var(--accent-soft)"/>`;
-    g+=`<polyline points="${cur.map(c=>X(c.m)+','+Y(c.md)).join(' ')}" style="fill:none;stroke:var(--ink-2);stroke-width:1;stroke-dasharray:4 4;opacity:.7"/>`; }
-  [y0+pad,(y0+y1)/2,y1-pad].forEach(v=>{ g+=`<text x="${L-6}" y="${+Y(v)+4}" text-anchor="end" style="font-size:10.5px;fill:var(--ink-2)">${v.toFixed(kind==='w'?1:0)}</text>`; });
-  g+=`<line x1="${L}" y1="${H-B}" x2="${W-R}" y2="${H-B}" style="stroke:var(--line)"/>`;
-  if(pts.length>1) g+=`<polyline points="${pts.map(p=>X(p.a)+','+Y(p.y)).join(' ')}" style="fill:none;stroke:var(--accent);stroke-width:2.5"/>`;
-  pts.forEach(p=>{ g+=`<circle cx="${X(p.a)}" cy="${Y(p.y)}" r="${p.now?5.5:4}" style="fill:${p.now?'var(--surface)':'var(--accent)'};stroke:var(--accent);stroke-width:${p.now?3:0}"/>`;
-    g+=`<text x="${X(p.a)}" y="${H-8}" text-anchor="middle" style="font-size:10.5px;fill:var(--ink-2)">${Math.round(p.a)} ด.</text>`; });
-  const lab=(kind==='w'?'น้ำหนัก (กก.)':'ความยาว/ส่วนสูง (ซม.)');
-  return `<figure class="gfig"><svg viewBox="0 0 ${W} ${H}" role="img" aria-label="${lab} ${pts.map(p=>Math.round(p.a)+' เดือน '+p.y).join(', ')}">${g}</svg><figcaption class="bmicap">${lab}${cur.length>1?' · แถบสี = P3–P97 · เส้นประ = P50':''} · วงกลมโปร่ง = วันนี้</figcaption></figure>`; }
 function histCard(){ const n=HIST?HIST.r.length:0;
   return `<details class="card hist" id="histcard"${(n||HISTMSG||window.__histOpen)?' open':''}><summary><h2><span>ประวัติจากครั้งก่อน</span><small>${n?'กู้คืนแล้ว '+n+' ครั้ง':'วางรหัสครั้งก่อน (ไม่บังคับ)'}</small></h2></summary><div class="body">
     <label class="fld"><span class="lb">วางรหัสต่อเนื่องจากบันทึกครั้งก่อน (วางทั้ง Chart note ก็ได้)</span><textarea class="ta" id="hist-in" style="min-height:52px" placeholder="WB1...."></textarea></label>
@@ -1317,12 +1307,29 @@ function histCard(){ const n=HIST?HIST.r.length:0;
     ${HISTMSG?`<div class="age"><span class="pill bad">${E(HISTMSG)}</span></div>`:''}
     <p class="hint">รหัสอยู่ท้าย Chart note/รายงานที่คัดลอกทุกครั้ง เก็บไว้ในเวชระเบียนของโรงพยาบาลเอง เครื่องมือนี้ไม่บันทึกหรือส่งข้อมูลใด รหัสมีเพศ อายุ น้ำหนัก ส่วนสูง วัคซีน และปัญหาที่ต้องติดตาม (มีวันเกิดเฉพาะเมื่อกรอก) ไม่มีชื่อหรือ HN</p>
     <div id="histview" class="row"></div></div></details>`; }
+/* history on the original Thai Society charts (same images and calibration as the growth card) */
+function histFig(file,alt,series,cap){ const ok=p=>p.x>=40&&p.x<=556&&p.y>=95&&p.y<=810; let g='';
+  series.forEach(se=>{ const pts=se.pts.filter(ok); if(!pts.length) return;
+    if(pts.length>1) g+=`<polyline points="${pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')}" fill="none" stroke="${se.c}" stroke-width="1.6" stroke-linejoin="round" stroke-linecap="round" opacity=".85"/>`;
+    pts.forEach(p=>{ g+=p.now?`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="5.2" fill="#fff" stroke="${se.c}" stroke-width="2.6"/>`:`<circle cx="${p.x.toFixed(1)}" cy="${p.y.toFixed(1)}" r="4.2" fill="${se.c}" stroke="#fff" stroke-width="1.4"/>`; }); });
+  if(!g) return '';
+  return `<figure class="gfig"><div class="bmifig"><img src="${file}" alt="${alt}" loading="lazy"><svg viewBox="0 0 595.276 841.89" preserveAspectRatio="none" aria-hidden="true" style="position:absolute;inset:0;width:100%;height:100%">${g}</svg></div><figcaption class="bmicap">${cap}</figcaption></figure>`; }
+function histCharts(recs,sex){ if(!sex) return '<p class="hint">เลือกเพศเพื่อแสดงกราฟ</p>'; const boy=sex==='M', out=[], src='กราฟสมาคมต่อมไร้ท่อเด็กแห่งประเทศไทย 2565';
+  [['0',r=>r.a<24,'0–2 ปี','ความยาว'],['2',r=>r.a>=24,'2–19 ปี','ส่วนสูง']].forEach(([band,inb,lab,ln])=>{ const rs=recs.filter(r=>inb(r)&&(r.w>0||r.l>0)); if(!rs.length) return;
+    const k=(boy?'b':'g')+band, c=GCH[k], X=a=>band==='0'?c.x[0]*a+c.x[1]:c.x[0]*(a/12)+c.x[1];
+    const fig=histFig('gc-'+k+'.jpg','กราฟน้ำหนักและ'+ln+'ตามอายุ '+lab,[
+      {c:'#d4141c',pts:rs.filter(r=>r.w>0).map(r=>({x:X(r.a),y:c.wt[0]*r.w+c.wt[1],now:r.now}))},
+      {c:'#1550c8',pts:rs.filter(r=>r.l>0).map(r=>({x:X(r.a),y:c.len[0]*r.l+c.len[1],now:r.now}))}],
+      `น้ำหนักและ${ln}ตามอายุ ${lab} · สีแดง = น้ำหนัก · สีน้ำเงิน = ${ln} · วงกลมโปร่ง = วันนี้ · ${src}`); if(fig) out.push(fig); });
+  const hs=recs.filter(r=>r.h>0&&r.a<=60);
+  if(hs.length){ const fig=histFig(boy?'gc-bhc.jpg':'gc-ghc.jpg','กราฟรอบศีรษะตามอายุ',[{c:'#1a8a3c',pts:hs.map(r=>({x:56.7+96.38*(r.a/12),y:830.0-13.04*r.h,now:r.now}))}],`รอบศีรษะตามอายุ 0–5 ปี · วงกลมโปร่ง = วันนี้ · ${src}`); if(fig) out.push(fig); }
+  return out.length?`<div class="htr">${out.join('')}</div>`:''; }
 function histView(){ if(!HIST) return ''; const v=S.visit, now=Object.assign(ccNow(),{now:true}); const past=HIST.r.filter(r=>r.v!==v); const all=past.concat([now]).sort((a,b)=>a.v-b.v);
   const sex=S.sex||HIST.s; let h='';
   const last=past.filter(r=>r.v<v).pop();
   if(last&&last.n) h+=`<div class="age"><span class="pill ${last.n===v?'ok':'warn'}">ครั้งก่อนนัดมาเมื่ออายุ ${E(vl(last.n)||last.n+' เดือน')}${last.n===v?'':' · ครั้งนี้เลือก '+E(vl(v))}</span></div>`;
   h+=`<div class="sub">การเจริญเติบโตแต่ละครั้ง</div><table class="htab"><thead><tr><th>ครั้ง</th><th>วันที่</th><th>น้ำหนัก</th><th>ยาว/สูง</th><th>รอบศีรษะ</th></tr></thead><tbody>${all.map(r=>`<tr><td>${E(vl(r.v))}${r.now?' (วันนี้)':''}</td><td>${E(thDate(r.d)||'-')}</td><td>${r.w||'-'}</td><td>${r.l||'-'}</td><td>${r.h||'-'}</td></tr>`).join('')}</tbody></table>`;
-  const tr=trendSVG('w',all,sex)+trendSVG('l',all,sex); if(tr) h+=`<div class="htr">${tr}</div>`;
+  h+=histCharts(all,sex);
   // vaccines
   const G={}; all.forEach(r=>(r.x||[]).forEach(id=>{ G[id]=1; G[id+'@'+r.v]=1; }));
   const first=HIST.r[0].v; const base=k=>k.split('@')[0]; const ok=q=>G[q[1]]||(q[2]||[]).some(k=>G[k]);
