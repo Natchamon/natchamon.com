@@ -353,6 +353,7 @@ textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
 .gr .nm{font-size:13px}.gr .nm small{font-size:11px}
 .gr .big{font-size:18px}
 .gr.empty{padding:5px 12px}
+.toprow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px}.toprow .vdf{display:flex;align-items:center;gap:8px}.toprow .vdf .inp{width:170px}.g4 .lb:empty{display:none}
 @media (min-width:700px){
   .gr{grid-template-columns:170px minmax(0,1fr)}
   .gr:not(.empty) .rs{grid-template-columns:minmax(220px,auto) minmax(0,1fr);grid-template-areas:"big strip" "tag strip" "int int";column-gap:18px;row-gap:2px;align-items:center}
@@ -1019,9 +1020,10 @@ function renderForm(){
   h+=histCard();
   const P={};
   P['ข้อมูลสำหรับคำนวณ']=card('ข้อมูลสำหรับคำนวณ','ไม่ต้องกรอกชื่อหรือ HN ก็ใช้งานได้',`
-    <div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
-    <div class="g2"><div class="fld">${numrow([['age_y','อายุ (ปี)','','1'],['age_m','เดือน','','1']])}</div>${txt('vd','วันที่ตรวจ','', 'date')}
-      ${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
+    <div class="toprow"><div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
+      ${numrow([['age_y','อายุ','ปี','1'],['age_m','','เดือน','1']])}
+      <label class="fld vdf"><span class="lb">วันที่ตรวจ</span><span class="inp"><input type="date" id="f_vd" data-k="vd" value="${E(S.vd)}"></span></label></div>
+    <div class="g2">${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
     <details class="idbox"${S.dob?' open':''}><summary>ใช้วันเกิดคำนวณอายุแทน (ไม่บังคับ)</summary>
       <div class="grid">${txt('dob','วันเกิด','', 'date')}</div>
       <p class="hint">เว้นว่างได้ ถ้ากรอกวันเกิด เครื่องมือจะคำนวณอายุเป็นเดือนและวันจากวันเกิด แทนอายุ (ปี/เดือน) ที่กรอกด้านบน</p>
