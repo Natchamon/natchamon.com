@@ -353,6 +353,7 @@ textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
 .gr .nm{font-size:13px}.gr .nm small{font-size:11px}
 .gr .big{font-size:18px}
 .gr.empty{padding:5px 12px}
+.devchips{display:flex;gap:4px;flex-wrap:wrap;margin-top:4px}.dc{font-size:11.5px;padding:1px 8px;border-radius:99px;background:var(--soft);color:var(--ink-3)}.dc.ok{background:var(--ok-bg);color:var(--ok)}.dc.bad{background:var(--bad-bg);color:var(--bad);font-weight:600}
 .vxmiss{color:var(--bad);font-weight:600}.vxcrow{background:var(--bad-bg);border-radius:10px;padding:8px 10px}.vxcrow .lb{color:var(--bad);font-weight:600}
 .htab small.hp{display:inline-block;margin-left:4px;padding:0 6px;border-radius:99px;background:var(--soft);color:var(--ink-2);font-size:11px}.htab small.hp.bad{background:var(--bad-bg);color:var(--bad);font-weight:600}
 .vbtn.imp:not([aria-pressed="true"]){background:var(--ok-bg)}.vbtn .impt{display:inline-block;margin-left:6px;padding:0 6px;border-radius:99px;background:var(--ok);color:#fff;font:600 10px/16px var(--f-body);vertical-align:2px}
@@ -1369,6 +1370,7 @@ function ccNow(){ const v=S.visit, a=ageInfo();
   const fails=(DEV[v]||[]).filter(d=>S['dev_'+v+'_'+d[0]]==='f').map(d=>d[0]);
   const p=[S.fu||'', fails.length?'พัฒนาการสงสัยไม่ผ่าน: '+fails.join(', '):''].filter(Boolean).join(' · ').slice(0,300);
   const r={v, d:S.vd||'', a:a?Math.round((a.m+(a.d||0)/30.4375)*10)/10:v, w:+S.wt>0?+S.wt:0, l:+S.len>0?+S.len:0, h:+S.hc>0?+S.hc:0, x, n:VN[v]?VN[v].next:0};
+  const dv=(DEV[v]||[]).map(d=>{ const x=S['dev_'+v+'_'+d[0]]; return x==='p'||x==='f'?x:'-'; }).join(''); if(/[pf]/.test(dv)) r.dv=dv;
   if(p) r.p=p; if(S.vx_t) r.t=String(S.vx_t).slice(0,120); if(S.plan) r.q=String(S.plan).slice(0,160); return r; }
 function ccBuild(){ const now=ccNow(); const r=(HIST?HIST.r.filter(o=>o.v!==now.v):[]).concat([now]).sort((a,b)=>a.v-b.v);
   const o={s:S.sex||(HIST&&HIST.s)||'', r}; const b=S.dob||(HIST&&HIST.b)||''; if(b) o.b=b; const g=S.ga||(HIST&&HIST.g)||''; if(g) o.g=String(g);
@@ -1379,7 +1381,7 @@ function ccParse(txt){ const i=String(txt||'').indexOf('WB1.'); if(i<0) return {
   const m=/^WB1\.([A-Za-z0-9_-]+)\.([a-z0-9]{5})/.exec(String(txt).slice(i).replace(/\s+/g,'')); if(!m) return {err:'รหัสไม่ครบ กรุณาคัดลอกรหัสทั้งบรรทัดอีกครั้ง'};
   if(ccSum(m[1])!==m[2]) return {err:'รหัสไม่สมบูรณ์หรือถูกแก้ไข (ตรวจสอบไม่ผ่าน) กรุณาคัดลอกใหม่'};
   try{ const o=JSON.parse(b64d(m[1])); if(!o||!Array.isArray(o.r)) throw 0; const num=x=>(+x>0&&isFinite(+x))?+x:0;
-    const r=o.r.filter(q=>q&&VIS.indexOf(+q.v)>-1).map(q=>({v:+q.v, d:/^\d{4}-\d{2}-\d{2}$/.test(q.d)?q.d:'', a:isFinite(+q.a)?+q.a:+q.v, w:num(q.w), l:num(q.l), h:num(q.h), x:Array.isArray(q.x)?q.x.map(String).slice(0,30):[], n:+q.n||0, p:q.p?String(q.p).slice(0,300):'', t:q.t?String(q.t).slice(0,120):'', q:q.q?String(q.q).slice(0,160):''})).sort((a,b)=>a.v-b.v);
+    const r=o.r.filter(q=>q&&VIS.indexOf(+q.v)>-1).map(q=>({v:+q.v, d:/^\d{4}-\d{2}-\d{2}$/.test(q.d)?q.d:'', a:isFinite(+q.a)?+q.a:+q.v, w:num(q.w), l:num(q.l), h:num(q.h), x:Array.isArray(q.x)?q.x.map(String).slice(0,30):[], n:+q.n||0, p:q.p?String(q.p).slice(0,300):'', t:q.t?String(q.t).slice(0,120):'', q:q.q?String(q.q).slice(0,160):'', dv:/^[pf-]{1,8}$/.test(q.dv||'')?q.dv:''})).sort((a,b)=>a.v-b.v);
     if(!r.length) throw 0; return {s:o.s==='M'||o.s==='F'?o.s:'', b:/^\d{4}-\d{2}-\d{2}$/.test(o.b)?o.b:'', g:o.g?String(o.g).slice(0,4):'', r}; }
   catch(_){ return {err:'อ่านรหัสไม่ได้ กรุณาคัดลอกใหม่'}; } }
 function ccLoad(txt){ const o=ccParse(txt); if(o.err){ HISTMSG=o.err; return false; }
@@ -1432,10 +1434,15 @@ function histCharts(recs,sex){ if(!sex) return '<p class="hint">เลือก�
 function pctCell(kind,val,a,sex){ if(!(val>0)) return '-'; let res=null; if(sex&&a!=null) res=kind==='h'?hcRes(val,sex,a):chartRes(kind,val,sex,a);
   if(!res||res.out) return String(val); const bad=res.below||res.above; return `${val} <small class="hp${bad?' bad':''}">${rngTxt(res)}</small>`; }
 function impRec(v){ return (HIST&&S._imp)?HIST.r.find(r=>r.v===v)||null:null; }
+function devSum(r){ const D=DEV[r.v]||[];
+  if(!r.dv){ const m=/พัฒนาการสงสัยไม่ผ่าน: ([A-Z, ]+)/.exec(r.p||''); return m?`<span class="vxmiss">ไม่ผ่าน: ${E(m[1])}</span>`:'<span class="hint">ไม่มีข้อมูลในรหัส</span>'; }
+  const res=D.map((d,i)=>[d[0],r.dv[i]||'-']), f=res.filter(x=>x[1]==='f'), n=res.filter(x=>x[1]==='-');
+  const head=f.length?`<span class="vxmiss">ไม่ผ่าน ${f.length} ด้าน: ${f.map(x=>x[0]).join(', ')}</span>`:n.length?`<b>ผ่าน ${res.length-n.length}/${res.length} ด้าน</b> <small>(ไม่ได้บันทึก: ${n.map(x=>x[0]).join(', ')})</small>`:'<b style="color:var(--ok)">ผ่านครบ '+res.length+' ด้าน</b>';
+  return head+`<div class="devchips">${res.map(x=>`<span class="dc ${x[1]==='p'?'ok':x[1]==='f'?'bad':''}" title="${E(DOM[x[0]]||x[0])}">${x[0]} ${x[1]==='p'?'✓':x[1]==='f'?'✗':'–'}</span>`).join('')}</div>`; }
 function impSummary(r){ const sex=S.sex||HIST.s, ag=r.a!=null?(r.a>=24?ageYM({m:Math.round(r.a)}):(Math.round(r.a*10)/10)+' เดือน'):vl(r.v);
   const rows=[['วันที่ตรวจ',thDate(r.d)||'-'],['อายุขณะตรวจ',ag],['น้ำหนัก (กก.)',pctCell('w',r.w,r.a,sex)],[r.a>=24?'ส่วนสูง (ซม.)':'ความยาว (ซม.)',pctCell('l',r.l,r.a,sex)],['รอบศีรษะ (ซม.)',pctCell('h',r.h,r.a,sex)],
     ['วัคซีนที่ได้รับ',(r.x||[]).length?r.x.map(id=>E(vxName(id))).join(', '):'ไม่มีบันทึกวัคซีน'],
-    ...(()=>{ const m=vxMissAt(r); return m.length?[['ยังไม่ได้รับตามกำหนด',`<span class="vxmiss">${m.map(q=>E(vxName(q[1]))+(q[0]<r.v?' (ค้างจาก '+E(vl(q[0]))+')':'')).join(', ')}</span>`]]:[]; })(),r.t?['วัคซีนอื่น/ฉีดตามหลัง',E(r.t)]:null,['ปัญหาที่ต้องติดตาม',r.p?E(r.p):'ไม่มี'],r.q?['แผนการติดตาม',E(r.q)]:null,['นัดครั้งต่อไป',r.n?E(vl(r.n)||r.n+' เดือน'):'-']].filter(Boolean);
+    ...(()=>{ const m=vxMissAt(r); return m.length?[['ยังไม่ได้รับตามกำหนด',`<span class="vxmiss">${m.map(q=>E(vxName(q[1]))+(q[0]<r.v?' (ค้างจาก '+E(vl(q[0]))+')':'')).join(', ')}</span>`]]:[]; })(),r.t?['วัคซีนอื่น/ฉีดตามหลัง',E(r.t)]:null,['พัฒนาการ (DSPM)',devSum(r)],['ปัญหาที่ต้องติดตาม',r.p?E(r.p):'ไม่มี'],r.q?['แผนการติดตาม',E(r.q)]:null,['นัดครั้งต่อไป',r.n?E(vl(r.n)||r.n+' เดือน'):'-']].filter(Boolean);
   return `<section class="card impsum"><h2><span>สรุปการตรวจอายุ ${E(vl(r.v))}</span><small>นำเข้าจากรหัสครั้งก่อน</small></h2><div class="body">
     <table class="htab imptab"><tbody>${rows.map(x=>`<tr><th>${x[0]}</th><td>${x[1]}</td></tr>`).join('')}</tbody></table>
     <p class="hint">รหัสต่อเนื่องเก็บเฉพาะข้อมูลข้างต้น (ไม่มีรายละเอียดการซักประวัติ/ตรวจร่างกาย) ข้อมูลนี้ไม่ถูกนำไปใส่ในแบบฟอร์มวันนี้</p>
