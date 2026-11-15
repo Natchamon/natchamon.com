@@ -199,7 +199,8 @@ textarea.ta:focus{outline:0;border-color:var(--accent);box-shadow:0 0 0 3px var(
 .duebar{margin-top:14px;border:1px solid var(--line);border-left:4px solid var(--tint);border-radius:var(--r-s);background:var(--surface);padding:10px 14px;box-shadow:var(--sh)}
 .duebar summary{cursor:pointer;font-size:14px;font-weight:500}.duebar[open] summary{margin-bottom:6px}
 .duebar .due{margin:0;padding-left:18px;font-size:13.5px;line-height:1.55}
-.agebox{background:var(--surface)}.agei{display:grid;gap:8px;font-size:14px;line-height:1.6}.agei p{margin:0}.agei b{font-weight:600}.agei ul{margin:2px 0 0;padding-left:18px}.agei small{color:var(--ink-3)}
+.agebox{background:var(--surface)}
+.cctog{display:flex;flex-direction:column;gap:6px;margin-top:12px;padding:10px 12px;border:1px dashed var(--line);border-radius:12px}.cctog .opt{align-self:flex-start}.cctog .hint{margin:0}.agei{display:grid;gap:8px;font-size:14px;line-height:1.6}.agei p{margin:0}.agei b{font-weight:600}.agei ul{margin:2px 0 0;padding-left:18px}.agei small{color:var(--ink-3)}
 .gdhead{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}.gdhead .btn{min-height:36px;padding:3px 12px;font-size:13px}
 .gdall summary{cursor:pointer;font-size:13px;color:var(--accent);width:max-content}.gdall{margin-top:2px}
 .gd{border-top:1px solid var(--line);padding-top:10px}
@@ -1092,7 +1093,7 @@ function renderForm(){
   P['นัดครั้งต่อไป']=card('นัดครั้งต่อไป','',`<div class="age"><span class="pill ok">มาตรวจครั้งต่อไปเมื่ออายุ ${vl(VN[v].next)}</span></div>${txt('plan','แผนการติดตาม')}`);
   P['ยังไม่ได้กรอก']=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
   h+=['ข้อมูลสำหรับคำนวณ','ควรทำในการตรวจครั้งนี้','ข้อมูลประจำวัย','การเจริญเติบโต','ครอบครัวและการเลี้ยงดู','โภชนาการ','การขับถ่าย','การนอนหลับ','กิจกรรมทางกาย','พัฒนาการ','การตรวจร่างกาย','สุขภาพช่องปาก','การคัดกรอง/ตรวจทางห้องปฏิบัติการ','วัคซีนและยา','สรุปและคำแนะนำ','นัดครั้งต่อไป','ยังไม่ได้กรอก'].map(k=>P[k]||'').join('');
-  h+=`<div class="rbar"><button class="btn solid" id="btn-toreport" type="button">ดูรายงาน</button><button class="btn danger" id="btn-clear" type="button">เริ่มใหม่ (ล้างทั้งหมด)</button></div>`;
+  h+=`<div class="rbar"><button class="btn solid" id="btn-toreport" type="button">ดูรายงาน</button><button class="btn danger" id="btn-clear" type="button">เริ่มใหม่ (ล้างทั้งหมด)</button></div><div class="cctog"><button type="button" class="opt" data-cc="1" aria-pressed="${CCON}">${CCON?'✓ ใส่รหัสต่อเนื่องท้าย Chart note: เปิด':'รหัสต่อเนื่องท้าย Chart note: ปิด (แตะเพื่อเปิด)'}</button><span class="hint">ปิดไว้เป็นค่าเริ่มต้น เปิดเมื่อต้องการให้ครั้งหน้ากู้คืนประวัติได้ (รหัสมีเพศ อายุ น้ำหนัก ส่วนสูง วัคซีน ปัญหาที่ต้องติดตาม และวันเกิดถ้ากรอก ไม่มีชื่อ/HN)</span></div>`;
   $('#view-form').innerHTML=h;
 }
 
@@ -1251,7 +1252,7 @@ function model(){
 function renderReport(){
   const el=$('#view-report'); if(el.hidden) return;
   const m=model(); const v=S.visit;
-  let h=`<div class="rbar"><button class="btn solid" id="btn-copy" type="button">คัดลอก Chart note</button><button class="btn ghost" id="btn-copy2" type="button">คัดลอกรายงานเต็ม</button><button class="btn ghost" id="btn-back" type="button">กลับไปแก้ไข</button></div><div id="copyarea"></div>`;
+  let h=`<div class="rbar"><button class="btn solid" id="btn-copy" type="button">คัดลอก Chart note</button><button class="btn ghost" id="btn-copy2" type="button">คัดลอกรายงานเต็ม</button><button class="btn ghost" id="btn-back" type="button">กลับไปแก้ไข</button></div><div class="cctog"><button type="button" class="opt" data-cc="1" aria-pressed="${CCON}">${CCON?'✓ ใส่รหัสต่อเนื่องท้าย Chart note: เปิด':'รหัสต่อเนื่องท้าย Chart note: ปิด (แตะเพื่อเปิด)'}</button><span class="hint">ปิดไว้เป็นค่าเริ่มต้น เปิดเมื่อต้องการให้ครั้งหน้ากู้คืนประวัติได้ (รหัสมีเพศ อายุ น้ำหนัก ส่วนสูง วัคซีน ปัญหาที่ต้องติดตาม และวันเกิดถ้ากรอก ไม่มีชื่อ/HN)</span></div><div id="copyarea"></div>`;
   h+=`<section class="card"><h2><span>Chart note</span><small>รูปแบบตามเทมเพลตของคุณ · แก้ไขหลังวางได้</small></h2><div class="body"><pre class="cnote">${E(chartNote()+ccLine())}</pre></div></section>`;
   h+=`<article class="sheet"><div class="sh"><h1>บันทึกการตรวจสุขภาพเด็กดี อายุ ${vl(v)}</h1><p>Child Health Supervision Visit · ${E(S.name||'ไม่ระบุชื่อ')}${S.hn?' · HN '+E(S.hn):''}</p></div>`;
   if(S.example) h+=`<div class="wm">ข้อมูลตัวอย่าง ไม่ใช่ผู้ป่วยจริง</div>`;
@@ -1280,7 +1281,8 @@ function ccNow(){ const v=S.visit, a=ageInfo();
 function ccBuild(){ const now=ccNow(); const r=(HIST?HIST.r.filter(o=>o.v!==now.v):[]).concat([now]).sort((a,b)=>a.v-b.v);
   const o={s:S.sex||(HIST&&HIST.s)||'', r}; const b=S.dob||(HIST&&HIST.b)||''; if(b) o.b=b; const g=S.ga||(HIST&&HIST.g)||''; if(g) o.g=String(g);
   const pl=b64e(JSON.stringify(o)); return 'WB1.'+pl+'.'+ccSum(pl); }
-function ccLine(){ return '\n\nรหัสต่อเนื่อง (วางในเครื่องมือครั้งหน้าเพื่อดูประวัติ · ไม่มีชื่อ/HN): '+ccBuild()+'\n'; }
+let CCON=false; /* continuity code is opt-in: off on every page load */
+function ccLine(){ if(!CCON) return ''; return '\n\nรหัสต่อเนื่อง (วางในเครื่องมือครั้งหน้าเพื่อดูประวัติ · ไม่มีชื่อ/HN): '+ccBuild()+'\n'; }
 function ccParse(txt){ const i=String(txt||'').indexOf('WB1.'); if(i<0) return {err:'ไม่พบรหัสต่อเนื่อง (ขึ้นต้นด้วย WB1.) ในข้อความที่วาง'};
   const m=/^WB1\.([A-Za-z0-9_-]+)\.([a-z0-9]{5})/.exec(String(txt).slice(i).replace(/\s+/g,'')); if(!m) return {err:'รหัสไม่ครบ กรุณาคัดลอกรหัสทั้งบรรทัดอีกครั้ง'};
   if(ccSum(m[1])!==m[2]) return {err:'รหัสไม่สมบูรณ์หรือถูกแก้ไข (ตรวจสอบไม่ผ่าน) กรุณาคัดลอกใหม่'};
@@ -1357,6 +1359,7 @@ document.addEventListener('click',e=>{
   if(t.dataset.seg){ const k=t.dataset.seg; if(k==='geval') S.gevalManual=true; if(S[k]===t.dataset.val&&k!=='agemode') delete S[k]; else S[k]=t.dataset.val;
     if(k==='exall'){ if(!S.exall) SYS.forEach(x=>{delete S['ex_'+x[0]];}); else if(S.exall==='n') SYS.forEach(x=>{S['ex_'+x[0]]='n';}); else SYS.forEach(x=>{ if(!S['ex_'+x[0]]) S['ex_'+x[0]]='n'; }); }
     refresh(); if(document.querySelector('[data-sx="'+k+'"]')&&S[k]){ const f=document.getElementById('f_'+k+'_t'); if(f&&f.offsetParent) try{f.focus({preventScroll:true})}catch(_){} } if(k.indexOf('ex_')===0&&S[k]==='a'){ const f=document.getElementById('f_'+k+'_t'); if(f) try{f.focus({preventScroll:true})}catch(_){} } return; }
+  if(t.dataset.cc){ CCON=!CCON; if($('#view-report').hidden){ renderForm(); refresh(); } else renderReport(); return; }
   if(t.id==='btn-bmichart'){ bmiOn=!bmiOn; refresh(); return; }
   if(t.dataset.chipall){ if(t.dataset.chipall==='gd') S.gdTouched=true; const k=t.dataset.chipall, all=(REG[k]||[]).map(o=>o[0]), cur=S[k]||[]; S[k]=all.every(x=>cur.indexOf(x)>-1)?[]:all.slice(); refresh(); return; }
   if(t.dataset.chip){ const k=t.dataset.chip, val=t.dataset.val; let a=(S[k]||[]).slice(); const i=a.indexOf(val); if(i>-1) a.splice(i,1); else a.push(val);
