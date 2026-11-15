@@ -1388,7 +1388,8 @@ function ccLoad(txt){ const o=ccParse(txt); if(o.err){ HISTMSG=o.err; return fal
   if(tv===cur&&cur>last.v){ /* keep anything already typed for this visit */ delete S._imp; }
   else { if(!blank(S)) VS[cur]=S; else delete VS[cur]; delete VS[tv]; S={visit:tv,vd:today,cc:DEFCC,agemode:'age'}; }
   /* visits in the code that hold nothing typed this session open on their imported summary */
-  o.r.forEach(r=>{ if(r.v!==tv&&VS[r.v]&&blank(VS[r.v])) delete VS[r.v]; });
+  o.r.forEach(r=>{ if(r.v===tv||!VS[r.v]) return; if(blank(VS[r.v])) delete VS[r.v]; else VS[r.v]._view='report'; });
+  /* imported visits with full data typed this session open on their report; the rest open on the imported summary */
   HIST.tv=tv;
   if(o.s&&!S.sex) S.sex=o.s; if(o.b&&!S.dob) S.dob=o.b; if(o.g&&!S.ga) S.ga=o.g;
   if(!S.dob&&!(+S.age_y>0||+S.age_m>0)&&last.d){ const t0=parseISO(last.d), t1=parseISO(S.vd||today); if(t0!=null&&t1!=null&&t1>=t0){ let m=Math.round(last.a+(t1-t0)/864e5/30.4375); if(tv>last.v&&m<tv-(tv>=18?2:1)) m=tv; S.age_y=String(Math.floor(m/12)); S.age_m=String(m%12); } }
