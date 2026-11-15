@@ -1023,9 +1023,9 @@ function renderForm(){
     <div class="toprow"><div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
       ${numrow([['age_y','อายุ','ปี','1'],['age_m','','เดือน','1']])}
       <label class="fld vdf"><span class="lb">วันที่ตรวจ</span><span class="inp"><input type="date" id="f_vd" data-k="vd" value="${E(S.vd)}"></span></label></div>
-    <div class="g2">${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}${txt('cc','อาการสำคัญ/ข้อกังวล')}</div>
-    <details class="idbox"${S.dob?' open':''}><summary>ใช้วันเกิดคำนวณอายุแทน (ไม่บังคับ)</summary>
-      <div class="grid">${txt('dob','วันเกิด','', 'date')}</div>
+    ${txt('cc','อาการสำคัญ/ข้อกังวล')}
+    <details class="idbox"${(S.dob||S.ga)?' open':''}><summary>วันเกิดและอายุครรภ์ตอนคลอด (ไม่บังคับ)</summary>
+      <div class="grid">${txt('dob','วันเกิด (ใช้คำนวณอายุแทน)','', 'date')}${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}</div>
       <p class="hint">เว้นว่างได้ ถ้ากรอกวันเกิด เครื่องมือจะคำนวณอายุเป็นเดือนและวันจากวันเกิด แทนอายุ (ปี/เดือน) ที่กรอกด้านบน</p>
     </details>
     <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
