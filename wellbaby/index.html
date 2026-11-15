@@ -231,7 +231,7 @@ details.card.hist:not([open]){background:var(--surface);border-style:dashed;box-
 .prog b{color:var(--ink);font-weight:600;white-space:nowrap}
 .todo{margin:0;padding-left:18px;columns:2;font-size:14px}
 @media (max-width:520px){.todo{columns:1}}
-.bmitg{margin-top:10px}.bmifig{position:relative;margin-top:8px;border-radius:var(--r-s);overflow:hidden;border:1px solid var(--line)}.bmifig img{display:block;width:100%;height:auto}.bmifig i{position:absolute;width:2.4%;aspect-ratio:1;border-radius:50%;background:#d4141c;border:2px solid #fff;box-shadow:0 0 0 1.5px #d4141c;transform:translate(-50%,-50%)}.bmicap{font-size:12.5px;color:var(--ink-3);margin:6px 0 14px}.gfig{margin:0}
+.bmitg{margin-top:10px}.bmifig{position:relative;margin-top:8px;border-radius:var(--r-s);overflow:hidden;border:1px solid var(--line)}.bmifig img{display:block;width:100%;height:auto}.bmifig i{position:absolute;width:max(5px,0.85%);aspect-ratio:1;border-radius:50%;background:#d4141c;border:1px solid #fff;box-shadow:0 0 0 1px #d4141c;transform:translate(-50%,-50%);box-sizing:border-box}.bmicap{font-size:12.5px;color:var(--ink-3);margin:6px 0 14px}.gfig{margin:0}
 .idbox{margin-top:10px;border:1px dashed var(--line);border-radius:var(--r-s);padding:10px 12px;background:var(--surface)}
 .idbox summary{cursor:pointer;color:var(--ink-2);font-size:13.5px}
 .idbox[open] summary{margin-bottom:8px}
@@ -353,6 +353,7 @@ textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
 .gr .nm{font-size:13px}.gr .nm small{font-size:11px}
 .gr .big{font-size:18px}
 .gr.empty{padding:5px 12px}
+.gr:has(.age .pill.bad){border-color:var(--bad);box-shadow:inset 3px 0 0 var(--bad)}.gr .age:empty{display:none}
 .grid{display:flex;flex-wrap:wrap;gap:8px 18px}.grid>*{flex:1 1 220px}.grid>label.fld:has(input[type=number]),.grid>label.fld:has(input[type=time]){flex:0 0 170px}
 .toprow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px}.toprow .vdf{display:flex;align-items:center;gap:8px}.toprow .vdf .inp{width:170px}.g4 .lb:empty{display:none}
 @media (min-width:700px){
@@ -486,7 +487,7 @@ const GCH={b0:{x:[20.0836,56.572],len:[-11.8334,1237.751],wt:[-29.5489,852.723]}
   b2:{x:[28.3499,0.0011],len:[-5.2334,1107.726],wt:[-5.2330,819.886]},g2:{x:[28.3500,-0.0001],len:[-5.6693,1133.857],wt:[-5.6700,822.080]}};
 const WHC={b:{x:[5.3533,-425.1],y:[-9.071,883.8]},g:{x:[6.0239,-485.4]}};
 function gFig(file,alt,dots,cap){ const pg=(x,y)=>[(x/595.276*100).toFixed(2),(y/841.89*100).toFixed(2)];
-  const ds=dots.filter(d=>d.x>=40&&d.x<=556&&d.y>=95&&d.y<=810).map(d=>{const q=pg(d.x,d.y); return `<i style="left:${q[0]}%;top:${q[1]}%;background:${d.c};box-shadow:0 0 0 1.5px ${d.c}"></i>`;}).join('');
+  const ds=dots.filter(d=>d.x>=40&&d.x<=556&&d.y>=95&&d.y<=810).map(d=>{const q=pg(d.x,d.y); return `<i style="left:${q[0]}%;top:${q[1]}%;background:${d.c};box-shadow:0 0 0 1px ${d.c}"></i>`;}).join('');
   return `<figure class="gfig"><div class="bmifig"><img src="${file}" alt="${alt}" loading="lazy">${ds}</div><figcaption class="bmicap">${cap}</figcaption></figure>`; }
 function bmiChartHTML(){ const {R,g}=growthCalc(); const m=g.m, boy=S.sex==='M'; if(!S.sex) return '';
   const w=+S.wt, l=+S.len, h=[];
@@ -1262,11 +1263,11 @@ function refresh(){
   if(gt){ const {R,g}=growthCalc(); let h='';
     if(!S.sex) h+='<div class="note">เลือกเพศเพื่อคำนวณเปอร์เซ็นไทล์</div>';
     h+=Object.keys(R).map(k=>{ const r=R[k]; const res=r.res;
-      if(k==='bmi'&&res&&!res.out){ const tag=res.cls==='n'?'<span class="pill ok">อยู่ในเกณฑ์</span>':res.cls==='low'?'<span class="pill warn">'+res.txt+'</span>':'<span class="pill bad">'+res.txt+'</span>'; const rule=res.old?'เกณฑ์ 5–19 ปี: Overweight SDS &gt; +1 ถึง +2 หรือ BMI ≥ 23–24.9 · Obesity SDS &gt; +2 หรือ BMI ≥ 25 (ถ้าเกณฑ์ไม่ตรงกัน ใช้ที่รุนแรงกว่า)':'เกณฑ์ 0–5 ปี: Overweight SDS &gt; +2 ถึง +3 · Obesity SDS &gt; +3';
+      if(k==='bmi'&&res&&!res.out){ const tag=res.cls==='n'?'':res.cls==='low'?'<span class="pill bad">'+res.txt+'</span>':'<span class="pill bad">'+res.txt+'</span>'; const rule=res.old?'เกณฑ์ 5–19 ปี: Overweight SDS &gt; +1 ถึง +2 หรือ BMI ≥ 23–24.9 · Obesity SDS &gt; +2 หรือ BMI ≥ 25 (ถ้าเกณฑ์ไม่ตรงกัน ใช้ที่รุนแรงกว่า)':'เกณฑ์ 0–5 ปี: Overweight SDS &gt; +2 ถึง +3 · Obesity SDS &gt; +3';
         return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">BMI ${res.bmi.toFixed(1)} กก./ม.²<small>อยู่ที่ ≈ ${exTxt(res)} · SDS ${zTxt(res.z)}</small></div><p class="hint bmi-int">แปลผล: ${bmiThai(res,S.sex,g.m)}</p>${stripHTML(res.z)}<div class="age">${tag}<span class="pill">${rule}</span></div></div></div>`; }
       if(!res) return `<div class="gr empty"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs">${r.raw?'รอข้อมูลเพศ':'กรอกค่าเพื่อคำนวณ'}</div></div>`;
       if(res.out) return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><span class="pill warn">${k==='wfl'?'ส่วนสูงอยู่นอกช่วงกราฟ 90–'+(S.sex==='M'?180:170)+' ซม.':k==='hcfa'?'กราฟรอบศีรษะครอบคลุมอายุ 0–5 ปี':'อายุอยู่นอกช่วง 0–19 ปี'}</span></div></div>`;
-      const b=band(res); const tag=b==='low'?'<span class="pill warn">ต่ำกว่า P3</span>':b==='high'?'<span class="pill warn">สูงกว่า P97</span>':'<span class="pill ok">อยู่ในช่วง P3–P97</span>'; const whoTag='';
+      const b=band(res); const tag=b==='low'?'<span class="pill bad">ต่ำกว่า P3</span>':b==='high'?'<span class="pill bad">สูงกว่า P97</span>':''; const whoTag='';
       let extra=''; if(k==='wfl'){ if(res.z<-2) extra='<span class="pill bad">ผอม (z &lt; −2)</span>'; else if(res.z>2) extra='<span class="pill bad">น้ำหนักเกินเทียบส่วนสูง (z &gt; +2)</span>'; }
       const odd=Math.abs(res.z)>5?'<span class="pill bad">ค่านอกช่วงที่น่าเป็นไปได้ ตรวจสอบตัวเลข/หน่วย</span>':'';
       return `<div class="gr"><div class="nm">${r.name}<small>${r.en}</small></div><div class="rs"><div class="big">${rngTxt(res)}<small>≈ ${exTxt(res)} · z ${zTxt(res.z)}${res.lms?'':' (แปลงจากเปอร์เซ็นไทล์)'}</small></div>${stripHTML(res.z)}<div class="age">${tag}${extra}${whoTag}${odd}</div></div></div>`; }).join('');
