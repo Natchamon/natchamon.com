@@ -353,6 +353,9 @@ textarea.ta{min-height:56px;font-size:15px;padding:7px 10px}
 .gr .nm{font-size:13px}.gr .nm small{font-size:11px}
 .gr .big{font-size:18px}
 .gr.empty{padding:5px 12px}
+.htab small.hp{display:inline-block;margin-left:4px;padding:0 6px;border-radius:99px;background:var(--soft);color:var(--ink-2);font-size:11px}.htab small.hp.bad{background:var(--bad-bg);color:var(--bad);font-weight:600}
+.vbtn.imp:not([aria-pressed="true"]){background:var(--ok-bg)}.vbtn .impt{display:inline-block;margin-left:6px;padding:0 6px;border-radius:99px;background:var(--ok);color:#fff;font:600 10px/16px var(--f-body);vertical-align:2px}
+.imptab th{width:170px;color:var(--ink-3);font-weight:500}.impsum{border-left:4px solid var(--ok)}
 .gr:has(.age .pill.bad){border-color:var(--bad);box-shadow:inset 3px 0 0 var(--bad)}.gr .age:empty{display:none}
 .grid{display:flex;flex-wrap:wrap;gap:8px 18px}.grid>*{flex:1 1 220px}.grid>label.fld:has(input[type=number]),.grid>label.fld:has(input[type=time]){flex:0 0 170px}
 .toprow{display:flex;flex-wrap:wrap;align-items:center;gap:8px 28px}.toprow .vdf{display:flex;align-items:center;gap:8px}.toprow .vdf .inp{width:170px}.g4 .lb:empty{display:none}
@@ -1012,7 +1015,7 @@ function allNormal(){
   DEV[v].forEach(d=>S['dev_'+v+'_'+d[0]]='p'); SYS.forEach(x=>S['ex_'+x[0]]='n'); S.exall='n';
   if(v>=6) S.lead='ni'; if(v>=18) S.dm='ni';
 }
-function renderVisits(){  $('#visits').innerHTML=VIS.map(v=>`<button class="vbtn" data-v="${v}" aria-pressed="${S.visit===v}"><b>${VB[v]}</b><span>${VSUB[v]}</span></button>`).join(''); const sel=document.querySelector('.vbtn[aria-pressed="true"]'); if(sel&&sel.scrollIntoView){ try{ sel.scrollIntoView({inline:'center',block:'nearest'}); }catch(_){} } }
+function renderVisits(){  $('#visits').innerHTML=VIS.map(v=>{ const im=HIST&&HIST.r.some(r=>r.v===v); return `<button class="vbtn${im?' imp':''}" data-v="${v}" aria-pressed="${S.visit===v}"><b>${VB[v]}${im?'<em class="impt">นำเข้าแล้ว</em>':''}</b><span>${VSUB[v]}</span></button>`; }).join(''); const sel=document.querySelector('.vbtn[aria-pressed="true"]'); if(sel&&sel.scrollIntoView){ try{ sel.scrollIntoView({inline:'center',block:'nearest'}); }catch(_){} } }
 
 function renderForm(){
   REG={}; const v=S.visit; const late=v>=6, tod=v>=18, pre=v>=36; const GL=GDLV(v), B=BOOK[v]||{}; const G=Object.assign({},B,{nutri:NUT[v]||[]});
@@ -1179,6 +1182,7 @@ function renderForm(){
   P['ยังไม่ได้กรอก']=card('ยังไม่ได้กรอก','',`<div id="todo"></div>`);
   h+=['ข้อมูลสำหรับคำนวณ','ควรทำในการตรวจครั้งนี้','ข้อมูลประจำวัย','การเจริญเติบโต','ครอบครัวและการเลี้ยงดู','โภชนาการ','การขับถ่าย','การนอนหลับ','กิจกรรมทางกาย','พัฒนาการ','การตรวจร่างกาย','สุขภาพช่องปาก','การคัดกรอง/ตรวจทางห้องปฏิบัติการ','วัคซีนและยา','สรุปและคำแนะนำ','นัดครั้งต่อไป','ยังไม่ได้กรอก'].map(k=>P[k]||'').join('');
   h+=`<div class="rbar"><button class="btn solid" id="btn-toreport" type="button">ดูรายงาน</button><button class="btn danger" id="btn-clear" type="button">เริ่มใหม่ (ล้างทั้งหมด)</button></div><div class="cctog"><button type="button" class="opt" data-cc="1" aria-pressed="${CCON}">${CCON?'✓ ใส่รหัสต่อเนื่องท้าย Chart note: เปิด':'รหัสต่อเนื่องท้าย Chart note: ปิด (แตะเพื่อเปิด)'}</button><span class="hint">ปิดไว้เป็นค่าเริ่มต้น เปิดเมื่อต้องการให้ครั้งหน้ากู้คืนประวัติได้ (รหัสมีเพศ อายุ น้ำหนัก ส่วนสูง วัคซีน ปัญหาที่ต้องติดตาม และวันเกิดถ้ากรอก ไม่มีชื่อ/HN)</span></div>`;
+  { const ir=impRec(v); if(ir) h=impSummary(ir)+`<div hidden>${h}</div>`; }
   $('#view-form').innerHTML=h;
 }
 
@@ -1378,7 +1382,11 @@ function ccLoad(txt){ const o=ccParse(txt); if(o.err){ HISTMSG=o.err; return fal
   HIST=o; HISTMSG='';
   const last=o.r[o.r.length-1]; let tv=S.visit; if(last.d!==todayISO()&&VIS.indexOf(last.n)>-1) tv=last.n; else if(last.d===todayISO()) tv=last.v;
   /* start today's visit on a clean form: earlier measurements stay in the history only, never in today's fields */
-  VS[S.visit]=S; delete VS[tv]; S={visit:tv,vd:todayISO(),cc:DEFCC,agemode:'age'};
+  VS[S.visit]=S; delete VS[tv];
+  /* visits in the code that hold nothing typed this session open on their imported summary */
+  const blank=st=>!Object.keys(st).some(k=>['visit','vd','cc','agemode','_view','gd','gdTouched','_imp'].indexOf(k)<0&&st[k]!==''&&st[k]!=null&&!(Array.isArray(st[k])&&!st[k].length));
+  o.r.forEach(r=>{ if(r.v!==tv&&VS[r.v]&&blank(VS[r.v])) delete VS[r.v]; });
+  HIST.tv=tv; S={visit:tv,vd:todayISO(),cc:DEFCC,agemode:'age'};
   if(o.s) S.sex=o.s; if(o.b) S.dob=o.b; if(o.g) S.ga=o.g;
   if(!o.b&&last.d){ const t0=parseISO(last.d), t1=parseISO(S.vd); if(t0!=null&&t1!=null&&t1>=t0){ const m=Math.round(last.a+(t1-t0)/864e5/30.4375); S.age_y=String(Math.floor(m/12)); S.age_m=String(m%12); } }
   return true; }
@@ -1408,11 +1416,21 @@ function histCharts(recs,sex){ if(!sex) return '<p class="hint">เลือก�
   const hs=recs.filter(r=>r.h>0&&r.a<=60);
   if(hs.length){ const fig=histFig(boy?'gc-bhc.jpg':'gc-ghc.jpg','กราฟรอบศีรษะตามอายุ',[{c:'#1a8a3c',pts:hs.map(r=>({x:56.7+96.38*(r.a/12),y:830.0-13.04*r.h,now:r.now}))}],`รอบศีรษะตามอายุ 0–5 ปี · วงกลมโปร่ง = วันนี้ · ${src}`); if(fig) out.push(fig); }
   return out.length?`<div class="htr">${out.join('')}</div>`:''; }
+function pctCell(kind,val,a,sex){ if(!(val>0)) return '-'; let res=null; if(sex&&a!=null) res=kind==='h'?hcRes(val,sex,a):chartRes(kind,val,sex,a);
+  if(!res||res.out) return String(val); const bad=res.below||res.above; return `${val} <small class="hp${bad?' bad':''}">${rngTxt(res)}</small>`; }
+function impRec(v){ return (HIST&&S._imp)?HIST.r.find(r=>r.v===v)||null:null; }
+function impSummary(r){ const sex=S.sex||HIST.s, ag=r.a!=null?(r.a>=24?ageYM({m:Math.round(r.a)}):(Math.round(r.a*10)/10)+' เดือน'):vl(r.v);
+  const rows=[['วันที่ตรวจ',thDate(r.d)||'-'],['อายุขณะตรวจ',ag],['น้ำหนัก (กก.)',pctCell('w',r.w,r.a,sex)],[r.a>=24?'ส่วนสูง (ซม.)':'ความยาว (ซม.)',pctCell('l',r.l,r.a,sex)],['รอบศีรษะ (ซม.)',pctCell('h',r.h,r.a,sex)],
+    ['วัคซีนที่ได้รับ',(r.x||[]).length?r.x.map(id=>E(vxName(id))).join(', '):'ไม่มีบันทึกวัคซีน'],r.t?['วัคซีนอื่น/ฉีดตามหลัง',E(r.t)]:null,['ปัญหาที่ต้องติดตาม',r.p?E(r.p):'ไม่มี'],r.q?['แผนการติดตาม',E(r.q)]:null,['นัดครั้งต่อไป',r.n?E(vl(r.n)||r.n+' เดือน'):'-']].filter(Boolean);
+  return `<section class="card impsum"><h2><span>สรุปการตรวจอายุ ${E(vl(r.v))}</span><small>นำเข้าจากรหัสครั้งก่อน</small></h2><div class="body">
+    <table class="htab imptab"><tbody>${rows.map(x=>`<tr><th>${x[0]}</th><td>${x[1]}</td></tr>`).join('')}</tbody></table>
+    <p class="hint">รหัสต่อเนื่องเก็บเฉพาะข้อมูลข้างต้น (ไม่มีรายละเอียดการซักประวัติ/ตรวจร่างกาย) ข้อมูลนี้ไม่ถูกนำไปใส่ในแบบฟอร์มวันนี้</p>
+    <div class="rbar" style="margin-top:0">${HIST.tv&&HIST.tv!==r.v?`<button type="button" class="btn solid" data-gotv="${HIST.tv}">← กลับไปครั้งนี้ (${E(vl(HIST.tv))})</button>`:''}<button type="button" class="btn" data-impedit="1">กรอกแบบฟอร์มอายุ ${E(vl(r.v))} ใหม่</button></div></div></section>`; }
 function histView(){ if(!HIST) return ''; const v=S.visit, now=Object.assign(ccNow(),{now:true}); const past=HIST.r.filter(r=>r.v!==v); const all=past.concat([now]).sort((a,b)=>a.v-b.v);
   const sex=S.sex||HIST.s; let h='';
   const last=past.filter(r=>r.v<v).pop();
   if(last&&last.n) h+=`<div class="age"><span class="pill ${last.n===v?'ok':'warn'}">ครั้งก่อนนัดมาเมื่ออายุ ${E(vl(last.n)||last.n+' เดือน')}${last.n===v?'':' · ครั้งนี้เลือก '+E(vl(v))}</span></div>`;
-  h+=`<div class="sub">การเจริญเติบโตแต่ละครั้ง</div><table class="htab"><thead><tr><th>ครั้ง</th><th>วันที่</th><th>น้ำหนัก</th><th>ยาว/สูง</th><th>รอบศีรษะ</th></tr></thead><tbody>${all.map(r=>`<tr><td>${E(vl(r.v))}${r.now?' (วันนี้)':''}</td><td>${E(thDate(r.d)||'-')}</td><td>${r.w||'-'}</td><td>${r.l||'-'}</td><td>${r.h||'-'}</td></tr>`).join('')}</tbody></table>`;
+  h+=`<div class="sub">การเจริญเติบโตแต่ละครั้ง</div><table class="htab"><thead><tr><th>ครั้ง</th><th>วันที่</th><th>น้ำหนัก</th><th>ยาว/สูง</th><th>รอบศีรษะ</th></tr></thead><tbody>${all.map(r=>`<tr><td>${E(vl(r.v))}${r.now?' (วันนี้)':''}</td><td>${E(thDate(r.d)||'-')}</td><td>${pctCell('w',r.w,r.a,sex)}</td><td>${pctCell('l',r.l,r.a,sex)}</td><td>${pctCell('h',r.h,r.a,sex)}</td></tr>`).join('')}</tbody></table>`;
   h+=histCharts(all,sex);
   // vaccines
   const G={}; all.forEach(r=>(r.x||[]).forEach(id=>{ G[id]=1; G[id+'@'+r.v]=1; }));
@@ -1434,7 +1452,7 @@ function setView(which){
   $('#view-form').hidden=rep; $('#view-report').hidden=!rep; document.body.classList.toggle('rep',rep); { const b=$('#btn-rep2'); if(b) b.textContent=rep?'← กลับไปฟอร์ม':'ดูรายงาน'; }
   if(rep) renderReport(); window.scrollTo(0,0);
 }
-function switchVisit(v){ const changed=S.visit!==v; if(changed){ VS[S.visit]=S; S=VS[v]||freshS(v); S.visit=v; } renderVisits(); renderForm(); document.body.dataset.visit=v; refresh();
+function switchVisit(v){ const changed=S.visit!==v; if(changed){ VS[S.visit]=S; if(VS[v]) S=VS[v]; else { S=freshS(v); if(HIST){ if(HIST.s) S.sex=HIST.s; if(HIST.b) S.dob=HIST.b; if(HIST.g) S.ga=HIST.g; if(HIST.r.some(r=>r.v===v)) S._imp=true; } } S.visit=v; } renderVisits(); renderForm(); document.body.dataset.visit=v; refresh();
   /* each visit remembers whether it was on the form or the report; a new visit opens on the form */
   if(changed||$('#view-report').hidden!==(S._view!=='report')) setView(S._view==='report'?'report':'form'); }
 function example(){
@@ -1458,6 +1476,8 @@ document.addEventListener('click',e=>{
   if(t.dataset.chip){ const k=t.dataset.chip, val=t.dataset.val; let a=(S[k]||[]).slice(); const i=a.indexOf(val); if(i>-1) a.splice(i,1); else a.push(val);
     if(k==='gst'){ S.gstManual=true; if(i<0) a=val==='n'?['n']:a.filter(x=>x!=='n'); } if(k==='gd') S.gdTouched=true; S[k]=a; refresh(); return; }
   if(t.dataset.v){ switchVisit(+t.dataset.v); return; }
+  if(t.dataset.gotv){ switchVisit(+t.dataset.gotv); return; }
+  if(t.dataset.impedit){ delete S._imp; renderForm(); refresh(); window.scrollTo(0,0); return; }
   if(t.dataset.goto){ /* age says a different form fits: move what was typed to that form */ const v=+t.dataset.goto; delete VS[v]; S.visit=v; switchVisit(v); return; }
   if(t.dataset.setall==='dev'){ DEV[S.visit].forEach(d=>S['dev_'+S.visit+'_'+d[0]]='p'); refresh(); return; }
   if(t.dataset.setall==='exam'){ SYS.forEach(s=>S['ex_'+s[0]]='n'); S.exall='n'; refresh(); return; }
