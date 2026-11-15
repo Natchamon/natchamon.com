@@ -1023,12 +1023,12 @@ function renderForm(){
     <div class="toprow"><div class="row inl"><span class="lb">เพศ</span>${seg('sex',[['M','ชาย'],['F','หญิง']])}</div>
       ${numrow([['age_y','อายุ','ปี','1'],['age_m','','เดือน','1']])}
       <label class="fld vdf"><span class="lb">วันที่ตรวจ</span><span class="inp"><input type="date" id="f_vd" data-k="vd" value="${E(S.vd)}"></span></label></div>
+    <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
     ${txt('cc','อาการสำคัญ/ข้อกังวล')}
     <details class="idbox"${(S.dob||S.ga)?' open':''}><summary>วันเกิดและอายุครรภ์ตอนคลอด (ไม่บังคับ)</summary>
       <div class="grid">${txt('dob','วันเกิด (ใช้คำนวณอายุแทน)','', 'date')}${num('ga','อายุครรภ์ตอนคลอด (GA)','สัปดาห์','1')}</div>
       <p class="hint">เว้นว่างได้ ถ้ากรอกวันเกิด เครื่องมือจะคำนวณอายุเป็นเดือนและวันจากวันเกิด แทนอายุ (ปี/เดือน) ที่กรอกด้านบน</p>
     </details>
-    <div class="age" id="ageinfo" title="คลอดก่อนกำหนด: ระบุจำนวนสัปดาห์ที่ก่อนครบ 40 สัปดาห์ เครื่องมือจะใช้อายุปรับ (corrected age)"></div>
     <div class="row"><span class="lb">ผู้พาเด็กมา <small>(เลือกได้หลายคน)</small></span><div class="line2">${chips('who',[['m','มารดา'],['f','บิดา'],['g','ปู่ย่าตายาย'],['o','อื่น ๆ']])}<span class="inp"><input type="text" data-k="who_t" id="f_who_t" placeholder="ระบุ (ถ้ามี)" value="${E(S.who_t)}"></span></div></div>
     <details class="idbox"${(S.name||S.hn)?' open':''}><summary>ข้อมูลระบุตัวตน (ไม่บังคับ — เว้นว่างได้)</summary>
       <div class="grid">${txt('name','ชื่อ-สกุล')}${txt('hn','HN')}</div>
