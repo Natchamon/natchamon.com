@@ -46,7 +46,7 @@ h1{margin:0;font:700 clamp(32px,5vw,44px)/1 var(--f-head);letter-spacing:-.035em
 .recent a{display:inline-flex;align-items:center;gap:6px;min-height:34px;padding:0 12px;border-radius:999px;background:var(--surface);border:1px solid var(--line);color:var(--ink);font-weight:500}
 .recent a:hover{border-color:var(--accent)}
 /* grid */
-.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));grid-auto-rows:1fr;gap:10px}
 .t{position:relative;display:grid;grid-template-columns:44px 1fr;gap:4px 12px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:14px;min-height:84px;transition:border-color .15s,box-shadow .15s,transform .15s}
 .t:hover{border-color:var(--line-2);box-shadow:0 6px 20px rgba(15,23,32,.07);transform:translateY(-1px)}
 .t .ic{grid-row:1/3;width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font:600 13px var(--f-mono);letter-spacing:.02em}
@@ -97,8 +97,8 @@ h1{margin:0;font:700 clamp(32px,5vw,44px)/1 var(--f-head);letter-spacing:-.035em
   <div class="chips" role="group" aria-label="Filter by category">
     <button type="button" class="chip" data-f="all" aria-pressed="true">All <b>12</b></button>
     <button type="button" class="chip" data-f="clinic" aria-pressed="false">Clinic &amp; growth <b>4</b></button>
-    <button type="button" class="chip" data-f="newborn" aria-pressed="false">Newborn <b>8</b></button>
     <button type="button" class="chip" data-f="fluid" aria-pressed="false">Fluids &amp; nutrition <b>4</b></button>
+    <button type="button" class="chip" data-f="newborn" aria-pressed="false">Newborn <b>8</b></button>
   </div>
 
   <div class="recent" id="recent" hidden></div>
@@ -116,18 +116,6 @@ h1{margin:0;font:700 clamp(32px,5vw,44px)/1 var(--f-head);letter-spacing:-.035em
     <a class="t" data-c="clinic" data-f="clinic newborn" href="/fenton/" data-k="fenton preterm growth คลอดก่อนกำหนด head circumference">
       <span class="ic" aria-hidden="true">FN</span><b>Fenton plotter</b><small>Preterm weight, length and head on Fenton 2013</small>
       <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
-    <a class="t" data-c="newborn" data-f="newborn" href="/jaundice/" data-k="jaundice bilirubin phototherapy exchange ตัวเหลือง ส่องไฟ tsb">
-      <span class="ic" aria-hidden="true">BI</span><b>Neonatal jaundice</b><small>Phototherapy and exchange thresholds by GA, age and TSB</small>
-      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
-    <a class="t" data-c="newborn" data-f="newborn" href="/nrp/" data-k="nrp resuscitation ett epinephrine uvc กู้ชีพ ใส่ท่อ neopuff spo2">
-      <span class="ic" aria-hidden="true">NR</span><b>Neonatal resuscitation</b><small>ETT, drugs, Neopuff and UVC by weight and GA (NCPR 2025)</small>
-      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
-    <a class="t" data-c="newborn" data-f="newborn" href="/screening/" data-k="screening thyroid hearing cchd rop คัดกรอง ทารก">
-      <span class="ic" aria-hidden="true">SC</span><b>Newborn screening</b><small>Thyroid, hearing, CCHD, ROP and more: what applies and when</small>
-      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
-    <a class="t" data-c="newborn" data-f="newborn" href="/exchange/" data-k="exchange transfusion hct เปลี่ยนถ่ายเลือด polycythemia">
-      <span class="ic" aria-hidden="true">ET</span><b>Exchange transfusion</b><small>Total and partial exchange volumes, cycles and duration</small>
-      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
     <a class="t" data-c="fluid" data-f="fluid newborn" href="/neofluid/" data-k="milk feed calories นม ป้อนนม tv tc">
       <span class="ic" aria-hidden="true">MK</span><b>Milk calculator</b><small>Feeds by day of life and weight, calories and the order</small>
       <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
@@ -139,6 +127,18 @@ h1{margin:0;font:700 clamp(32px,5vw,44px)/1 var(--f-head);letter-spacing:-.035em
       <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
     <a class="t" data-c="fluid" data-f="fluid" href="/ivfluid/" data-k="iv fluid maintenance holliday segar deficit dehydration น้ำเกลือ drip">
       <span class="ic" aria-hidden="true">IV</span><b>Paediatric IV fluids</b><small>Maintenance 100-50-20 plus deficit, loading dose and drip rate</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/jaundice/" data-k="jaundice bilirubin phototherapy exchange ตัวเหลือง ส่องไฟ tsb">
+      <span class="ic" aria-hidden="true">BI</span><b>Neonatal jaundice</b><small>Phototherapy and exchange thresholds by GA, age and TSB</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/nrp/" data-k="nrp resuscitation ett epinephrine uvc กู้ชีพ ใส่ท่อ neopuff spo2">
+      <span class="ic" aria-hidden="true">NR</span><b>Neonatal resuscitation</b><small>ETT, drugs, Neopuff and UVC by weight and GA (NCPR 2025)</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/screening/" data-k="screening thyroid hearing cchd rop คัดกรอง ทารก">
+      <span class="ic" aria-hidden="true">SC</span><b>Newborn screening</b><small>Thyroid, hearing, CCHD, ROP and more: what applies and when</small>
+      <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
+    <a class="t" data-c="newborn" data-f="newborn" href="/exchange/" data-k="exchange transfusion hct เปลี่ยนถ่ายเลือด polycythemia">
+      <span class="ic" aria-hidden="true">ET</span><b>Exchange transfusion</b><small>Total and partial exchange volumes, cycles and duration</small>
       <svg class="go" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 17L17 7"></path><path d="M8 7h9v9"></path></svg></a>
     <p class="empty" id="empty" hidden>No tool matches that search.</p>
   </main>
