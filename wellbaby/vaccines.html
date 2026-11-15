@@ -1,0 +1,258 @@
+<!doctype html>
+<html lang="th">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Vaccine guide</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Thai:wght@400;500;600&family=Prompt:wght@500;600&display=swap">
+<style>
+/* Reference page for the well baby clinic: per-visit vaccine list, then one card per vaccine. Content follows the PIDST 2569 schedule. */
+:root{
+  --bg:#F3F5FB; --surface:#FFFFFF; --ink:#1B2559; --ink-2:#4B5580; --line:#DADFF0; --soft:#EEF1FA;
+  --accent:#2B3BA0; --accent-soft:#E4E8FB; --epi:#1D7A59; --epi-bg:#E1F3EA; --opt:#7A4A0F; --opt-bg:#FCEBDA; --warn-bg:#FFF6DB; --warn-line:#EBCB72;
+  --f-body:"IBM Plex Sans Thai","Noto Sans Thai",system-ui,sans-serif;
+  --f-head:"Prompt","IBM Plex Sans Thai",system-ui,sans-serif;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#0F1329; --surface:#181E3C; --ink:#E8EBFC; --ink-2:#A9B1D8; --line:#2B3363; --soft:#1F2650;
+    --accent:#93A5FF; --accent-soft:#27306A; --epi:#5FD3A1; --epi-bg:#12372C; --opt:#F2A56D; --opt-bg:#3C2716; --warn-bg:#3A3117; --warn-line:#7A6326;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#0F1329; --surface:#181E3C; --ink:#E8EBFC; --ink-2:#A9B1D8; --line:#2B3363; --soft:#1F2650;
+  --accent:#93A5FF; --accent-soft:#27306A; --epi:#5FD3A1; --epi-bg:#12372C; --opt:#F2A56D; --opt-bg:#3C2716; --warn-bg:#3A3117; --warn-line:#7A6326;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth;scroll-padding-top:84px}
+body{margin:0;background:var(--bg);color:var(--ink);font:15px/1.65 var(--f-body);-webkit-text-size-adjust:100%}
+a{color:var(--accent)}
+.wrap{max-width:860px;margin:0 auto;padding:16px 16px 48px}
+.top{position:sticky;top:0;z-index:5;background:var(--bg);border-bottom:1px solid var(--line)}
+.top .in{max-width:860px;margin:0 auto;padding:8px 16px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.back{display:inline-block;padding:2px 10px;font-size:13px;font-weight:500;color:var(--accent);text-decoration:none;border:1px solid var(--accent);border-radius:999px}
+.top input{flex:1;min-width:160px;padding:6px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:14px var(--f-body)}
+h1{font:600 24px/1.3 var(--f-head);margin:14px 0 4px;text-wrap:balance}
+h2{font:600 18px/1.35 var(--f-head);margin:28px 0 10px}
+.sub{color:var(--ink-2);font-size:13.5px;margin:0 0 12px}
+.note{background:var(--warn-bg);border:1px solid var(--warn-line);border-radius:10px;padding:10px 14px;font-size:14px;margin:12px 0}
+.note b{font-weight:600}
+.legend{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}
+.tag{display:inline-block;padding:1px 9px;border-radius:999px;font-size:12px;font-weight:600;white-space:nowrap}
+.tag.e{background:var(--epi-bg);color:var(--epi)}
+.tag.o{background:var(--opt-bg);color:var(--opt)}
+.vtabs{display:flex;gap:6px;flex-wrap:wrap;margin:6px 0 10px}
+.vtabs button{padding:5px 12px;border:1px solid var(--line);border-radius:999px;background:var(--surface);color:var(--ink);font:500 13.5px var(--f-body);cursor:pointer}
+.vtabs button[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--surface)}
+.visit{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 16px}
+.visit h3{font:600 16px var(--f-head);margin:0 0 6px}
+.visit ul{margin:4px 0 10px;padding-left:20px}
+.visit li{margin:2px 0}
+.visit li a{text-decoration:none;border-bottom:1px dotted var(--accent)}
+.grp{font-size:13px;font-weight:600;margin-top:6px}
+.grp.e{color:var(--epi)} .grp.o{color:var(--opt)}
+.gloss{width:100%;border-collapse:collapse;background:var(--surface);border:1px solid var(--line);border-radius:12px;overflow:hidden;font-size:14px}
+.gloss th,.gloss td{padding:7px 12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.gloss th{background:var(--soft);font-weight:600}
+.gloss tr:last-child td{border-bottom:0}
+.vac{background:var(--surface);border:1px solid var(--line);border-radius:12px;margin:10px 0;overflow:hidden}
+.vac>header{padding:10px 16px;background:var(--soft);display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.vac>header h3{font:600 16px/1.35 var(--f-head);margin:0}
+.vac>header .en{color:var(--ink-2);font-size:13px}
+.vac .bd{padding:8px 16px 12px}
+.vac .sch{font-weight:500;margin:4px 0}
+.vac ol{margin:6px 0;padding-left:22px}
+.vac li{margin:3px 0}
+.vac .par{background:var(--accent-soft);border-radius:8px;padding:8px 12px;margin-top:8px;font-size:14px}
+.vac .par b{font-weight:600}
+.ct{width:100%;border-collapse:collapse;font-size:13.5px;margin:8px 0}
+.ct th,.ct td{border:1px solid var(--line);padding:5px 8px;text-align:left;vertical-align:top}
+.ct th{background:var(--soft)}
+.tw{overflow-x:auto}
+.hide{display:none!important}
+.foot{color:var(--ink-2);font-size:12.5px;margin-top:28px;border-top:1px solid var(--line);padding-top:10px}
+@media print{.top,.vtabs{display:none} .visit{display:block!important} body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="top"><div class="in"><a class="back" href="./">← Well baby clinic</a><input id="q" type="search" placeholder="ค้นหาวัคซีน เช่น PCV, หัด, Hexaxim" aria-label="ค้นหาวัคซีน"></div></div>
+<main class="wrap">
+  <h1>ข้อมูลวัคซีนสำหรับให้คำแนะนำผู้ปกครอง</h1>
+  <p class="sub">ตามตารางการสร้างเสริมภูมิคุ้มกันโรคในเด็กและวัยรุ่นไทย พ.ศ. 2569 สมาคมโรคติดเชื้อในเด็กแห่งประเทศไทย (ฉบับวันที่ 3 กุมภาพันธ์ 2569)</p>
+  <div class="legend"><span class="tag e">EPI ฟรีตามแผนฯ กระทรวงสาธารณสุข</span><span class="tag o">ทางเลือก/เสริม เสียค่าใช้จ่าย</span></div>
+  <div class="note"><b>PCV10:</b> ในตารางของสมาคมฯ ฉบับ 3 ก.พ. 2569 PCV ยังอยู่ในกลุ่ม "วัคซีนอื่น ๆ ที่อาจให้เสริม" แต่ปัจจุบัน PCV10 อยู่ในแผนฯ (EPI) ให้ฟรี แบบ 2+1 ที่อายุ 2, 4 และ 12 เดือน หน้านี้จึงจัด PCV10 เป็น EPI · ตารางนี้ควรให้อาจารย์หรือพยาบาลงาน EPI ของโรงพยาบาลตรวจทานก่อนใช้งานจริง</div>
+
+  <h2 id="by-visit">วัคซีนในแต่ละนัด</h2>
+  <div class="vtabs" id="vtabs" role="group" aria-label="เลือกนัด"></div>
+  <div id="visits"></div>
+
+  <h2 id="combo">วัคซีนรวม (ชื่อการค้า → ส่วนประกอบ)</h2>
+  <div class="tw"><table class="gloss">
+    <tr><th>ชื่อ</th><th>ส่วนประกอบ</th><th>ใช้เมื่อ</th></tr>
+    <tr><td>DTwP-HB-Hib (pentavalent ชนิดทั้งเซลล์)</td><td>คอตีบ-บาดทะยัก-ไอกรนชนิดทั้งเซลล์ + ตับอักเสบบี + ฮิบ</td><td>EPI อายุ 2, 4, 6 เดือน</td></tr>
+    <tr><td>Hexaxim™, Infanrix-Hexa™ (DTaP-HB-Hib-IPV)</td><td>คอตีบ-บาดทะยัก-ไอกรนชนิดไร้เซลล์ + ตับอักเสบบี + ฮิบ + โปลิโอชนิดฉีด</td><td>ทางเลือกแทน DTwP-HB-Hib + IPV/OPV ที่ 2, 4, 6 เดือน และกระตุ้น 18 เดือนได้</td></tr>
+    <tr><td>DTwP-HB-Hib-IPV (hexavalent ชนิดทั้งเซลล์)</td><td>คอตีบ-บาดทะยัก-ไอกรนชนิดทั้งเซลล์ + ตับอักเสบบี + ฮิบ + โปลิโอชนิดฉีด</td><td>ทางเลือก 2, 4, 6 เดือน</td></tr>
+    <tr><td>DTaP-IPV-Hib (pentavalent ชนิดไร้เซลล์)</td><td>คอตีบ-บาดทะยัก-ไอกรนชนิดไร้เซลล์ + โปลิโอชนิดฉีด + ฮิบ</td><td>เข็มกระตุ้น 18 เดือน</td></tr>
+    <tr><td>DTaP-IPV, Tdap-IPV, TdaP-IPV</td><td>คอตีบ-บาดทะยัก-ไอกรน + โปลิโอชนิดฉีด</td><td>กระตุ้นอายุ 4–6 ปี</td></tr>
+    <tr><td>Tdap: Boostrix™, Adacel™ · TdaP: Boostagen™ · Td</td><td>บาดทะยัก-คอตีบ(ขนาดต่ำ)-ไอกรนชนิดไร้เซลล์ (Td ไม่มีไอกรน)</td><td>4–6 ปี, 11–12 ปี และทุก 10 ปี</td></tr>
+    <tr><td>MMR</td><td>หัด-คางทูม-หัดเยอรมัน</td><td>EPI 9–12 เดือน และ 18 เดือน</td></tr>
+    <tr><td>MMRV</td><td>หัด-คางทูม-หัดเยอรมัน + อีสุกอีใส</td><td>ทางเลือกแทน MMR + VZV แยกเข็ม (1–12 ปี)</td></tr>
+    <tr><td>MR</td><td>หัด-หัดเยอรมัน</td><td>ควบคุมการระบาดของหัด ในเด็กอายุมากกว่า 4 ปีและผู้ใหญ่</td></tr>
+  </table></div>
+
+  <h2 id="each">ข้อมูลวัคซีนแต่ละชนิด</h2>
+  <div id="vacs"></div>
+
+  <p class="foot">ที่มา: ตารางการสร้างเสริมภูมิคุ้มกันโรคในเด็กและวัยรุ่นไทย พ.ศ. 2569 และคำอธิบาย สมาคมโรคติดเชื้อในเด็กแห่งประเทศไทย ฉบับวันที่ 3 กุมภาพันธ์ 2569 · PCV10 ในแผนฯ EPI ตามนโยบายกระทรวงสาธารณสุขปัจจุบัน · เป็นเอกสารช่วยให้คำแนะนำ ผู้ให้วัคซีนต้องตรวจสอบข้อบ่งชี้ ข้อห้าม และเอกสารกำกับยาทุกครั้ง</p>
+</main>
+<script>
+/* Each vaccine: id, Thai name, English, type, schedule line, notes from the PIDST 2569 explanation, short line for parents. */
+const V=[
+ {id:'bcg',n:'วัคซีนบีซีจี',en:'BCG',t:'e',s:'แรกเกิด 1 ครั้ง',
+  k:['ฉีด 0.1 มล. ในชั้นผิวหนังที่ไหล่ซ้าย ไม่ควรฉีดที่สะโพก','ถ้าเคยได้รับวัคซีนบีซีจีมาก่อน ไม่ต้องฉีดซ้ำ แม้ไม่มีแผลเป็น'],
+  p:'ป้องกันวัณโรค ฉีดครั้งเดียวตอนแรกเกิด ไม่มีแผลเป็นก็ไม่ต้องฉีดซ้ำ'},
+ {id:'hb',n:'วัคซีนตับอักเสบบี',en:'Hepatitis B (HB)',t:'e',s:'แรกเกิด (HB1), 1 เดือน (HB2 ในบางกรณี), และในรูปวัคซีนรวม DTwP-HB-Hib ที่ 2, 4, 6 เดือน',
+  k:['เด็กทุกคนต้องได้รับอย่างน้อย 3 ครั้งถ้าไม่มีข้อห้าม และเข็มสุดท้ายต้องอายุมากกว่าหรือเท่ากับ 24 สัปดาห์',
+     'มารดา HBsAg ลบ: ฉีดอย่างน้อย 3 ครั้ง ครั้งแรกภายใน 24 ชม. หลังคลอด ต่อมาที่ 1–2 เดือน และ 6 เดือน',
+     'มารดา HBsAg บวก (โดยเฉพาะถ้า HBeAg บวกด้วย): ให้ HBIG 0.5 มล. เร็วที่สุดภายใน 12 ชม. หลังคลอด พร้อมวัคซีนแรกเกิดคนละข้าง; ได้ HBIG → เข็ม 2 ที่ 1–2 เดือน เข็ม 3 ที่ 6 เดือน; ไม่ได้ HBIG → เข็ม 2 ที่ 1 เดือน เข็ม 3 ที่ 6 เดือน',
+     'ไม่ทราบผลเลือดมารดา: เข็มแรกภายใน 12 ชม. เข็ม 2 และ 3 ที่ 1 และ 6 เดือน; ถ้าทราบภายหลังว่ามารดา HBsAg บวก ให้ HBIG ถ้าทารกได้วัคซีนมาไม่เกิน 7 วัน',
+     'ใช้เป็นวัคซีนรวม DTP-HB-Hib ที่ 2, 4, 6 เดือนได้ แต่ถ้ามารดา HBsAg บวก (โดยเฉพาะถ้าทารกไม่ได้ HBIG) ควรให้วัคซีนตับอักเสบบีเดี่ยวเพิ่มตอน 1 เดือน (รวม 5 ครั้ง)',
+     'เด็กที่คลอดจากมารดา HBsAg บวก ควรตรวจ HBsAg และ anti-HBs ที่อายุประมาณ 9–12 เดือน'],
+  p:'ป้องกันไวรัสตับอักเสบบี ต้องครบอย่างน้อย 3 เข็ม ถ้าแม่เป็นพาหะ ลูกต้องตรวจเลือดตอน 9–12 เดือน'},
+ {id:'dtp',n:'วัคซีนคอตีบ-บาดทะยัก-ไอกรน',en:'DTwP / DTaP / Tdap',t:'e',s:'DTwP-HB-Hib 2, 4, 6 เดือน · DTwP กระตุ้น 18 เดือน และ 4–6 ปี · Td ที่ 11–12 ปี และทุก 10 ปี',
+  k:['ใช้ชนิดไร้เซลล์ (DTaP) แทนชนิดทั้งเซลล์ (DTwP) ได้ทุกครั้ง',
+     'ใช้ hexavalent ได้ทั้งชนิดไร้เซลล์ (DTaP-HB-Hib-IPV; Infanrix-Hexa™, Hexaxim™) และชนิดทั้งเซลล์ (DTwP-HB-Hib-IPV) ที่ 2, 4, 6 เดือน',
+     'เข็มกระตุ้น 18 เดือน อาจใช้ DTwP หรือ DTaP ชนิด pentavalent (DTwP-HB-Hib, DTaP-IPV-Hib) หรือ hexavalent ก็ได้',
+     'อายุ 4–6 ปี อาจใช้ DTwP, DTaP, Tdap (Boostrix™ หรือ Adacel™) หรือ TdaP (Boostagen™) ก็ได้',
+     'อายุ 11–12 ปี ควรได้ Td, Tdap หรือ TdaP ไม่ว่าจะเคยได้ Tdap/TdaP ตอน 4–6 ปีหรือไม่ จากนั้นกระตุ้นทุก 10 ปี',
+     'วัคซีน aP (Pertagen™) ใช้ได้ตั้งแต่ 3 ปีขึ้นไป หญิงตั้งครรภ์แนะนำ aP 1 เข็มทุกการตั้งครรภ์ ที่อายุครรภ์ 20–32 สัปดาห์ (ให้ได้ตั้งแต่ 16 สัปดาห์) อย่างน้อย 2 สัปดาห์ก่อนคลอด ใช้ Tdap หรือ TdaP แทนได้'],
+  p:'ป้องกันคอตีบ บาดทะยัก ไอกรน ฉีด 3 เข็มแรกที่ 2, 4, 6 เดือน แล้วกระตุ้นที่ 18 เดือน และ 4–6 ปี'},
+ {id:'hib',n:'วัคซีนฮิบ',en:'Hib',t:'e',s:'ในรูปวัคซีนรวม DTwP-HB-Hib ที่ 2, 4, 6 เดือน',
+  k:['วัคซีนรวม DTP-HB-Hib ใช้ตามแผนฯ กระทรวงสาธารณสุขที่อายุ 2, 4 และ 6 เดือน',
+     'เข็มกระตุ้น 12–18 เดือน อาจไม่จำเป็นในเด็กแข็งแรง ควรฉีดในผู้มีความเสี่ยง เช่น ภูมิคุ้มกันบกพร่อง ไม่มีม้าม หรือม้ามทำงานผิดปกติ',
+     'ไม่จำเป็นต้องฉีดวัคซีนฮิบในเด็กภูมิคุ้มกันปกติที่อายุ 2 ปีขึ้นไป'],
+  p:'ป้องกันเชื้อฮิบที่ทำให้เยื่อหุ้มสมองอักเสบและปอดอักเสบ อยู่ในเข็มรวมที่ 2, 4, 6 เดือนแล้ว'},
+ {id:'polio',n:'วัคซีนโปลิโอ',en:'IPV / bOPV',t:'e',s:'IPV 2 และ 4 เดือน · bOPV 6 เดือน, 18 เดือน และ 4–6 ปี',
+  k:['แนะนำ IPV 2 ครั้ง ที่ 2 และ 4 เดือน จากนั้นให้ bivalent OPV (type 1, 3) ที่ 6 เดือน 18 เดือน และ 4–6 ปี',
+     'ใช้ชนิดฉีดแทนชนิดกินได้ทุกครั้ง หากใช้ชนิดฉีดอย่างเดียวตลอด อาจให้เพียง 4 ครั้ง โดยงดเข็ม 18 เดือนได้'],
+  p:'ป้องกันโปลิโอ 2 เข็มแรกเป็นแบบฉีด (2, 4 เดือน) ต่อด้วยแบบหยอดที่ 6 เดือน 18 เดือน และ 4–6 ปี'},
+ {id:'rota',n:'วัคซีนโรต้า',en:'Rotavirus (Rota)',t:'e',s:'2, 4 (และ 6) เดือน ชนิดกิน',
+  k:['ชนิด monovalent: human monovalent (Rotarix™) กิน 2 ครั้ง ที่ 2 และ 4 เดือน; human-bovine monovalent (Rotavac™) 3 ครั้ง ที่ 2, 4, 6 เดือน',
+     'ชนิด human-bovine pentavalent (RotaTeq™, Rotasil™) กิน 3 ครั้ง ที่ 2, 4 และ 6 เดือน',
+     'เริ่มครั้งแรกได้ที่อายุ 6–15 สัปดาห์ ครั้งสุดท้ายอายุไม่เกิน 8 เดือน ห่างกันไม่น้อยกว่า 4 สัปดาห์; อาจพิจารณาในเด็กอายุมากกว่ากำหนดแต่ไม่เกิน 2 ปี (ตามคำแนะนำ WHO) โดยอธิบายความเสี่ยงลำไส้กลืนกันให้ผู้ปกครองทราบ',
+     'ควรใช้ชนิดเดียวกันจนครบ หากต้องสลับชนิดหรือไม่ทราบชนิดที่ได้ก่อนหน้า ต้องให้ทั้งหมด 3 ครั้ง',
+     'ให้ร่วมกับวัคซีนโปลิโอชนิดกินได้',
+     'ห้ามใช้ในผู้มีภูมิคุ้มกันบกพร่องแบบ SCID เด็กที่มีประวัติลำไส้กลืนกัน หรือเคยแพ้วัคซีนนี้ชนิดรุนแรง'],
+  p:'ป้องกันท้องเสียรุนแรงจากไวรัสโรต้า เป็นวัคซีนหยอดปาก ต้องเริ่มก่อน 15 สัปดาห์ และให้ครบก่อน 8 เดือน'},
+ {id:'mmr',n:'วัคซีนหัด-คางทูม-หัดเยอรมัน',en:'MMR',t:'e',s:'9–12 เดือน และ 18 เดือน',
+  k:['ให้ครั้งแรกที่ 9–12 เดือน และครั้งที่ 2 ที่ 18 เดือน ในพื้นที่ที่มีรายงานโรคหัดน้อย อาจฉีดเข็มแรกที่ 12 เดือน',
+     'กรณีระบาดหรือสัมผัสโรค: เริ่มเร็วได้ตั้งแต่ 6 ถึงน้อยกว่า 9 เดือน แล้วให้เข็ม 2 ที่ 12 เดือน และเข็ม 3 ที่ 18 เดือน; เริ่มที่ 9–12 เดือน เข็ม 2 ห่างอย่างน้อย 3 เดือน (2 เข็มถือว่าครบ); เริ่มตั้งแต่ 12 เดือน เข็ม 2 ห่างอย่างน้อย 1 เดือน (2 เข็มถือว่าครบ)',
+     'ควบคุมการระบาดของหัด อาจใช้ MR แทนในเด็กอายุมากกว่า 4 ปีและผู้ใหญ่',
+     'ใช้ MMRV แทนการฉีดแยกได้ในเด็ก 1–12 ปี; MMRV เข็มแรกที่อายุ 12–47 เดือน มีโอกาสชักจากไข้มากกว่าการฉีดแยก แต่เข็มสองในเด็ก 15 เดือน–12 ปี หรือเข็มแรกตั้งแต่ 4 ปีขึ้นไป ผลข้างเคียงไม่ต่างกัน',
+     'ถ้าเคยได้ MMR หรือ VZV มาก่อน ให้ MMRV ห่างจาก MMR และ VZV ครั้งก่อนอย่างน้อย 3 เดือน'],
+  p:'ป้องกันหัด คางทูม หัดเยอรมัน ฉีด 2 เข็ม ที่ 9–12 เดือน และ 18 เดือน'},
+ {id:'je',n:'วัคซีนไข้สมองอักเสบเจอี',en:'Japanese encephalitis (JE)',t:'e',s:'EPI: Live JE 9–12 เดือน และ 2–2½ ปี · ทางเลือก: ชนิดเชื้อไม่มีชีวิต 3 เข็ม',
+  k:['ชนิดเชื้อไม่มีชีวิต (inactivated; JEVAC™) ฉีด 3 ครั้ง เริ่มตั้งแต่ 6 เดือน เข็มต่อมาอีก 1–4 สัปดาห์ และ 1 ปี ตามลำดับ',
+     'ชนิดเชื้อมีชีวิต (live JE; CD-JEVAX™ และ IMOJEV™/THAIJEV™) ฉีด 2 ครั้ง เข็มแรก 9–12 เดือน เข็มที่ 2 อีก 12–24 เดือนต่อมา (ระยะห่างน้อยที่สุด CD-JEVAX™ 3 เดือน, IMOJEV™/THAIJEV™ 12 เดือน) live JE ทั้งสองชนิดใช้แทนกันได้',
+     'เคยได้ชนิดเชื้อไม่มีชีวิตแต่ไม่ครบ: เคยได้ 1 เข็ม → ให้ live JE อีก 2 เข็มห่างกัน 12–24 เดือน; เคยได้อย่างน้อย 2 เข็ม → ให้ live JE อีก 1 เข็มห่างจากเข็มสุดท้าย 12 เดือน'],
+  p:'ป้องกันไข้สมองอักเสบเจอีจากยุง ฉีดเข็มแรก 9–12 เดือน และเข็มสองตอน 2–2½ ปี'},
+ {id:'flu',n:'วัคซีนไข้หวัดใหญ่',en:'Influenza',t:'e',s:'ปีละครั้ง ตั้งแต่ 6 เดือน (ครั้งแรกในเด็กอายุต่ำกว่า 9 ปี ให้ 2 เข็ม ห่างกัน 1 เดือน)',
+  k:['ชนิดเชื้อไม่มีชีวิต (IIVs) ฉีดตั้งแต่ 6 เดือน โดยเฉพาะเด็กอายุน้อยกว่า 5 ปี และเด็กเสี่ยงโรครุนแรง เช่น โรคปอดเรื้อรัง (รวมหอบหืด) โรคหัวใจ โรคอ้วน BMI > 35 ภูมิคุ้มกันบกพร่อง หญิงตั้งครรภ์ และโรคเรื้อรังอื่น ๆ กลุ่มเหล่านี้มีวัคซีนจัดสรรให้ปีละครั้งตามแผนฯ แนะนำฉีดก่อนฤดูฝน แต่ฉีดได้ตลอดปี เด็กอายุน้อยกว่า 3 ปีให้ขนาด 0.25 หรือ 0.5 มล. ตามเอกสารกำกับยา',
+     'ชนิดเชื้อมีชีวิต (LAIV) พ่นจมูก ข้างละ 0.1 มล. ใช้ได้อายุ 2–49 ปี; ห้ามใช้ในผู้แพ้วัคซีนไข้หวัดใหญ่รุนแรง เด็กที่กินแอสไพรินหรือซาลิไซเลต เด็กที่หอบหรือใช้ยาขยายหลอดลมใน 72 ชม. ภูมิคุ้มกันบกพร่องรุนแรงรวมผู้ดูแลใกล้ชิด กลุ่มเสี่ยงเยื่อหุ้มสมองอักเสบ (CSF leak, cochlear implant) และหญิงตั้งครรภ์; ไม่ควรให้ยาต้านไวรัสใน 2 สัปดาห์หลังวัคซีน และไม่ให้วัคซีนใน 48 ชม. หลัง oseltamivir หรือ 17 วันหลัง baloxavir',
+     'ทุกชนิด: อายุน้อยกว่า 9 ปี ปีแรกให้ 2 ครั้งห่างกันอย่างน้อย 1 เดือน ถ้าปีแรกได้ครั้งเดียว ปีถัดไปให้ 2 ครั้ง จากนั้นปีละครั้ง',
+     'WHO แนะนำชนิด 3 สายพันธุ์ ใช้ 4 สายพันธุ์แทนกันได้',
+     'แพ้ไข่ไม่ใช่ข้อห้าม แต่ควรเฝ้าระวังอย่างน้อย 30 นาทีหลังฉีด โดยเฉพาะผู้แพ้ไข่รุนแรง'],
+  p:'ฉีดทุกปี ปีแรกถ้าอายุต่ำกว่า 9 ปีต้องฉีด 2 เข็ม ห่างกัน 1 เดือน แพ้ไข่ก็ฉีดได้'},
+ {id:'hpv',n:'วัคซีนเอชพีวี',en:'HPV',t:'e',s:'EPI: เด็กหญิง ป.5 (หรืออายุ 11–12 ปี) ตามแผนฯ · ทางเลือก: หญิงและชาย 9–26 ปี',
+  k:['มี 3 ชนิด: 2 สายพันธุ์ (16, 18; Cervarix™, Cecolin™), 4 สายพันธุ์ (6, 11, 16, 18; Gardasil™), 9 สายพันธุ์ (6, 11, 16, 18, 31, 33, 45, 52, 58; Gardasil 9™) ป้องกันหูดหงอนไก่ต้องใช้ชนิด 4 หรือ 9 สายพันธุ์',
+     'แนะนำในหญิงและชายอายุ 9–26 ปี เน้นช่วง 11–12 ปี ฉีด 3 เข็มที่ 0, 1–2 และ 6 เดือน',
+     'วัยรุ่นแข็งแรง ถ้าเข็มแรกก่อนอายุ 15 ปี ให้ 2 เข็มที่ 0, 6–12 เดือน',
+     'WHO (2565): ฉีด 2 เข็มห่างอย่างน้อย 6 เดือนในผู้อายุ 9 ปีขึ้นไป และอาจฉีดเพียง 1 เข็มในผู้อายุ 9–20 ปี; ผู้มีภูมิคุ้มกันบกพร่องควรฉีดอย่างน้อย 2 เข็ม และหากเป็นไปได้ 3 เข็ม',
+     'แผนฯ กระทรวงสาธารณสุข: ชนิด 9 สายพันธุ์ 1 เข็ม แก่เด็กหญิง ป.5 หรืออายุ 11–12 ปี หรือชนิด 2 หรือ 4 สายพันธุ์ 2 เข็มห่างอย่างน้อย 6 เดือน ถ้าจัดหาชนิด 9 สายพันธุ์ไม่ได้',
+     'เคยได้ชนิด 2 หรือ 4 สายพันธุ์แต่ไม่ครบ เปลี่ยนเป็นชนิด 9 สายพันธุ์ให้ครบได้',
+     'ได้ชนิด 2 หรือ 4 สายพันธุ์ครบแล้ว ไม่จำเป็นต้องฉีดเพิ่ม แต่อาจพิจารณาชนิด 9 สายพันธุ์ห่างจากเข็มสุดท้ายอย่างน้อย 6 เดือน'],
+  p:'ป้องกันมะเร็งปากมดลูกและโรคจากเชื้อ HPV เด็กหญิง ป.5 ได้ฟรีที่โรงเรียน'},
+ {id:'pcv',n:'วัคซีนนิวโมคอคคัส ชนิดคอนจูเกต',en:'PCV',t:'e',s:'EPI: PCV10 แบบ 2+1 ที่ 2, 4 และ 12 เดือน · ทางเลือก: PCV13/14/15/20 ที่ 2, 4, 6 และกระตุ้น 12–15 เดือน',
+  k:['ควรให้ในผู้เสี่ยงต่อโรคชนิดรุกราน (invasive) หรือรุนแรง และในเด็กแข็งแรงปกติที่อายุน้อยกว่า 5 ปี',
+     'ชนิด 10 สายพันธุ์ (PCV10; Synflorix™, Pneumosil™), 13 (PCV13; Prevnar13™, Weuphoria™), 14 (PCV14; Pneubevax14™), 15 (PCV15; Vaxneuvance™), 20 (PCV20; Prevnar20™) ให้ 3 ครั้งที่ 2, 4, 6 เดือน และกระตุ้นที่ 12–15 เดือน ห่างจากเข็มสุดท้ายอย่างน้อย 2 เดือน หากเริ่มช้าให้ตามตาราง catch-up',
+     'อายุที่รับรอง: Synflorix™ 6 สัปดาห์–5 ปี; Pneumosil™ และ Pneubevax14™ 6 สัปดาห์–2 ปี; Weuphoria™ 6 สัปดาห์–ต่ำกว่า 6 ปี; Prevnar13™, Vaxneuvance™ และ Prevnar20™ ตั้งแต่ 6 สัปดาห์ขึ้นไป; ใช้ PCV10/13/14/15/20 แทนหรือสลับกันได้เพื่อให้ครบตาราง',
+     'เด็กปกติอาจให้แบบ 2+1 (รวม 3 ครั้ง) ที่ 2, 4 และ 12–15 เดือน',
+     'พิจารณา catch-up ในเด็กอายุน้อยกว่า 5 ปีที่ยังไม่เคยได้ PCV (ดูตาราง)',
+     'เด็กเสี่ยง (ภูมิคุ้มกันบกพร่อง ไม่มีม้ามหรือม้ามทำงานบกพร่อง โรคปอดรวมหอบหืดรุนแรง โรคหัวใจ ตับ ไต เบาหวาน CSF leak, cochlear implant) ควรได้ PCV ตามตาราง (Pneumosil™, Weuphoria™ และ Pneubevax14™ ยังไม่มีข้อมูลในเด็กกลุ่มเสี่ยง)',
+     'เด็กเสี่ยงอายุ 2 ปีขึ้นไปที่ได้ primary series ครบ หากไม่เคยได้ PCV20 ให้ฉีดเพิ่มห่างจากเข็มสุดท้ายอย่างน้อย 8 สัปดาห์: PCV20 1 เข็ม (ไม่ต้อง PS-23) หรือ PS-23 (Pneumovax 23™) 1 เข็ม และถ้าภูมิคุ้มกันบกพร่อง (รวม nephrotic syndrome, maintenance dialysis, ไม่มีม้าม) ให้ PS-23 ซ้ำอีก 1 ครั้งห่าง 5 ปี'],
+  ct:true,
+  p:'ป้องกันเชื้อนิวโมคอคคัสที่ทำให้ปอดอักเสบ เยื่อหุ้มสมองอักเสบ และติดเชื้อในกระแสเลือด PCV10 ฉีดฟรี 3 เข็มที่ 2, 4, 12 เดือน หรือเลือกชนิดที่ครอบคลุมสายพันธุ์มากกว่าโดยเสียค่าใช้จ่าย'},
+ {id:'ev71',n:'วัคซีนอีวี 71',en:'EV71',t:'o',s:'6 เดือน – ต่ำกว่า 6 ปี ฉีด 2 เข็ม ห่างกัน 1 เดือน',
+  k:['วัคซีนชนิดเชื้อไม่มีชีวิต (EntroVac™) ฉีดเข้ากล้ามเนื้อ ตั้งแต่ 6 เดือน – น้อยกว่า 6 ปี 2 เข็ม ห่างกัน 1 เดือน ป้องกันได้เฉพาะมือเท้าปากจากเชื้อไวรัส EV71'],
+  p:'ป้องกันมือเท้าปากชนิดรุนแรงจาก EV71 เท่านั้น ไม่ป้องกันมือเท้าปากจากเชื้อตัวอื่น'},
+ {id:'hav',n:'วัคซีนตับอักเสบเอ',en:'Hepatitis A (HAV)',t:'o',s:'ตั้งแต่ 1 ปี ฉีด 2 เข็ม ห่างกัน 6–12 เดือน',
+  k:['ชนิดเชื้อไม่มีชีวิต (Avaxim™, Havrix™, Vaqta™, Healive™) ฉีดตั้งแต่ 1 ปี 2 เข็มห่างกัน 6–12 เดือน ใช้ต่างชนิดกันในแต่ละครั้งได้',
+     'เด็กที่จะเดินทางหรืออยู่ในพื้นที่ระบาด ฉีดได้ตั้งแต่ 6 เดือน แต่ไม่นับเข็มก่อนอายุ 1 ปี และต้องฉีดใหม่หลัง 1 ปี'],
+  p:'ป้องกันตับอักเสบเอที่ติดจากอาหารและน้ำ ฉีด 2 เข็มตั้งแต่ 1 ขวบ'},
+ {id:'vzv',n:'วัคซีนอีสุกอีใส',en:'Varicella (VZV) / MMRV',t:'o',s:'เข็มแรก 12–18 เดือน · เข็มสอง 18 เดือน–4 ปี (ใช้ MMRV แทนได้)',
+  k:['วัคซีนเชื้อมีชีวิต 2 แบบ: สายพันธุ์ OKA (Varilrix™, Varivax™, SKYvaricella™) และ MAV06 (Varicella GCC) ฉีดได้ตั้งแต่ 1 ปี แนะนำเข็มแรกที่ 12–18 เดือน',
+     'เข็มที่ 2 ที่ 18 เดือน–4 ปี อาจฉีดก่อน 4 ปีได้เมื่อมีการระบาด โดยห่างจากเข็มแรกอย่างน้อย 3 เดือน ใช้ MMRV แทน MMR และ VZV แยกเข็มได้',
+     'อายุมากกว่า 13 ปี ฉีด 2 เข็ม ห่างกันอย่างน้อย 1 เดือน'],
+  p:'ป้องกันอีสุกอีใส ฉีด 2 เข็ม (ขวบแรกและ 18 เดือน–4 ปี) หรือรวมกับ MMR เป็น MMRV ให้ลดจำนวนเข็ม'},
+ {id:'den',n:'วัคซีนไข้เลือดออก',en:'Dengue',t:'o',s:'ตั้งแต่ 4 ปี ฉีด 2 เข็ม ห่างกัน 3 เดือน',
+  k:['วัคซีน live-attenuated dengue2-dengue (Qdenga™) ฉีดได้ในผู้อายุตั้งแต่ 4 ปี 2 เข็ม ห่างกัน 3 เดือน',
+     'ฉีดได้ทั้งผู้ที่เคยและไม่เคยเป็นไข้เลือดออก ไม่ต้องตรวจภูมิคุ้มกันก่อนฉีด'],
+  p:'ป้องกันไข้เลือดออก ฉีดได้ตั้งแต่ 4 ขวบ ไม่ต้องตรวจเลือดก่อน'},
+ {id:'rab',n:'วัคซีนพิษสุนัขบ้าก่อนการสัมผัสโรค',en:'Rabies PrEP',t:'o',s:'ทุกอายุที่มีความเสี่ยง 2 ครั้ง ห่างกันอย่างน้อย 7 วัน',
+  k:['พิจารณาในผู้มีความเสี่ยงถูกสุนัขหรือสัตว์เลี้ยงลูกด้วยนมกัดทุกอายุ เด็กปกติฉีด 2 ครั้ง: 0.5 มล. หรือ 1 มล. (ตามชนิดวัคซีน) เข้ากล้ามเนื้อวันที่ 0, 7 หรือ 0.1 มล. ในชั้นผิวหนัง (intradermal) 2 จุด วันที่ 0, 7 หรือ 0, 21 หรือ 28',
+     'ถ้าเคยฉีดก่อนสัมผัสแล้วถูกกัด: ภายใน 6 เดือนจากเข็มสุดท้าย ฉีดกระตุ้น IM 1 เข็ม หรือ ID 1 จุด โดยเร็วที่สุด; นานกว่า 6 เดือน ฉีด IM 2 เข็ม หรือ ID 1 จุด วันที่ 0 และ 3 หรือ ID 4 จุดครั้งเดียวโดยเร็วที่สุด'],
+  p:'เหมาะกับเด็กที่เลี้ยงหรือคลุกคลีกับสัตว์ ถ้าถูกกัดภายหลังจะฉีดกระตุ้นน้อยเข็มลง และไม่ต้องใช้อิมมูโนโกลบูลิน'},
+ {id:'menb',n:'วัคซีนไข้กาฬหลังแอ่นซีโรกรุ๊ปบี',en:'MenB',t:'o',s:'2, 4 และ 12 เดือน',
+  k:['พิจารณาในกลุ่มเสี่ยง (เดินทางไปถิ่นระบาด หรือมี complement deficiency) และอาจพิจารณาในเด็กแข็งแรงที่อายุน้อยกว่า 2 ปี ฉีดที่ 2, 4, 12 เดือน (รายละเอียดดูคำแนะนำของสมาคมฯ)'],
+  p:'ป้องกันไข้กาฬหลังแอ่นสายพันธุ์บี ซึ่งพบไม่บ่อยแต่รุนแรง เป็นวัคซีนทางเลือก'},
+ {id:'rsv',n:'ภูมิคุ้มกันสำเร็จรูปป้องกันอาร์เอสวี',en:'RSV monoclonal antibody',t:'o',s:'1 เข็ม ช่วง มิ.ย.–ต.ค. · เด็กแข็งแรงอายุ ≤ 8/12 เดือน · เด็กเสี่ยง ≤ 19/24 เดือน',
+  k:['เป็น monoclonal antibody ฉีดเข้ากล้ามเนื้อ 1 เข็ม ป้องกันได้อย่างน้อย 6 เดือน',
+     'Nirsevimab ฤดูกาลแรก 50 มก. ถ้าน้ำหนักน้อยกว่า 5 กก. และ 100 มก. ถ้าน้ำหนัก 5 กก. ขึ้นไป; ฤดูกาลที่สองเฉพาะกลุ่มเสี่ยง 200 มก. ทุกน้ำหนักตัว',
+     'Clesrovimab ฤดูกาลแรก 105 มก. ทุกน้ำหนักตัว ยังไม่มีคำแนะนำในฤดูกาลที่สอง',
+     'แนะนำ/พิจารณาในเด็กแข็งแรงอายุ ≤ 8/12 เดือน และเด็กเสี่ยงถึงอายุ ≤ 19/24 เดือน ในช่วง มิ.ย.–ต.ค. (รายละเอียดดูคำแนะนำราชวิทยาลัยกุมารแพทย์แห่งประเทศไทย)'],
+  p:'เป็นภูมิสำเร็จรูป ไม่ใช่วัคซีน ฉีดเข็มเดียวก่อนหรือช่วงฤดูฝน ป้องกัน RSV ได้อย่างน้อย 6 เดือน'},
+ {id:'covid',n:'วัคซีนโควิด-19',en:'COVID-19',t:'o',s:'ตามคำแนะนำปัจจุบัน',
+  k:['ดูคำแนะนำในการฉีดตามคำแนะนำของกรมควบคุมโรค กระทรวงสาธารณสุข และราชวิทยาลัยกุมารแพทย์แห่งประเทศไทย'],
+  p:'ให้ตรวจสอบคำแนะนำล่าสุดก่อนฉีด'}
+];
+/* Visits: vaccine id + label, EPI then optional; mirrors the visit form. */
+const VIS={
+ 2:{e:[['dtp','DTwP-HB-Hib 1'],['polio','IPV 1'],['rota','Rota 1'],['pcv','PCV10 1']],o:[['dtp','Hexaxim/Infanrix-hexa 1 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + IPV'],['pcv','PCV13/15/20 1 แทน PCV10'],['menb','MenB 1'],['rsv','RSV mAb (มิ.ย.–ต.ค.)']]},
+ 4:{e:[['dtp','DTwP-HB-Hib 2'],['polio','IPV 2'],['rota','Rota 2'],['pcv','PCV10 2']],o:[['dtp','Hexaxim/Infanrix-hexa 2 (DTaP-HB-Hib-IPV)'],['pcv','PCV13/15/20 2'],['menb','MenB 2'],['rsv','RSV mAb (มิ.ย.–ต.ค.)']]},
+ 6:{e:[['dtp','DTwP-HB-Hib 3'],['polio','bOPV 1'],['rota','Rota 3 (เฉพาะชนิด 3 ครั้ง)'],['flu','ไข้หวัดใหญ่ (ปีแรก 2 เข็ม ห่าง 1 เดือน)']],o:[['dtp','Hexaxim/Infanrix-hexa 3 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + bOPV'],['pcv','PCV13/15/20 3 (แบบ 3+1)'],['ev71','EV71 1 (2 เข็ม ห่าง 1 เดือน)'],['rsv','RSV mAb (มิ.ย.–ต.ค.)']]},
+ 9:{e:[['mmr','MMR 1'],['je','Live JE 1'],['flu','ไข้หวัดใหญ่']],o:[['ev71','EV71']]},
+ 12:{e:[['pcv','PCV10 กระตุ้น (เข็มที่ 3)'],['mmr','MMR 1 หากยังไม่ได้'],['je','Live JE 1 หากยังไม่ได้'],['flu','ไข้หวัดใหญ่']],o:[['pcv','PCV13/15/20 กระตุ้น (12–15 เดือน)'],['menb','MenB 3'],['hav','HAV 1'],['vzv','VZV 1 หรือ MMRV 1 แทน MMR + VZV'],['ev71','EV71']]},
+ 18:{e:[['dtp','DTwP กระตุ้น 1'],['polio','bOPV กระตุ้น 1'],['mmr','MMR 2'],['flu','ไข้หวัดใหญ่']],o:[['dtp','DTaP-IPV-Hib(-HB) กระตุ้น (Penta/Hexavalent) แทน DTwP + bOPV'],['hav','HAV 2'],['vzv','VZV 2 หรือ MMRV 2']]},
+ 24:{e:[['je','Live JE 2 (2–2½ ปี)'],['flu','ไข้หวัดใหญ่']],o:[['hav','HAV 2 หากยังไม่ได้'],['vzv','VZV 2']]},
+ 30:{e:[['je','Live JE 2 หากยังไม่ได้'],['flu','ไข้หวัดใหญ่']],o:[['vzv','VZV 2']]},
+ 48:{e:[['dtp','DTwP กระตุ้น 2'],['polio','bOPV กระตุ้น 2'],['flu','ไข้หวัดใหญ่']],o:[['dtp','DTaP-IPV หรือ Tdap-IPV/TdaP-IPV แทน DTwP + bOPV'],['den','Dengue 1 (≥ 4 ปี)'],['vzv','VZV 2 หากยังไม่ได้']]}
+};
+const VN={2:'2 เดือน',4:'4 เดือน',6:'6 เดือน',9:'9 เดือน',12:'12 เดือน',18:'18 เดือน',24:'2 ปี',30:'2½ ปี',48:'4 ปี'};
+const CT=`<div class="tw"><table class="ct"><tr><th>อายุที่เริ่มฉีด</th><th>จำนวนครั้งที่ฉีด</th><th>การฉีดกระตุ้น</th></tr>
+<tr><td>เด็กปกติและเด็กเสี่ยง 2–6 เดือน</td><td>PCV 3 ครั้ง ห่างกัน 4–8 สัปดาห์</td><td>PCV 1 ครั้ง อายุ 12–15 เดือน</td></tr>
+<tr><td>เด็กปกติและเด็กเสี่ยง 7–11 เดือน</td><td>PCV 2 ครั้ง ห่างกัน 4–8 สัปดาห์</td><td>PCV 1 ครั้ง อายุ 12–15 เดือน</td></tr>
+<tr><td>เด็กปกติและเด็กเสี่ยง 12–23 เดือน</td><td>PCV 2 ครั้ง ห่างกัน 8 สัปดาห์</td><td>ไม่ต้องฉีด</td></tr>
+<tr><td>เด็กปกติ 2–5 ปี</td><td>PCV10 ให้ 2 ครั้ง ห่างกัน 8 สัปดาห์ · PCV13/PCV15/PCV20 ให้ 1 ครั้ง</td><td>ไม่ต้องฉีด</td></tr>
+<tr><td>เด็กเสี่ยง 2–5 ปี / 2–6 ปี / มากกว่า 6–18 ปี</td><td>PCV10 ให้ 2 ครั้ง ห่างกัน 8 สัปดาห์ · PCV13/PCV15/PCV20 ให้ 2 ครั้ง ห่างกัน 8 สัปดาห์ · มากกว่า 6–18 ปี: PCV13/PCV15/PCV20 ให้ 1 ครั้ง</td><td>ถ้าไม่เคยได้ PCV20: PCV20 หรือ PS-23 1 เข็ม ห่างจาก PCV เข็มสุดท้ายอย่างน้อย 8 สัปดาห์ · ถ้าเคยได้ PCV20 อย่างน้อย 1 เข็ม ไม่ต้องกระตุ้น</td></tr></table></div>`;
+const byId=Object.fromEntries(V.map(v=>[v.id,v]));
+const E=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;');
+document.getElementById('vacs').innerHTML=V.map(v=>`<article class="vac" id="${v.id}" data-q="${E((v.n+' '+v.en+' '+v.s+' '+v.k.join(' ')).toLowerCase())}">
+ <header><h3>${v.n}</h3><span class="en">${v.en}</span><span class="tag ${v.t}">${v.t==='e'?'EPI ฟรี':'ทางเลือก'}</span></header>
+ <div class="bd"><p class="sch">ตารางฉีด: ${E(v.s)}</p><ol>${v.k.map(x=>`<li>${E(x)}</li>`).join('')}</ol>${v.ct?CT:''}
+ <div class="par"><b>สรุปสำหรับผู้ปกครอง:</b> ${E(v.p)}</div></div></article>`).join('');
+const vt=document.getElementById('vtabs'), vs=document.getElementById('visits');
+vs.innerHTML=Object.keys(VIS).map(k=>{const x=VIS[k], li=a=>a.map(([id,l])=>`<li><a href="#${id}">${E(l)}</a> — ${E(byId[id].n)}</li>`).join('');
+ return `<section class="visit" id="visit-${k}" hidden><h3>นัดอายุ ${VN[k]}</h3><div class="grp e">วัคซีนพื้นฐาน (EPI ฟรีตามแผนฯ)</div><ul>${li(x.e)}</ul>${x.o.length?`<div class="grp o">วัคซีนทางเลือก/เสริม</div><ul>${li(x.o)}</ul>`:''}</section>`;}).join('');
+vt.innerHTML=Object.keys(VIS).map(k=>`<button type="button" data-v="${k}" aria-pressed="false">${VN[k]}</button>`).join('');
+function show(k){ document.querySelectorAll('.visit').forEach(s=>s.hidden=s.id!=='visit-'+k); vt.querySelectorAll('button').forEach(b=>b.setAttribute('aria-pressed',b.dataset.v===String(k))); try{localStorage.setItem('vx-visit',k);}catch(e){} }
+vt.addEventListener('click',e=>{const b=e.target.closest('button'); if(b) show(b.dataset.v);});
+let start='2'; const h=location.hash.match(/^#visit-(\d+)$/); if(h&&VIS[h[1]]) start=h[1]; else { try{ const s=localStorage.getItem('vx-visit'); if(s&&VIS[s]) start=s; }catch(e){} }
+show(start); if(h) setTimeout(()=>document.getElementById('by-visit').scrollIntoView(),0);
+document.getElementById('q').addEventListener('input',e=>{ const q=e.target.value.trim().toLowerCase();
+ document.querySelectorAll('.vac').forEach(a=>a.classList.toggle('hide',!!q&&a.dataset.q.indexOf(q)<0));
+ if(q) document.getElementById('each').scrollIntoView(); });
+</script>
+</body>
+</html>

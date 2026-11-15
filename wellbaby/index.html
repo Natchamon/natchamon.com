@@ -108,6 +108,9 @@ button,input,select,textarea{font:inherit;color:inherit}
 .card{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
 .card>h2{margin:0;padding:9px 16px;background:var(--tint);font:600 15px/1.35 var(--f-head);display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap}
 .card>h2 small{font:400 12px var(--f-body);color:var(--ink-2)}
+.vxinfo{display:inline-block;padding:3px 10px;border:1px solid var(--accent);border-radius:999px;color:var(--accent);background:var(--surface);text-decoration:none;font:500 12.5px var(--f-body)}
+.vxinfo:hover{background:var(--accent-soft)}
+@media print{.vxinfo{display:none}}
 .body{padding:14px 16px;display:grid;gap:14px}
 .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,210px),1fr));gap:12px 16px}
 .fld{display:grid;gap:4px;min-width:0}
@@ -417,7 +420,7 @@ const NUT={
 const gk=v=>v<6?'early':v<=12?'late':v<24?'tod':v<48?'pre':'kid';
 const VN={2:{next:4,sleep:[14,17],sleepTxt:'อายุ 0–3 เดือน'},4:{next:6,sleep:[12,16],sleepTxt:'อายุ 4–6 เดือน'},6:{next:9,sleep:[12,16],sleepTxt:'อายุ 6–12 เดือน'},9:{next:12,sleep:[12,16],sleepTxt:'อายุ 6–12 เดือน'},
  12:{next:18,sleep:[12,16],sleepTxt:'อายุ 6–12 เดือน'},18:{next:24,sleep:[11,14],sleepTxt:'อายุ 12–23 เดือน'},24:{next:30,sleep:[10,13],sleepTxt:'อายุ 2–3 ปี'},30:{next:48,sleep:[10,13],sleepTxt:'อายุ 2–3 ปี'},48:{next:60,sleep:[10,13],sleepTxt:'อายุ 4–5 ปี'}};
-const VSUB={2:'เริ่มวัคซีนชุดแรก',4:'วัคซีนเข็มที่ 2',6:'เริ่มอาหารเสริม',9:'MMR · JE · Hb',12:'JE · Hb · PCV10',18:'DTP · OPV · MMR',24:'JE ครั้งที่ 2',30:'พัฒนาการ',48:'BP · สายตา · Hb'};
+const VSUB={2:'เริ่มวัคซีนชุดแรก',4:'วัคซีนเข็มที่ 2',6:'เริ่มอาหารเสริม',9:'MMR · JE · Hb',12:'PCV10 กระตุ้น · Hb',18:'DTP · OPV · MMR',24:'JE ครั้งที่ 2',30:'พัฒนาการ',48:'BP · สายตา · Hb'};
 
 const DUE={
  2:['ตรวจการได้ยินด้วยเครื่อง OAE/AABR หากยังไม่ได้ทำ','คัดกรองภาวะซึมเศร้าหลังคลอดของแม่ อย่างน้อย 1 ครั้งในช่วง 6 เดือนแรก','วัคซีน DTwP-HB-Hib, OPV และโรต้า ครั้งที่ 1'],
@@ -507,17 +510,30 @@ function examPoints(v){ const out={}; const note=(EXAMNOTE[v]||'').replace(/^[^:
     else if(/sacral/i.test(t)) k='neuro'; else if(/สะโพก|ท่ายืน|ท่าเดิน|การเดิน/.test(t)) k='ext'; else k='heent';
     (out[k]=out[k]||[]).push(t); }); return out; }
 const SYS=[['ga','ทั่วไป/ผิวหนัง (GA/Skin)'],['heent','ศีรษะ ตา หู คอ จมูก (HEENT)'],['cv','หัวใจ/ทรวงอก (Cardio/Chest)'],['abd','ท้อง (Abdomen)'],['gen','อวัยวะเพศ (Genitalia)'],['neuro','ระบบประสาท/หลัง (Neuro/Back)'],['ext','แขนขา (Extremities)']];
+/* Vaccines per visit: [id, chip label, line for the clinic note, 'e' = EPI (free, MoPH plan) | 'o' = optional/paid].
+   Schedule checked against the PIDST 2569 schedule (3 Feb 2569); PCV10 2+1 (2, 4, 12 mo) per MoPH EPI. Combination vaccines show their components in brackets. */
+const FLU=['flu','ไข้หวัดใหญ่ (ปีละครั้ง; ครั้งแรกอายุต่ำกว่า 9 ปี ให้ 2 เข็ม ห่าง 1 เดือน)','Influenza vaccine','e'];
 const VAX={
- 2:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp1','DTP-Hib-HBV 1','DTP-Hib-HBV 1 0.5 ml IM'],['ipv1','IPV 1','IPV 1 0.5 ml IM'],['rota1','โรต้า 1','Rota drop'],['pcv10','PCV10 (แผนฯ)','PCV10 0.5 ml IM'],['pcv','PCV 15 (ทางเลือก)','additional : PCV 15 0.5 ml IM']],
- 4:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp2','DTP-Hib-HBV 2','DTP-Hib-HBV 2 0.5 ml IM'],['ipv2','IPV 2','IPV 2 0.5 ml IM'],['rota2','โรต้า 2','Rota drop'],['pcv10','PCV10 (แผนฯ)','PCV10 0.5 ml IM'],['pcv','PCV 15 (ทางเลือก)','additional : PCV 15 0.5 ml IM']],
- 6:[['hex','Hexaxim','Hexaxim 0.5 ml IM'],['dtp3','DTP-Hib-HBV 3','DTP-Hib-HBV 3 0.5 ml IM'],['opv1','OPV 1 (กิน)','bivalent OPV drop'],['rota3','โรต้า 3 (ถ้ามี)','Rota drop'],['pcv','PCV 15 (ทางเลือก)','additional : PCV 15 0.5 ml IM'],['ento','Entrovac (เสริม)','additional : Entrovac'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 9:[['mmr1','MMR ครั้งที่ 1','MMR 0.5 ml SC'],['je1','JE ครั้งที่ 1','Live JE 0.5 ml SC'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 12:[['je1','JE ครั้งที่ 1 (หากยังไม่ได้)','Live JE 0.5 ml SC'],['mmr1','MMR ครั้งที่ 1 (หากยังไม่ได้)','MMR 0.5 ml SC'],['pcv10b','PCV10 ครั้งที่ 3 (แผนฯ)','PCV10 0.5 ml IM'],['pcv4','PCV 15 ครั้งที่ 4 (ทางเลือก)','additional : PCV 15 0.5 ml IM'],['hav1','HAV ครั้งที่ 1 (เสริม)','additional : HAV vaccine'],['vzv1','อีสุกอีใส ครั้งที่ 1 (เสริม)','additional : VZV vaccine'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 18:[['dtp4','DTwP กระตุ้นครั้งที่ 1','DTwP 0.5 ml IM'],['opv4','OPV กระตุ้น (กิน)','OPV 2 drops oral'],['mmr2','MMR ครั้งที่ 2','MMR 0.5 ml SC'],['hav2','HAV ครั้งที่ 2 (เสริม)','additional : HAV vaccine'],['vzv2','อีสุกอีใส ครั้งที่ 2 (เสริม)','additional : VZV vaccine'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 24:[['je2','JE ครั้งที่ 2','Live JE vaccine 0.5 ml SC'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 30:[['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']],
- 48:[['dtp5','DTwP กระตุ้นครั้งที่ 2','DTwP 0.5 ml IM'],['opv5','OPV กระตุ้น (กิน)','OPV 2 drops oral'],['flu','ไข้หวัดใหญ่','additional : Influenza vaccine']]
+ 2:[['dtp1','DTwP-HB-Hib 1 (คอตีบ-บาดทะยัก-ไอกรน-ตับอักเสบบี-ฮิบ)','DTwP-HB-Hib 1 0.5 ml IM','e'],['ipv1','IPV 1 (โปลิโอชนิดฉีด)','IPV 1 0.5 ml IM','e'],['rota1','Rota 1 (โรต้า ชนิดกิน)','Rota 1 oral','e'],['pcv10','PCV10 1 (นิวโมคอคคัส 10 สายพันธุ์)','PCV10 1 0.5 ml IM','e'],
+   ['hex','Hexaxim/Infanrix-hexa 1 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + IPV','additional : Hexavalent (DTaP-HB-Hib-IPV) 1 0.5 ml IM','o'],['pcvx','PCV13/15/20 1 (แทน PCV10)','additional : PCV13/15/20 1 0.5 ml IM','o'],['menb1','MenB 1 (ไข้กาฬหลังแอ่น บี)','additional : MenB 1 IM','o'],['rsv','RSV mAb (Nirsevimab/Clesrovimab) ช่วง มิ.ย.–ต.ค.','additional : RSV monoclonal antibody IM','o']],
+ 4:[['dtp2','DTwP-HB-Hib 2 (คอตีบ-บาดทะยัก-ไอกรน-ตับอักเสบบี-ฮิบ)','DTwP-HB-Hib 2 0.5 ml IM','e'],['ipv2','IPV 2 (โปลิโอชนิดฉีด)','IPV 2 0.5 ml IM','e'],['rota2','Rota 2 (โรต้า ชนิดกิน)','Rota 2 oral','e'],['pcv10','PCV10 2 (นิวโมคอคคัส 10 สายพันธุ์)','PCV10 2 0.5 ml IM','e'],
+   ['hex','Hexaxim/Infanrix-hexa 2 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + IPV','additional : Hexavalent (DTaP-HB-Hib-IPV) 2 0.5 ml IM','o'],['pcvx','PCV13/15/20 2 (แทน PCV10)','additional : PCV13/15/20 2 0.5 ml IM','o'],['menb2','MenB 2 (ไข้กาฬหลังแอ่น บี)','additional : MenB 2 IM','o'],['rsv','RSV mAb (Nirsevimab/Clesrovimab) ช่วง มิ.ย.–ต.ค.','additional : RSV monoclonal antibody IM','o']],
+ 6:[['dtp3','DTwP-HB-Hib 3 (คอตีบ-บาดทะยัก-ไอกรน-ตับอักเสบบี-ฮิบ)','DTwP-HB-Hib 3 0.5 ml IM','e'],['opv1','bOPV 1 (โปลิโอชนิดกิน)','bOPV 1 oral','e'],['rota3','Rota 3 (เฉพาะชนิดที่ให้ 3 ครั้ง)','Rota 3 oral','e'],FLU,
+   ['hex','Hexaxim/Infanrix-hexa 3 (DTaP-HB-Hib-IPV) แทน DTwP-HB-Hib + bOPV','additional : Hexavalent (DTaP-HB-Hib-IPV) 3 0.5 ml IM','o'],['pcvx','PCV13/15/20 3 (ตารางแบบ 3+1)','additional : PCV13/15/20 3 0.5 ml IM','o'],['ev71','EV71 1 (Entrovac; มือเท้าปาก) ฉีด 2 เข็ม ห่าง 1 เดือน','additional : EV71 vaccine (Entrovac) 1 IM','o'],['rsv','RSV mAb (Nirsevimab/Clesrovimab) ช่วง มิ.ย.–ต.ค.','additional : RSV monoclonal antibody IM','o']],
+ 9:[['mmr1','MMR 1 (หัด-คางทูม-หัดเยอรมัน)','MMR 1 0.5 ml SC','e'],['je1','Live JE 1 (ไข้สมองอักเสบเจอี ชนิดเชื้อเป็น)','Live JE 1 0.5 ml SC','e'],FLU,
+   ['ev71','EV71 (Entrovac; มือเท้าปาก)','additional : EV71 vaccine (Entrovac) IM','o']],
+ 12:[['pcv10b','PCV10 กระตุ้น (เข็มที่ 3)','PCV10 booster 0.5 ml IM','e'],['mmr1','MMR 1 (หัด-คางทูม-หัดเยอรมัน) หากยังไม่ได้','MMR 1 0.5 ml SC','e'],['je1','Live JE 1 (ไข้สมองอักเสบเจอี) หากยังไม่ได้','Live JE 1 0.5 ml SC','e'],FLU,
+   ['pcv4','PCV13/15/20 กระตุ้น (12–15 เดือน)','additional : PCV13/15/20 booster 0.5 ml IM','o'],['menb3','MenB 3 (ไข้กาฬหลังแอ่น บี)','additional : MenB 3 IM','o'],['hav1','HAV 1 (ตับอักเสบเอ)','additional : HAV vaccine 1 IM','o'],['vzv1','VZV 1 (อีสุกอีใส)','additional : VZV vaccine 1 SC','o'],['mmrv1','MMRV 1 (หัด-คางทูม-หัดเยอรมัน-อีสุกอีใส) แทน MMR + VZV','additional : MMRV 1 SC','o'],['ev71','EV71 (Entrovac; มือเท้าปาก)','additional : EV71 vaccine (Entrovac) IM','o']],
+ 18:[['dtp4','DTwP กระตุ้น 1 (คอตีบ-บาดทะยัก-ไอกรน)','DTwP booster 1 0.5 ml IM','e'],['opv4','bOPV กระตุ้น 1 (โปลิโอชนิดกิน)','bOPV booster 1 oral','e'],['mmr2','MMR 2 (หัด-คางทูม-หัดเยอรมัน)','MMR 2 0.5 ml SC','e'],FLU,
+   ['pent','DTaP-IPV-Hib(-HB) กระตุ้น (Penta/Hexavalent) แทน DTwP + bOPV','additional : DTaP-IPV-Hib(-HB) booster 0.5 ml IM','o'],['hav2','HAV 2 (ตับอักเสบเอ) ห่างเข็มแรก 6–12 เดือน','additional : HAV vaccine 2 IM','o'],['vzv2','VZV 2 (อีสุกอีใส) 18 เดือน–4 ปี','additional : VZV vaccine 2 SC','o'],['mmrv2','MMRV 2 (หัด-คางทูม-หัดเยอรมัน-อีสุกอีใส) แทน MMR 2 + VZV 2','additional : MMRV 2 SC','o']],
+ 24:[['je2','Live JE 2 (ไข้สมองอักเสบเจอี; ช่วง 2–2½ ปี)','Live JE 2 0.5 ml SC','e'],FLU,
+   ['hav2','HAV 2 (ตับอักเสบเอ) หากยังไม่ได้','additional : HAV vaccine 2 IM','o'],['vzv2','VZV 2 (อีสุกอีใส)','additional : VZV vaccine 2 SC','o']],
+ 30:[['je2','Live JE 2 (ไข้สมองอักเสบเจอี) หากยังไม่ได้ตอน 2 ปี','Live JE 2 0.5 ml SC','e'],FLU,
+   ['vzv2','VZV 2 (อีสุกอีใส)','additional : VZV vaccine 2 SC','o']],
+ 48:[['dtp5','DTwP กระตุ้น 2 (คอตีบ-บาดทะยัก-ไอกรน)','DTwP booster 2 0.5 ml IM','e'],['opv5','bOPV กระตุ้น 2 (โปลิโอชนิดกิน)','bOPV booster 2 oral','e'],FLU,
+   ['dtapipv','DTaP-IPV หรือ Tdap-IPV / TdaP-IPV แทน DTwP + bOPV','additional : DTaP-IPV / Tdap-IPV booster 0.5 ml IM','o'],['den1','Dengue 1 (ไข้เลือดออก; Qdenga, ≥4 ปี) 2 เข็ม ห่าง 3 เดือน','additional : Dengue vaccine (Qdenga) 1 SC','o'],['vzv2','VZV 2 (อีสุกอีใส) หากยังไม่ได้','additional : VZV vaccine 2 SC','o']]
 };
+const vxE=v=>VAX[v].filter(x=>x[3]==='e'), vxO=v=>VAX[v].filter(x=>x[3]==='o');
 const GD={
  early:{
   parent:['รัก ดูแลใกล้ชิด เอาใจใส่ สังเกตและตอบสนองความต้องการอย่างเหมาะสม','สังเกตลักษณะเฉพาะตัวและพื้นอารมณ์ของลูก จากการตื่น นอน กิน ร้องไห้','หลีกเลี่ยงการอุ้มกล่อมจนหลับ วางลงบนที่นอนเมื่อเริ่มเคลิ้ม','แบ่งเวลาทำกิจกรรมกับลูกทุกคน เปิดโอกาสให้พี่มีส่วนร่วมดูแลน้อง','พ่อแม่ควรมีเวลาเป็นส่วนตัวบ้าง'],
@@ -623,7 +639,7 @@ function chartNote(){
   if(S.teeth==='y'||S.caries){ scl.push('Teeth : '+(S.teeth==='y'?(S.teethn||'?')+' erupted':'none erupted')+(S.caries==='y'?', caries present':S.caries==='n'?', no caries':'')); }
   if(scl.length){ L.push('','Screening :'); scl.forEach(x=>L.push('- '+x)); }
   L.push('','Vaccination :');
-  const vx=(S.vx||[]).map(id=>{const o=VAX[v].find(x=>x[0]===id); return o&&o[2];}).filter(Boolean);
+  const vx=[...(S.vx||[]),...(S.vxo||[])].map(id=>{const o=VAX[v].find(x=>x[0]===id); return o&&o[2];}).filter(Boolean);
   if(S.vx_t) vx.push(S.vx_t);
   if(vx.length) vx.forEach(x=>L.push('- '+x)); else L.push('- (ไม่ได้บันทึก)');
   L.push('','Advice :'); c.adv.forEach(a=>L.push('- '+a));
@@ -820,9 +836,10 @@ function renderForm(){
      <div class="row"><span class="lb">เช็ดเหงือกทุกวัน</span>${seg('gum',YN)}</div>`);
 
   // immunization
-  P['วัคซีนและยา']=card('วัคซีนและยา','',`
-    <div class="row"><span class="lb">วัคซีนที่ให้ในวันนี้</span>${chips('vx',VAX[v])}</div>
-    ${txt('vx_t','วัคซีนอื่น/เลื่อนฉีด/วัคซีนทางเลือกที่ให้')}
+  P['วัคซีนและยา']=card('วัคซีนและยา',`<a class="vxinfo" href="vaccines.html#visit-${v}" target="_blank" rel="noopener">ข้อมูลวัคซีนสำหรับให้คำแนะนำ ↗</a>`,`
+    <div class="row"><span class="lb">วัคซีนพื้นฐาน (EPI ฟรีตามแผนฯ)</span>${chips('vx',vxE(v))}</div>
+    <div class="row"><span class="lb">วัคซีนทางเลือก/เสริม (เสียค่าใช้จ่าย)</span>${chips('vxo',vxO(v))}</div>
+    ${txt('vx_t','วัคซีนอื่น/เลื่อนฉีด/ฉีดตามหลัง (catch-up)')}
     ${late?segTxt('iron','เสริมธาตุเหล็ก',[['no','ไม่ได้ให้'],['yes','ให้']]):''}
     ${txt('med','ยาที่ใช้')}`);
 
@@ -975,7 +992,7 @@ function model(){
   if(v>=18) sr.push(['ความเสี่ยงไขมันในเลือดสูง/เบาหวาน',st('dm')]);
   if(v>=6) sr.push(['การสัมผัสสารตะกั่ว',st('lead')]); add('การคัดกรอง',sr);
   add('สุขภาพช่องปาก',late?[['ฟันขึ้นแล้ว',sl('teeth')+(S.teethn?' '+S.teethn+' ซี่':'')],...(tod?[['ฟันผุ',sl('caries')]]:[]),['ยาสีฟันฟลูออไรด์ 1000 ppm',sl('fluor')],['แปรงฟันวันละ 2 ครั้ง',sl('brush')],[tod?'พบทันตแพทย์ทุก 6–12 เดือน':'นัดทันตแพทย์ครั้งแรก',sl('dent')]]:[['เยื่อบุช่องปาก',sl('oralm')],['เช็ดเหงือกทุกวัน',sl('gum')]]);
-  add('วัคซีนและยา',[['วัคซีนที่ให้วันนี้',cl('vx')],['อื่น ๆ',S.vx_t||''],...(late?[['เสริมธาตุเหล็ก',st('iron')]]:[]),['ยา',S.med||'']]);
+  add('วัคซีนและยา',[['วัคซีนพื้นฐาน (EPI)',cl('vx')],['วัคซีนทางเลือก/เสริม',cl('vxo')],['อื่น ๆ',S.vx_t||''],...(late?[['เสริมธาตุเหล็ก',st('iron')]]:[]),['ยา',S.med||'']]);
   add('สรุปผลการประเมิน',[['ผลการประเมินรวม',st('eval')],['คำแนะนำ/แผนการดูแล',S.advice||'']]);
   add('คำแนะนำที่ให้',[['',cl('gd')]]);
   add('นัดครั้งต่อไป',[['อายุ','อายุ '+vl(VN[v].next)],['แผน',S.plan||'']]);
