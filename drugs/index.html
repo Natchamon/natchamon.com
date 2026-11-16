@@ -46,6 +46,14 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 .ln .ml{font-size:13px;color:var(--ink);font-variant-numeric:tabular-nums}
 .ln .ml{grid-column:1/-1}.ln .ml span{display:inline-block;margin-right:14px;white-space:nowrap}.ln .ml em{font-style:normal;color:var(--ink-3);font-size:11.5px}
 .cap{display:inline-block;font:500 11px var(--f-body);padding:1px 7px;border-radius:99px;background:var(--warn-bg);color:var(--warn);margin-left:6px;vertical-align:2px}
+.src{display:inline-block;margin-right:6px;padding:0 7px;border-radius:99px;background:var(--ok-bg);color:var(--ok);font:500 10.5px/17px var(--f-body)}
+.croup{display:grid;gap:6px;margin-top:10px}.croup .row{display:flex;flex-wrap:wrap;gap:6px;align-items:center}.croup .row>span{flex:0 0 170px;font-size:13px;color:var(--ink-2)}
+.croup .opt{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:3px 10px;cursor:pointer;font-size:12.5px;min-height:30px}.croup .opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
+.cs{font:600 15px var(--f-head);margin-top:4px}.cs.m{color:var(--warn)}.cs.s{color:var(--bad)}.cs.o{color:var(--ok)}
+.fq{font-size:12px;color:var(--ink-3)}
+.srcbar{margin-top:12px;font-size:12px;color:var(--ok);background:var(--ok-bg);border-radius:8px;padding:5px 10px}
+.st li.hint{color:var(--ink-3);font-size:12.5px;list-style:none;margin-left:-18px}.st li.wn{color:var(--bad)}
+.note.bad{background:var(--bad-bg);color:var(--bad)}
 .dc .nt{font-size:12px;color:var(--ink-2)}
 .dc .wn{font-size:12px;color:var(--bad);font-weight:500}
 .dc.flag{border-color:var(--bad)}
@@ -61,7 +69,7 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 .kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:8px;margin-top:10px}
 .k{background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:8px 12px}
 .k span{display:block;font-size:12px;color:var(--ink-2)}.k b{font:600 18px var(--f-head);font-variant-numeric:tabular-nums}.k b small{font:400 12px var(--f-body);color:var(--ink-2);margin-left:3px}
-.k em{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3)}
+.k em{display:block;font-style:normal;font-size:11.5px;color:var(--ink-3)}.k em b.n{font:600 11.5px var(--f-body);color:var(--ink)}
 .note{border-radius:10px;padding:8px 12px;font-size:13px;margin-top:10px}
 .note.warn{background:var(--warn-bg);color:var(--warn)}.note.info{background:var(--soft);color:var(--ink-2)}
 .foot{margin-top:24px;font-size:12px;color:var(--ink-2);line-height:1.6}
@@ -84,7 +92,7 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 
 <div class="foot">
   <b>ใช้ประกอบการตัดสินใจเท่านั้น</b> ตรวจสอบขนาดยา ความเข้มข้นของยาในโรงพยาบาล การทำงานของไตและตับ และแนวทางของหน่วยงานทุกครั้งก่อนสั่งยา · ขนาดยาสำหรับเด็กอายุ ≥1 เดือน (ไม่ใช่ทารกแรกเกิด) · ขนาดยาที่เกินขนาดสูงสุดจะถูกตัดลงเป็นขนาดสูงสุดและมีป้ายกำกับ
-  <br>อ้างอิงหลัก: WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (prednisolone, MgSO4)
+  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (prednisolone, MgSO4)
 </div>
 </div>
 <script>
@@ -121,26 +129,35 @@ const D=[
  calc:w=>[{x:kg(w,15,null,500),u:'mg',f:'bid × 3 วัน',forms:[F('tab 250 mg',250,'tab'),F('tab 500 mg',500,'tab')]}]},
 {id:'azidys',n:'Azithromycin',th:'(dysentery)',c:'ab',r:'PO',rule:'10 mg/kg OD × 3 วัน · max 500 mg',
  calc:w=>[{x:kg(w,10,null,500),u:'mg',f:'OD × 3 วัน',forms:[F('susp 200 mg/5 mL',40)]}]},
-{id:'salb',n:'Salbutamol neb',th:'',c:'rs',r:'NB',rule:'0.15 mg/kg/dose (min 2.5, max 5 mg) q 20 นาที × 3 แล้ว q 1–4 h',
- calc:w=>[{x:kg(w,0.15,null,5,2.5),u:'mg',f:'q 20 นาที × 3',forms:[F('nebule 2.5 mg/2.5 mL',1),F('resp. sol 5 mg/mL',5)]}],nt:'ผสม NSS ให้ครบ 3–4 mL'},
-{id:'salbmdi',n:'Salbutamol MDI + spacer',th:'',c:'rs',r:'MDI 100 mcg',rule:'<20 kg 6 puffs · ≥20 kg 12 puffs q 20 นาที × 3',
- calc:w=>[{x:{lo:w<20?6:12,hi:w<20?6:12},u:'puffs',f:'q 20 นาที × 3'}]},
+{id:'salb',n:'Salbutamol neb',th:'(Ventolin)',c:'rs',r:'NB',src:'h',rule:'0.15 mg/kg · BW <30 kg 1 nebule (2.5 mg), ≥30 kg 2 nebule (5 mg) · q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.',
+ calc:w=>{ const n=w<30?1:2; return [{x:{lo:n*2.5,hi:n*2.5},u:'mg',f:'q 20 นาที × 3',forms:[F('nebule 2.5 mg/2.5 mL (1 mg/mL)',2.5,'neb')],lt:'0.15 mg/kg = '+fmt(w*0.15)+' mg'}]; },nt:'ผสมพ่นร่วมกับ Berodual / Pulmicort ได้'},
+{id:'salbmdi',n:'Salbutamol MDI + spacer',th:'',c:'rs',r:'MDI 100 mcg',src:'h',rule:'2–6 puffs via spacer q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.',
+ calc:w=>[{x:{lo:2,hi:6},u:'puffs',f:'q 20 นาที × 3'}]},
+{id:'berod',n:'Berodual neb',th:'(ipratropium + fenoterol)',c:'rs',r:'NB',src:'h',rule:'รายรุนแรง/เสี่ยงสูง · BW ≤20 kg ½ nebule, >20 kg 1 nebule · q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.',
+ calc:w=>[{x:{lo:w<=20?0.5:1,hi:w<=20?0.5:1},u:'nebule',f:'q 20 นาที × 3'}],nt:'ใช้แทน Ventolin ในรายรุนแรง หรือ Berodual MDI 2–6 puffs via spacer'},
+{id:'pulmi',n:'Pulmicort neb',th:'(budesonide)',c:'rs',r:'NB',src:'h',rule:'500 mcg/dose q 20 นาที × 3 (พิจารณาในรายรุนแรง)',
+ calc:w=>[{x:{lo:500,hi:500},u:'mcg',f:'q 20 นาที × 3',forms:[F('0.5 mg/2 mL',250),F('1 mg/2 mL',500)]}],nt:'ไม่มี Pulmicort: budesonide MDI 200 mcg 2 puffs'},
+{id:'terb',n:'β2-agonist SC',th:'(terbutaline)',c:'rs',r:'SC',src:'h',rule:'0.01 mg/kg SC · max 0.4 mg · เมื่อ poor air entry',
+ calc:w=>[{x:kg(w,0.01,null,0.4),u:'mg',f:'SC',forms:[F('terbutaline 0.5 mg/mL',0.5)]}],nt:'แนวทางระบุ "SABA injection" ตรวจชื่อยาและความเข้มข้นใน รพ.'},
 {id:'ipra',n:'Ipratropium neb',th:'',c:'rs',r:'NB',rule:'<20 kg 250 mcg · ≥20 kg 500 mcg q 20 นาที × 3 (ชั่วโมงแรก)',
- calc:w=>[{x:{lo:w<20?250:500,hi:w<20?250:500},u:'mcg',f:'q 20 นาที × 3',forms:[F('0.025% (250 mcg/mL)',250)]}],nt:'ผสมพ่นร่วมกับ salbutamol ได้ ใช้เฉพาะ asthma รุนแรงปานกลาง–รุนแรง'},
-{id:'pred',n:'Prednisolone',th:'',c:'rs',r:'PO',rule:'1–2 mg/kg/วัน OD × 3–5 วัน · max 40 mg/วัน',
- calc:w=>[{x:kg(w,1,2,40),u:'mg',f:'OD × 3–5 วัน',forms:[F('tab 5 mg',5,'tab'),F('syr 15 mg/5 mL',3)]}]},
+ calc:w=>[{x:{lo:w<20?250:500,hi:w<20?250:500},u:'mcg',f:'q 20 นาที × 3',forms:[F('0.025% (250 mcg/mL)',250)]}],nt:'ใช้เมื่อไม่มี Berodual'},
+{id:'pred',n:'Prednisolone',th:'',c:'rs',r:'PO',src:'h',rule:'1 mg/kg/dose (max 40 mg) แล้ว 1–2 mg/kg/วัน · กลับบ้านกินต่อ 5–7 วัน',
+ calc:w=>[{x:kg(w,1,null,40),u:'mg',lt:'ครั้งแรก',f:'stat',forms:[F('tab 5 mg',5,'tab'),F('syr 15 mg/5 mL',3)]},{x:kg(w,1,2,40),u:'mg',lt:'ต่อไป (1–2 mg/kg/วัน, max 40 mg)',f:'ต่อวัน × 5–7 วัน',forms:[F('tab 5 mg',5,'tab'),F('syr 15 mg/5 mL',3)]}]},
 {id:'dexa',n:'Dexamethasone',th:'(asthma)',c:'rs',r:'PO / IV / IM',rule:'0.6 mg/kg ครั้งเดียว · max 16 mg (แทน prednisolone)',
  calc:w=>[{x:kg(w,0.6,null,16),u:'mg',f:'ครั้งเดียว',forms:[F('inj 4 mg/mL',4)]}]},
-{id:'hc',n:'Hydrocortisone',th:'',c:'rs',r:'IV',rule:'4 mg/kg/dose q 6 h · max 100 mg/dose',
- calc:w=>[{x:kg(w,4,null,100),u:'mg',f:'q 6 h',forms:[F('100 mg/2 mL (ผสมแล้ว)',50)]}],nt:'ใช้เมื่อกินยาไม่ได้'},
+{id:'hc',n:'Hydrocortisone',th:'',c:'rs',r:'IV',src:'h',rule:'5 mg/kg/dose IV q 6 h · ครั้งแรก max 250 mg, ครั้งต่อไป max 100 mg',
+ calc:w=>[{x:kg(w,5,null,250),u:'mg',lt:'ครั้งแรก',f:'stat',forms:[F('100 mg/2 mL (ผสมแล้ว)',50)]},{x:kg(w,5,null,100),u:'mg',lt:'ครั้งต่อไป',f:'q 6 h',forms:[F('100 mg/2 mL (ผสมแล้ว)',50)]}],nt:'ใช้เมื่อกินยาไม่ได้'},
+{id:'cneb',n:'Continuous salbutamol neb',th:'(status asthmaticus)',c:'rs',r:'NB ต่อเนื่อง',src:'h',rule:'เริ่ม 0.5 mg/kg/ชม. (ไม่ต่ำกว่า 10 mg/ชม.) · เพิ่มครั้งละ 5 mg/ชม. ทุก 1 ชม. · max 60 (nebule ผสมได้ 30 ที่ 10 LPM, 50 ที่ 15 LPM)',
+ calc:w=>{ const d=Math.min(50,Math.max(10,Math.ceil(w*0.5/5)*5)); const lpm=d<=30?10:15, tot=lpm===10?30:50; return [{x:{lo:Math.max(10,w*0.5),hi:Math.max(10,w*0.5)},u:'mg/ชม.',lt:'ขนาดเริ่มต้น'},{x:{lo:d,hi:d},u:'mg/ชม.',lt:`ผสมสำหรับ HEART nebulizer (ปัดขึ้นเป็นขั้นละ 5) · O2 ${lpm} LPM = ${tot} mL/ชม.`,mix:`salbutamol nebule (1 mg/mL) <b>${d} mL</b> + NSS <b>${tot-d} mL</b>`}]; },
+ nt:'พิจารณาย้าย PICU · monitor HR/EKG และ serum K (วันแรก NPO, เจาะ K baseline, add IV K หลังปัสสาวะออกดี)'},
 {id:'mg',n:'Magnesium sulfate',th:'',c:'rs',r:'IV drip 20 นาที',rule:'25–50 mg/kg ครั้งเดียว · max 2 g',
  calc:w=>[{x:kg(w,25,50,2000),u:'mg',f:'IV 20 นาที',forms:[F('50% (500 mg/mL)',500),F('10% (100 mg/mL)',100)]}],nt:'เจือจางก่อนให้ · monitor BP, deep tendon reflex'},
-{id:'dexc',n:'Dexamethasone',th:'(croup)',c:'rs',r:'PO / IV / IM',rule:'0.15–0.6 mg/kg ครั้งเดียว (0.6 ในรายรุนแรง) · max 12 mg',
- calc:w=>[{x:kg(w,0.15,0.3,12),u:'mg',lt:'ไม่รุนแรง–ปานกลาง (0.15–0.3 mg/kg)',f:'ครั้งเดียว',forms:[F('inj 4 mg/mL',4)]},{x:kg(w,0.6,null,12),u:'mg',lt:'รุนแรง (0.6 mg/kg)',f:'ครั้งเดียว',forms:[F('inj 4 mg/mL',4)]}]},
+{id:'dexc',n:'Dexamethasone',th:'(croup)',c:'rs',r:'IM / IV',src:'h',rule:'0.6 mg/kg/dose IM/IV · ใช้ทั้ง mild (OPD) และ moderate (admit)',
+ calc:w=>[{x:kg(w,0.6,null,16),u:'mg',f:'ครั้งเดียว',forms:[F('inj 4 mg/mL',4)]}],nt:'แนวทาง รพ. ไม่ระบุขนาดสูงสุด เครื่องมือนี้จำกัดที่ 16 mg'},
 {id:'bud',n:'Budesonide neb',th:'(croup)',c:'rs',r:'NB',rule:'2 mg ครั้งเดียว (ทางเลือกเมื่อกินยาไม่ได้)',
  calc:w=>[{x:{lo:2,hi:2},u:'mg',f:'ครั้งเดียว',forms:[F('0.5 mg/2 mL',0.25)]}]},
-{id:'adrneb',n:'Adrenaline neb 1:1000',th:'(croup)',c:'rs',r:'NB',rule:'0.5 mL/kg ของ 1 mg/mL · max 5 mL (ไม่ต้องเจือจาง)',
- calc:w=>[{x:kg(w,0.5,null,5),u:'mL',f:'ซ้ำได้ตามอาการ',lt:'ปริมาตร 1:1000 (1 mg/mL)'}],nt:'สังเกตอาการ ≥2–4 ชม. หลังพ่น (rebound)'},
+{id:'adrneb',n:'Adrenaline neb 1:1000',th:'(croup)',c:'rs',r:'NB',src:'h',rule:'0.05–0.5 mL/kg · max 2.5 mL (อายุ <4 ปี), 5 mL (อายุ ≥4 ปี) · dilute ใน NSS 3 mL',
+ calc:(w,a)=>a==null?[{x:kg(w,0.05,0.5,2.5),u:'mL',lt:'อายุ <4 ปี (max 2.5 mL)'},{x:kg(w,0.05,0.5,5),u:'mL',lt:'อายุ ≥4 ปี (max 5 mL)'}]:[{x:kg(w,0.05,0.5,a<48?2.5:5),u:'mL',lt:'1:1000 (1 mg/mL) + NSS 3 mL'}],nt:'ออกฤทธิ์ในครึ่งชั่วโมง · สังเกตอาการต่อ (rebound)'},
 {id:'ns3',n:'3% NaCl neb',th:'(bronchiolitis)',c:'rs',r:'NB',rule:'4 mL q 4–8 h · ทางเลือกในผู้ป่วยใน',
  calc:w=>[{x:{lo:4,hi:4},u:'mL',f:'q 4–8 h'}],nt:'ไม่แนะนำใน ER · ไม่แนะนำ salbutamol/steroid เป็นประจำใน bronchiolitis'},
 {id:'amox',n:'Amoxicillin',th:'(high dose)',c:'ab',r:'PO',rule:'80–90 mg/kg/วัน ÷ bid · max 4 g/วัน',
@@ -157,6 +174,14 @@ const D=[
  calc:w=>[{x:kg(w,50,100,2000),u:'mg',lt:'pneumonia / dysentery',f:'OD',forms:[F('1 g ผสม 10 mL',100)]},{x:day(w,100,null,2,2000,4000),u:'mg',lt:'meningitis',f:'q 12 h',forms:[F('1 g ผสม 10 mL',100)]}]},
 {id:'azi',n:'Azithromycin',th:'(atypical pneumonia)',c:'ab',r:'PO / IV',rule:'วันแรก 10 mg/kg (max 500 mg) · วันที่ 2–5: 5 mg/kg (max 250 mg)',
  calc:w=>[{x:kg(w,10,null,500),u:'mg',lt:'วันที่ 1',f:'OD',forms:[F('susp 200 mg/5 mL',40)]},{x:kg(w,5,null,250),u:'mg',lt:'วันที่ 2–5',f:'OD',forms:[F('susp 200 mg/5 mL',40)]}]},
+{id:'ery',n:'Erythromycin',th:'(atypical pneumonia)',c:'ab',r:'PO',rule:'40–50 mg/kg/วัน ÷ q 6 h · max 500 mg/dose · 10–14 วัน',
+ calc:w=>[{x:day(w,40,50,4,500),u:'mg',f:'q 6 h',forms:[F('susp 200 mg/5 mL',40)]}]},
+{id:'clari',n:'Clarithromycin',th:'(atypical pneumonia)',c:'ab',r:'PO',rule:'15 mg/kg/วัน ÷ bid · max 500 mg/dose',
+ calc:w=>[{x:day(w,15,null,2,500),u:'mg',f:'bid',forms:[F('susp 125 mg/5 mL',25),F('susp 250 mg/5 mL',50)]}]},
+{id:'cefdi',n:'Cefdinir',th:'',c:'ab',r:'PO',rule:'14 mg/kg/วัน ÷ bid · max 600 mg/วัน',
+ calc:w=>[{x:day(w,14,null,2,null,600),u:'mg',f:'bid',forms:[F('susp 125 mg/5 mL',25)]}]},
+{id:'cefdt',n:'Cefditoren',th:'',c:'ab',r:'PO',rule:'3 mg/kg/dose tid (ตามเอกสารกำกับยา) · max 200 mg/dose',
+ calc:w=>[{x:kg(w,3,null,200),u:'mg',f:'tid',forms:[F('fine granules 50 mg/g',50,'g')]}],nt:'ตรวจรูปแบบยาใน รพ.'},
 {id:'clin',n:'Clindamycin',th:'',c:'ab',r:'IV',rule:'40 mg/kg/วัน ÷ q 6–8 h · max 900 mg/dose',
  calc:w=>[{x:day(w,40,null,4,900),u:'mg',f:'q 6 h',forms:[F('150 mg/mL',150)]},{x:day(w,40,null,3,900),u:'mg',f:'q 8 h',forms:[F('150 mg/mL',150)]}],nt:'สงสัย MRSA / empyema / ปอดอักเสบรุนแรง'},
 {id:'clox',n:'Cloxacillin',th:'',c:'ab',r:'IV',rule:'100–200 mg/kg/วัน ÷ q 6 h · max 2 g/dose',
@@ -202,20 +227,26 @@ function card(d,w,a){
   const lines=d.calc(w,a); let anyCap=false;
   const L=lines.map(l=>{ const x=l.x; anyCap=anyCap||x.cap; const same=Math.abs(x.lo-x.hi)<1e-9;
     const v=same?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u);
-    const ml=(l.forms||[]).map(f=>{ if(f.kind==='tab'){ const a1=ftab(x.lo/f.c), b1=ftab(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} <em>× ${f.t}</em></span>`; }
+    const ml=(l.forms||[]).map(f=>{ if(f.kind==='neb'){ const a1=fml(x.lo/f.c); return `<span>${a1} nebule <em>${f.t}</em></span>`; } if(f.kind==='g'){ const a1=fml(x.lo/f.c), b1=fml(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} g <em>${f.t}</em></span>`; } if(f.kind==='tab'){ const a1=ftab(x.lo/f.c), b1=ftab(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} <em>× ${f.t}</em></span>`; }
       const a1=fml(x.lo/f.c), b1=fml(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} mL <em>${f.t}</em></span>`; }).join('');
-    return `<div class="ln">${l.lt?`<span class="lt">${l.lt}</span>`:''}<span class="v">${v}<small>${l.u}${l.f?' · '+l.f:''}</small>${x.cap?'<span class="cap">ขนาดสูงสุด</span>':''}</span><span class="ml">${ml}</span></div>`; }).join('');
+    return `<div class="ln">${l.lt?`<span class="lt">${l.lt}</span>`:''}<span class="v">${v}<small>${l.u}${l.f?' · '+l.f:''}</small>${x.cap?'<span class="cap">ขนาดสูงสุด</span>':''}</span><span class="ml">${ml}${l.mix?`<span>${l.mix}</span>`:''}</span></div>`; }).join('');
   const wn=d.wn?d.wn(a):'';
-  return `<div class="dc${wn?' flag':''}" data-id="${d.id}"><div class="hd"><span class="nm">${d.n}${d.th?`<small>${d.th}</small>`:''}</span><span class="rt">${d.r}</span></div>
+  return `<div class="dc${wn?' flag':''}" data-id="${d.id}"><div class="hd"><span class="nm">${d.n}${d.th?`<small>${d.th}</small>`:''}</span><span class="rt">${d.src==='h'?'<span class="src">แนวทาง รพ.</span>':''}${d.r}</span></div>
     <div class="rule">${d.rule}</div>${L}${wn?`<div class="wn">⚠ ${wn}</div>`:''}${d.nt?`<div class="nt">${d.nt}</div>`:''}</div>`;
 }
 const cards=(ids,w,a)=>`<div class="grid">${ids.map(id=>card(BY[id],w,a)).join('')}</div>`;
 const n=(x,u)=>`<b class="n">${fmt(x,u)}</b>`;
 /* ---- admission sets ---- */
+function dz(id,k,w,a){ const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
+const CROUP=[['ไอ',['ไม่มี','ร้องเสียงแหบ','ไอเสียงก้อง (barking)']],['Stridor',['ไม่มี','ขณะหายใจเข้า','หายใจเข้าและออก']],['Retraction / nasal flaring',['ไม่มี','nasal flaring + suprasternal','+ subcostal & intercostal']],['เขียว',['ไม่มี','ในอากาศธรรมดา','ใน O2 40%']],['เสียงหายใจเข้า',['ปกติ','harsh with rhonchi','ช้าและเข้ายาก']]];
+let CS=[null,null,null,null,null];
+function croupOut(){ const el=document.getElementById('csout'); if(!el) return; const done=CS.every(v=>v!=null), t=CS.reduce((p,v)=>p+(v||0),0);
+  el.innerHTML=done?`<div class="cs ${t<4?'o':t<=7?'m':'s'}">Croup score ${t} · ${t<4?'Mild — OPD':t<=7?'Moderate — admit':'Severe — admit ICU, พิจารณาใส่ท่อช่วยหายใจ'}</div>`:`<div class="hint" style="font-size:12.5px;color:var(--ink-2)">เลือกให้ครบ 5 ข้อ (คะแนนตอนนี้ ${t})</div>`;
+  document.querySelectorAll('[data-cr]').forEach(b=>b.setAttribute('aria-pressed',CS[+b.dataset.cr]===+b.dataset.v)); }
 const SETS={
  all:{t:'ยาทั้งหมด'},
  age:{t:'AGE / ขาดน้ำ',render(w,a){ const m=maint(w), pc1=a!=null&&a<12;
-   return `<div class="kv">
+   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ใช้ WHO Pocket Book</div><div class="kv">
      <div class="k"><span>Plan A · ORS หลังถ่ายแต่ละครั้ง</span><b>${fmt(w*10)}<small>mL</small></b><em>10 mL/kg ต่อการถ่ายเหลว 1 ครั้ง</em></div>
      <div class="k"><span>Plan B · ORS ใน 4 ชม. (ขาดน้ำเล็กน้อย–ปานกลาง)</span><b>${fmt(w*75)}<small>mL / 4 ชม.</small></b><em>75 mL/kg ≈ ${fmt(w*75/4)} mL/ชม.</em></div>
      <div class="k"><span>Plan C · ขาดน้ำรุนแรง (Ringer's lactate / NSS 100 mL/kg)</span><b>${fmt(w*30)}<small>mL</small> → ${fmt(w*70)}<small>mL</small></b><em>${a==null?'<12 เดือน: 30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม. · ≥12 เดือน: ใน 30 นาที แล้ว 2½ ชม.':pc1?'30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม.':'30 mL/kg ใน 30 นาที แล้ว 70 mL/kg ใน 2½ ชม.'}</em></div>
@@ -223,22 +254,48 @@ const SETS={
    </div>
    <div class="note info">ไม่ใช้ยาหยุดถ่ายในเด็ก · ยาปฏิชีวนะเฉพาะ dysentery (ถ่ายเป็นมูกเลือด) หรือสงสัย cholera · ondansetron ครั้งเดียวเมื่ออาเจียนมากจน ORS ไม่ได้</div>
    <h3 class="sec">ยาที่ใช้บ่อย</h3>${cards(['ond','zinc','para','cipro','azidys','cro'],w,a)}`; }},
- pna:{t:'Pneumonia',render(w,a){ const m=maint(w);
-   return `<div class="kv">
-     <div class="k"><span>Maintenance IV</span><b>${fmt(m/24)}<small>mL/ชม.</small></b><em>${fmt(m)} mL/วัน</em></div>
-     <div class="k"><span>ถ้าสงสัย SIADH / ปอดอักเสบรุนแรง (⅔ maintenance)</span><b>${fmt(m*2/3/24)}<small>mL/ชม.</small></b><em>${fmt(m*2/3)} mL/วัน</em></div>
+ pna:{t:'Pneumonia',render(w,a){ const m=maint(w), Q=(id,k)=>dz(id,k,w,a);
+   return `<div class="srcbar">ลำดับการรักษาตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564) · ขนาดยาจาก IDSA 2011 (แนวทาง รพ. ไม่ระบุขนาด)</div>
+   <h3 class="sec">แผนภูมิ 1 · ปอดบวมไม่รุนแรง <small>อายุ <1 เดือน รักษาแบบปอดบวมรุนแรงทุกราย</small></h3>
+   <div class="steps">
+     <div class="st"><span class="tm">อายุ 1–3 เดือน</span><ul><li>กิน amoxicillin (high dose) ${Q('amox')}</li><li>สงสัย atypical: erythromycin ${Q('ery')} หรือ azithromycin ${Q('azi')} → ${Q('azi',1)} วันที่ 2–5</li><li>ดีขึ้น → ให้ยาจนครบ · ไม่ดีขึ้น → admit รักษาแบบปอดบวมรุนแรง</li></ul></div>
+     <div class="st"><span class="tm">อายุ 3 เดือน – 18 ปี · ทั่วไป</span><ul><li>กิน amoxicillin (high dose) ${Q('amox')}</li><li>ดีขึ้น → ให้ยาจนครบ</li><li>ไม่ดีขึ้น/อาการเลวลง → ประเมินผู้ป่วย ตรวจหาภาวะแทรกซ้อน · มีภาวะแทรกซ้อน → admit</li></ul></div>
+     <div class="st"><span class="tm">ไม่ดีขึ้น · ไม่มีภาวะแทรกซ้อน</span><ul><li><i>M. pneumoniae / C. pneumoniae</i>: erythromycin ${Q('ery')}, clarithromycin ${Q('clari')} หรือ azithromycin</li><li><i>S. pneumoniae</i> ดื้อยา / beta-lactamase: amoxicillin-clavulanate (high dose) ${Q('amc')}, cefditoren ${Q('cefdt')} หรือ cefdinir ${Q('cefdi')}</li></ul></div>
+     <div class="st"><span class="tm">อายุ 3 เดือน – 18 ปี · สงสัย atypical</span><ul><li>เช่น subacute onset</li><li>erythromycin ${Q('ery')}, clarithromycin ${Q('clari')} หรือ azithromycin ${Q('azi')}</li><li>ไม่ดีขึ้นและเลวลง → admit รักษาแบบปอดบวมรุนแรง</li></ul></div>
    </div>
-   <div class="note info">ผู้ป่วยในที่ได้วัคซีนครบ: ampicillin หรือ PGS · ยังไม่ครบ/รุนแรง/สงสัยเชื้อดื้อยา: cefotaxime หรือ ceftriaxone · สงสัย atypical (อายุ ≥5 ปี): เพิ่ม azithromycin · สงสัย MRSA/empyema: เพิ่ม clindamycin</div>
-   <h3 class="sec">ยาปฏิชีวนะ IV</h3>${cards(['amp','pgs','ctx','cro','clin'],w,a)}
-   <h3 class="sec">ยากิน / เมื่อเปลี่ยนเป็นยากิน</h3>${cards(['amox','amc','azi','osel'],w,a)}
-   <h3 class="sec">อื่น ๆ</h3>${cards(['salb','para'],w,a)}`; }},
- rsp:{t:'Asthma · Bronchiolitis · Croup',render(w,a){
-   return `<h3 class="sec">Asthma exacerbation <small>salbutamol ± ipratropium q 20 นาที × 3 → steroid ภายใน 1 ชม. → MgSO4 ถ้าไม่ดีขึ้น</small></h3>${cards(['salb','salbmdi','ipra','pred','dexa','hc','mg'],w,a)}
-   <h3 class="sec">Croup <small>steroid ทุกราย · adrenaline neb เมื่อมี stridor ขณะพัก</small></h3>${cards(['dexc','bud','adrneb'],w,a)}
-   <h3 class="sec">Bronchiolitis <small>รักษาประคับประคอง: O2 เมื่อ SpO2 <90–92%, suction, สารน้ำ/อาหารทาง NG</small></h3>${cards(['ns3'],w,a)}
-   <div class="note warn">Bronchiolitis: ไม่แนะนำ salbutamol, adrenaline, steroid หรือยาปฏิชีวนะเป็นประจำ</div>`; }},
+   <h3 class="sec">แผนภูมิ 2 · ปอดบวมรุนแรง <small>admit + general support and respiratory care</small></h3>
+   <div class="steps">
+     <div class="st"><span class="tm">อายุ 1 เดือน – 18 ปี</span><ul><li>ampicillin IV ${Q('amp')} — เมื่อได้วัคซีน Hib และ IPD ครบ หรือโอกาสติดเชื้อ <i>S. pneumoniae</i> ดื้อ penicillin น้อย</li><li>หรือ cefotaxime IV ${Q('ctx')}</li><li>หรือ ceftriaxone IV ${Q('cro')}</li><li>สงสัย atypical: เพิ่ม erythromycin หรือ azithromycin กิน</li></ul></div>
+     <div class="st"><span class="tm">อายุ <1 เดือน</span><ul><li>PGS หรือ ampicillin + aminoglycoside IV</li><li>หรือ cefotaxime IV</li><li>cloxacillin IV ถ้าสงสัย <i>S. aureus</i></li><li class="wn">ใช้ขนาดยาทารกแรกเกิดตามอายุหลังเกิด (ไม่ได้คำนวณในหน้านี้)</li></ul></div>
+     <div class="st"><span class="tm">สารน้ำ</span><ul><li>Maintenance ${n(m/24)} mL/ชม. (${fmt(m)} mL/วัน)</li><li>สงสัย SIADH: ⅔ maintenance ${n(m*2/3/24)} mL/ชม.</li><li>ไม่ดีขึ้น → ประเมินผู้ป่วย ตรวจหาภาวะแทรกซ้อน</li></ul></div>
+   </div>
+   <h3 class="sec">รายละเอียดยา</h3>${cards(['amox','amc','azi','ery','clari','cefdi','cefdt','amp','ctx','cro','clox'],w,a)}`; }},
+ rsp:{t:'Asthma · Croup · Bronchiolitis',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
+   const hf=(a!=null&&a<12)||w<10?`${fmt(Math.min(12,2*w))} LPM <small>(2 LPM/kg, max 12)</small>`:`7 LPM <small>(max 20)</small>`;
+   return `<div class="srcbar">ตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564): asthma exacerbation ที่ห้องฉุกเฉิน, continuous nebulizer, viral croup, HHHFNC</div>
+   <h3 class="sec">Asthma exacerbation ที่ห้องฉุกเฉิน</h3>
+   <div class="note bad">Respiratory failure (cardiopulmonary arrest, severe hypoxia, alteration of consciousness): notify กุมารแพทย์ เตรียม intubation และ admit PICU</div>
+   <div class="steps">
+     <div class="st"><span class="tm">ไม่รุนแรง</span><ul><li class="hint">ไม่มีชายโครงบุ๋ม พูดเป็นประโยค · SpO2 (RA) ≥92% · PR 100–120</li><li>O2 keep SpO2 >95%</li><li>prednisolone ${Q('pred')} (หรือ hydrocortisone IV ${Q('hc')})</li><li>Ventolin neb ${Q('salb')} หรือ MDI 2–6 puffs + spacer q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.</li></ul></div>
+     <div class="st"><span class="tm">รุนแรง หรือเสี่ยงสูง*</span><ul><li class="hint">ชายโครงบุ๋ม พูดเป็นคำ กระสับกระส่าย · SpO2 (RA) <92% · PR >120</li><li>O2 keep SpO2 >95% + systemic steroid ตามด้านซ้าย</li><li>Berodual neb ${Q('berod')} หรือ MDI 2–6 puffs q 20 นาที × 3 ใน 1 ชม.</li><li>พิจารณา Pulmicort ${Q('pulmi')} q 20 นาที × 3</li><li>poor air entry: β2-agonist SC ${Q('terb')}</li></ul></div>
+     <div class="st"><span class="tm">ประเมินซ้ำที่ 1 ชม.</span><ul><li>ดีขึ้น (good air entry, no retraction, SpO2 >95% RA): กลับบ้าน · Ventolin สูด/พ่น หรือกิน q 4–6 ชม. · prednisolone กิน 5–7 วัน</li><li>ไม่ดีขึ้น → รับไว้ในโรงพยาบาล</li><li>status asthmaticus → continuous neb ${Q('cneb')} · พิจารณา PICU</li></ul></div>
+     <div class="st"><span class="tm">*ผู้ป่วยกลุ่มเสี่ยงสูง</span><ul><li>เคย respiratory failure / ใส่ท่อ / ICU</li><li>ICS ขนาดสูง (>500 mcg/วัน) หรือ prednisolone หลายครั้ง / กำลังกิน / เพิ่งหยุด</li><li>สงสัย pneumonia, atelectasis, pneumothorax</li><li>มี underlying / chronic illness</li></ul></div>
+   </div>
+   ${cards(['salb','salbmdi','berod','pulmi','pred','hc','terb','cneb'],w,a)}
+   <div class="note info">MgSO4 IV ไม่มีขนาดในแนวทาง รพ. (อยู่ในเกณฑ์รับเข้า PICU) · ขนาดตาม GINA: ${Q('mg')} IV 20 นาที</div>
+   <h3 class="sec">Viral croup <small>คำนวณ croup score</small></h3>
+   <div class="pc croup" id="croup">${CROUP.map((r,i)=>`<div class="row"><span>${r[0]}</span>${r[1].map((t,v)=>`<button type="button" class="opt" data-cr="${i}" data-v="${v}" aria-pressed="${CS[i]===v}">${v} · ${t}</button>`).join('')}</div>`).join('')}<div id="csout"></div></div>
+   <div class="steps">
+     <div class="st"><span class="tm">Mild · score <4</span><ul><li>OPD treatment</li><li>dexamethasone ${Q('dexc')} IM</li><li>แนะนำสังเกตอาการ นัด F/U 1–2 วัน</li></ul></div>
+     <div class="st"><span class="tm">Moderate · score 4–7</span><ul><li>admit, รบกวนน้อยที่สุด, O2 supplement, IV fluid</li><li>NB adrenaline 1:1000 ${Q('adrneb')} dilute NSS 3 mL</li><li>dexamethasone ${Q('dexc')} IM/IV</li><li>ไม่ดีขึ้น เขียว หายใจล้มเหลว → พิจารณา intubation</li></ul></div>
+     <div class="st"><span class="tm">Severe · score >7</span><ul><li>admit ICU</li><li>ให้ยาเหมือน moderate</li><li>พิจารณาใส่ท่อช่วยหายใจ / เจาะคอ</li><li>ไม่ต้องให้ยาปฏิชีวนะใน viral croup</li></ul></div>
+   </div>
+   ${cards(['dexc','adrneb'],w,a)}
+   <h3 class="sec">HHHFNC · Bronchiolitis</h3>
+   <div class="kv"><div class="k"><span>HHHFNC initial flow</span><b>${hf}</b><em>อายุ <12 เดือน หรือ <10 kg: 2 LPM/kg (max 12) · มากกว่านั้น: เริ่ม 7 LPM (max 20) · ประเมิน RAS ที่ 1, 2, 4 ชม.</em></div>
+   <div class="k"><span>Bronchiolitis</span><b style="font-size:14px">รักษาประคับประคอง</b><em>O2, suction, สารน้ำ/อาหาร · ไม่แนะนำ salbutamol, steroid หรือยาปฏิชีวนะเป็นประจำ · 3% NaCl neb ${Q('ns3')} ทางเลือกในผู้ป่วยใน</em></div></div>`; }},
  sz:{t:'Seizure / Status',render(w,a){ const B=id=>{ const d=BY[id], l=d.calc(w,a)[0], x=l.x; return `<b class="n">${fmt(x.lo,l.u)}${Math.abs(x.lo-x.hi)>1e-9?'–'+fmt(x.hi,l.u):''} ${l.u}</b>`; };
-   return `<div class="steps">
+   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ใช้ CPS / EMSC PEAK status epilepticus algorithm</div><div class="steps">
      <div class="st"><span class="tm">0–5 นาที</span><ul><li>ABC, O2, จัดท่า, monitor</li><li>DTX ถ้า <60 mg/dL: 10% dextrose ${B('d10')}</li><li>เปิด IV/IO, ส่ง lab ตามข้อบ่งชี้</li><li>ไข้: paracetamol ${B('para')}</li></ul></div>
      <div class="st"><span class="tm">5 นาที · benzodiazepine #1</span><ul><li>Midazolam IV ${B('mdziv')}</li><li>หรือ diazepam IV ${B('dziv')}</li><li>ไม่มี IV: midazolam IM/IN ${B('mdzim')} หรือ diazepam PR ${B('dzpr')}</li></ul></div>
      <div class="st"><span class="tm">10 นาที · benzodiazepine #2</span><ul><li>ซ้ำ benzodiazepine 1 ครั้ง (รวมไม่เกิน 2 ครั้ง)</li><li>เตรียมยา second-line</li></ul></div>
@@ -261,8 +318,9 @@ function render(){
     const list=D.filter(d=>!q||(d.n+' '+d.th+' '+d.rule+' '+C[d.c]).toLowerCase().includes(q));
     out.innerHTML=Object.keys(C).map(c=>{ const ds=list.filter(d=>d.c===c); return ds.length?`<h3 class="sec">${C[c]}</h3>${cards(ds.map(d=>d.id),w,a)}`:''; }).join('')||'<div class="empty">ไม่พบยา</div>';
   } else out.innerHTML=SETS[TAB].render(w,a);
+  croupOut();
 }
-document.addEventListener('click',e=>{ const t=e.target.closest('[data-t]'); if(!t) return; TAB=t.dataset.t; try{localStorage.setItem('drugs-tab',TAB);}catch(_){} renderTabs(); render(); });
+document.addEventListener('click',e=>{ const c=e.target.closest('[data-cr]'); if(c){ CS[+c.dataset.cr]=+c.dataset.v; croupOut(); return; } const t=e.target.closest('[data-t]'); if(!t) return; TAB=t.dataset.t; try{localStorage.setItem('drugs-tab',TAB);}catch(_){} renderTabs(); render(); });
 ['w','ay','am','q'].forEach(id=>$('#'+id).addEventListener('input',render));
 renderTabs(); render();
 </script>
