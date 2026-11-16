@@ -275,9 +275,9 @@ const SETS={
      <div class="st"><span class="tm">สารน้ำ</span><ul><li>Maintenance ${w?n(m/24)+' mL/ชม. ('+fmt(m)+' mL/วัน)':'Holliday-Segar 100/50/20 mL/kg/วัน'}</li><li>สงสัย SIADH: ⅔ maintenance${w?' '+n(m*2/3/24)+' mL/ชม.':''}</li><li>ไม่ดีขึ้น → ประเมินผู้ป่วย ตรวจหาภาวะแทรกซ้อน</li></ul></div>
    </div>
    <h3 class="sec">รายละเอียดยา</h3>${cards(['amox','amc','azi','ery','clari','cefdi','cefdt','amp','ctx','cro','clox'],w,a)}`; }},
- rsp:{t:'Asthma · Croup · Bronchiolitis',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
+ ast:{t:'Asthma',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
    const hf=!w?`2 LPM/kg <small>หรือ 7 LPM</small>`:(a!=null&&a<12)||w<10?`${fmt(Math.min(12,2*w))} LPM <small>(2 LPM/kg, max 12)</small>`:`7 LPM <small>(max 20)</small>`;
-   return `<div class="srcbar">ตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564): asthma exacerbation ที่ห้องฉุกเฉิน, continuous nebulizer, viral croup, HHHFNC</div>
+   return `<div class="srcbar">ตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564): asthma exacerbation ที่ห้องฉุกเฉิน, continuous nebulizer</div>
    <h3 class="sec">Asthma exacerbation ที่ห้องฉุกเฉิน</h3>
    <div class="note bad">Respiratory failure (cardiopulmonary arrest, severe hypoxia, alteration of consciousness): notify กุมารแพทย์ เตรียม intubation และ admit PICU</div>
    <div class="steps">
@@ -288,11 +288,15 @@ const SETS={
    </div>
    ${cards(['salb','salbmdi','berod','pulmi','pred','hc','terb','cneb'],w,a)}
    <div class="note info">MgSO4 IV ไม่มีขนาดในแนวทาง รพ. (อยู่ในเกณฑ์รับเข้า PICU) · ขนาดตาม GINA: ${Q('mg')} IV 20 นาที</div>
+`; }},
+ crp:{t:'Croup · Bronchiolitis',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
+   const hf=!w?`2 LPM/kg <small>หรือ 7 LPM</small>`:(a!=null&&a<12)||w<10?`${fmt(Math.min(12,2*w))} LPM <small>(2 LPM/kg, max 12)</small>`:`7 LPM <small>(max 20)</small>`;
+   return `<div class="srcbar">ตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564): viral croup, HHHFNC</div>
    <h3 class="sec">Viral croup <small>คำนวณ croup score</small></h3>
    <div class="pc croup" id="croup">${CROUP.map((r,i)=>`<div class="row"><span>${r[0]}</span>${r[1].map((t,v)=>`<button type="button" class="opt" data-cr="${i}" data-v="${v}" aria-pressed="${CS[i]===v}">${v} · ${t}</button>`).join('')}</div>`).join('')}<div id="csout"></div></div>
    <div class="steps">
      <div class="st"><span class="tm">Mild · score <4</span><ul><li>OPD treatment</li><li>dexamethasone ${Q('dexc')} IM</li><li>แนะนำสังเกตอาการ นัด F/U 1–2 วัน</li></ul></div>
-     <div class="st"><span class="tm">Moderate · score 4–7</span><ul><li>admit, รบกวนน้อยที่สุด, O2 supplement, IV fluid</li><li>NB adrenaline 1:1000 ${Q('adrneb')} dilute NSS 3 mL</li><li>dexamethasone ${Q('dexc')} IM/IV</li><li>ไม่ดีขึ้น เขียว หายใจล้มเหลว → พิจารณา intubation</li></ul></div>
+     <div class="st"><span class="tm">Moderate · score 4–7</span><ul><li>admit, รบกวนน้อยที่สุด, O2 supplement, IV fluid</li><li>NB adrenaline 1:1000 ${Q('adrneb')}${w&&a==null?' (อายุ <4 ปี) · '+Q('adrneb',1)+' (≥4 ปี)':''} dilute NSS 3 mL</li><li>dexamethasone ${Q('dexc')} IM/IV</li><li>ไม่ดีขึ้น เขียว หายใจล้มเหลว → พิจารณา intubation</li></ul></div>
      <div class="st"><span class="tm">Severe · score >7</span><ul><li>admit ICU</li><li>ให้ยาเหมือน moderate</li><li>พิจารณาใส่ท่อช่วยหายใจ / เจาะคอ</li><li>ไม่ต้องให้ยาปฏิชีวนะใน viral croup</li></ul></div>
    </div>
    ${cards(['dexc','adrneb'],w,a)}
@@ -310,7 +314,7 @@ const SETS={
    <h3 class="sec">รายละเอียดยา</h3>${cards(['mdziv','mdzim','dziv','dzpr','lev','pht','phb','d10'],w,a)}`; }},
 };
 let TAB='all';
-try{ const t=localStorage.getItem('drugs-tab'); if(t&&SETS[t]) TAB=t; }catch(e){}
+try{ const t=localStorage.getItem('drugs-tab'); if(t&&SETS[t]) TAB=t; if(t==='rsp') TAB='ast'; }catch(e){}
 function renderTabs(){ $('#tabs').innerHTML=Object.entries(SETS).map(([k,s])=>`<button class="tab" role="tab" data-t="${k}" aria-selected="${TAB===k}">${s.t}</button>`).join(''); $('#qwrap').hidden=TAB!=='all'; }
 function render(){
   const w=W(), a=AGE(), out=$('#out');
