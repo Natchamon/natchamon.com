@@ -224,7 +224,7 @@ const BY=Object.fromEntries(D.map(d=>[d.id,d]));
 const maint=w=>w<=10?100*w:w<=20?1000+50*(w-10):1500+20*(w-20);
 /* ---- render one drug card ---- */
 function card(d,w,a){
-  const lines=d.calc(w,a); let anyCap=false;
+  const lines=w?d.calc(w,a):[]; let anyCap=false;
   const L=lines.map(l=>{ const x=l.x; anyCap=anyCap||x.cap; const same=Math.abs(x.lo-x.hi)<1e-9;
     const v=same?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u);
     const ml=(l.forms||[]).map(f=>{ if(f.kind==='neb'){ const a1=fml(x.lo/f.c); return `<span>${a1} nebule <em>${f.t}</em></span>`; } if(f.kind==='g'){ const a1=fml(x.lo/f.c), b1=fml(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} g <em>${f.t}</em></span>`; } if(f.kind==='tab'){ const a1=ftab(x.lo/f.c), b1=ftab(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} <em>× ${f.t}</em></span>`; }
@@ -237,7 +237,12 @@ function card(d,w,a){
 const cards=(ids,w,a)=>`<div class="grid">${ids.map(id=>card(BY[id],w,a)).join('')}</div>`;
 const n=(x,u)=>`<b class="n">${fmt(x,u)}</b>`;
 /* ---- admission sets ---- */
-function dz(id,k,w,a){ const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
+function dz(id,k,w,a){ if(!w){ const t=(SH[id]||[])[k||0]; return t?`<b class="n">${t}</b>`:''; } const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
+const SH={amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
+ amp:['150–200 mg/kg/วัน ÷ q 6 h'],ctx:['150 mg/kg/วัน ÷ q 8 h'],cro:['50–100 mg/kg OD (max 2 g)'],pred:['1 mg/kg (max 40) แล้ว 1–2 mg/kg/วัน'],hc:['5 mg/kg q 6 h'],salb:['<30 kg 1 nebule, ≥30 kg 2 nebule'],
+ berod:['≤20 kg ½ nebule, >20 kg 1 nebule'],pulmi:['500 mcg'],terb:['0.01 mg/kg SC (max 0.4 mg)'],cneb:['0.5 mg/kg/ชม. (min 10)'],mg:['25–50 mg/kg (max 2 g)'],dexc:['0.6 mg/kg'],
+ adrneb:['0.05–0.5 mL/kg (max 2.5 mL <4 ปี, 5 mL ≥4 ปี)'],ns3:['4 mL'],d10:['2–5 mL/kg'],para:['10–15 mg/kg'],mdziv:['0.1 mg/kg (max 10)'],dziv:['0.2–0.3 mg/kg (max 10)'],
+ mdzim:['0.2 mg/kg (max 10)'],dzpr:['0.5 mg/kg (max 10)'],lev:['40–60 mg/kg (max 3 g)'],pht:['20 mg/kg (max 1 g)'],phb:['20 mg/kg (max 1 g)']};
 const CROUP=[['ไอ',['ไม่มี','ร้องเสียงแหบ','ไอเสียงก้อง (barking)']],['Stridor',['ไม่มี','ขณะหายใจเข้า','หายใจเข้าและออก']],['Retraction / nasal flaring',['ไม่มี','nasal flaring + suprasternal','+ subcostal & intercostal']],['เขียว',['ไม่มี','ในอากาศธรรมดา','ใน O2 40%']],['เสียงหายใจเข้า',['ปกติ','harsh with rhonchi','ช้าและเข้ายาก']]];
 let CS=[null,null,null,null,null];
 function croupOut(){ const el=document.getElementById('csout'); if(!el) return; const done=CS.every(v=>v!=null), t=CS.reduce((p,v)=>p+(v||0),0);
@@ -247,10 +252,10 @@ const SETS={
  all:{t:'ยาทั้งหมด'},
  age:{t:'AGE / ขาดน้ำ',render(w,a){ const m=maint(w), pc1=a!=null&&a<12;
    return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ใช้ WHO Pocket Book</div><div class="kv">
-     <div class="k"><span>Plan A · ORS หลังถ่ายแต่ละครั้ง</span><b>${fmt(w*10)}<small>mL</small></b><em>10 mL/kg ต่อการถ่ายเหลว 1 ครั้ง</em></div>
-     <div class="k"><span>Plan B · ORS ใน 4 ชม. (ขาดน้ำเล็กน้อย–ปานกลาง)</span><b>${fmt(w*75)}<small>mL / 4 ชม.</small></b><em>75 mL/kg ≈ ${fmt(w*75/4)} mL/ชม.</em></div>
-     <div class="k"><span>Plan C · ขาดน้ำรุนแรง (Ringer's lactate / NSS 100 mL/kg)</span><b>${fmt(w*30)}<small>mL</small> → ${fmt(w*70)}<small>mL</small></b><em>${a==null?'<12 เดือน: 30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม. · ≥12 เดือน: ใน 30 นาที แล้ว 2½ ชม.':pc1?'30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม.':'30 mL/kg ใน 30 นาที แล้ว 70 mL/kg ใน 2½ ชม.'}</em></div>
-     <div class="k"><span>Maintenance IV (Holliday-Segar)</span><b>${fmt(m/24)}<small>mL/ชม.</small></b><em>${fmt(m)} mL/วัน · ใช้ isotonic + dextrose · <a href="/ivfluid/">คำนวณ deficit</a></em></div>
+     <div class="k"><span>Plan A · ORS หลังถ่ายแต่ละครั้ง</span><b>${w?fmt(w*10)+'<small>mL</small>':'10<small>mL/kg</small>'}</b><em>10 mL/kg ต่อการถ่ายเหลว 1 ครั้ง</em></div>
+     <div class="k"><span>Plan B · ORS ใน 4 ชม. (ขาดน้ำเล็กน้อย–ปานกลาง)</span><b>${w?fmt(w*75)+'<small>mL / 4 ชม.</small>':'75<small>mL/kg / 4 ชม.</small>'}</b><em>75 mL/kg${w?' ≈ '+fmt(w*75/4)+' mL/ชม.':''}</em></div>
+     <div class="k"><span>Plan C · ขาดน้ำรุนแรง (Ringer's lactate / NSS 100 mL/kg)</span><b>${w?fmt(w*30)+'<small>mL</small> → '+fmt(w*70)+'<small>mL</small>':'30 → 70<small>mL/kg</small>'}</b><em>${a==null?'<12 เดือน: 30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม. · ≥12 เดือน: ใน 30 นาที แล้ว 2½ ชม.':pc1?'30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม.':'30 mL/kg ใน 30 นาที แล้ว 70 mL/kg ใน 2½ ชม.'}</em></div>
+     <div class="k"><span>Maintenance IV (Holliday-Segar)</span><b>${w?fmt(m/24)+'<small>mL/ชม.</small>':'100/50/20<small>mL/kg/วัน</small>'}</b><em>${w?fmt(m)+' mL/วัน · ':'10 kg แรก 100, 10 kg ถัดไป 50, ส่วนที่เกิน 20 mL/kg/วัน · '}ใช้ isotonic + dextrose · <a href="/ivfluid/">คำนวณ deficit</a></em></div>
    </div>
    <div class="note info">ไม่ใช้ยาหยุดถ่ายในเด็ก · ยาปฏิชีวนะเฉพาะ dysentery (ถ่ายเป็นมูกเลือด) หรือสงสัย cholera · ondansetron ครั้งเดียวเมื่ออาเจียนมากจน ORS ไม่ได้</div>
    <h3 class="sec">ยาที่ใช้บ่อย</h3>${cards(['ond','zinc','para','cipro','azidys','cro'],w,a)}`; }},
@@ -267,11 +272,11 @@ const SETS={
    <div class="steps">
      <div class="st"><span class="tm">อายุ 1 เดือน – 18 ปี</span><ul><li>ampicillin IV ${Q('amp')} — เมื่อได้วัคซีน Hib และ IPD ครบ หรือโอกาสติดเชื้อ <i>S. pneumoniae</i> ดื้อ penicillin น้อย</li><li>หรือ cefotaxime IV ${Q('ctx')}</li><li>หรือ ceftriaxone IV ${Q('cro')}</li><li>สงสัย atypical: เพิ่ม erythromycin หรือ azithromycin กิน</li></ul></div>
      <div class="st"><span class="tm">อายุ <1 เดือน</span><ul><li>PGS หรือ ampicillin + aminoglycoside IV</li><li>หรือ cefotaxime IV</li><li>cloxacillin IV ถ้าสงสัย <i>S. aureus</i></li><li class="wn">ใช้ขนาดยาทารกแรกเกิดตามอายุหลังเกิด (ไม่ได้คำนวณในหน้านี้)</li></ul></div>
-     <div class="st"><span class="tm">สารน้ำ</span><ul><li>Maintenance ${n(m/24)} mL/ชม. (${fmt(m)} mL/วัน)</li><li>สงสัย SIADH: ⅔ maintenance ${n(m*2/3/24)} mL/ชม.</li><li>ไม่ดีขึ้น → ประเมินผู้ป่วย ตรวจหาภาวะแทรกซ้อน</li></ul></div>
+     <div class="st"><span class="tm">สารน้ำ</span><ul><li>Maintenance ${w?n(m/24)+' mL/ชม. ('+fmt(m)+' mL/วัน)':'Holliday-Segar 100/50/20 mL/kg/วัน'}</li><li>สงสัย SIADH: ⅔ maintenance${w?' '+n(m*2/3/24)+' mL/ชม.':''}</li><li>ไม่ดีขึ้น → ประเมินผู้ป่วย ตรวจหาภาวะแทรกซ้อน</li></ul></div>
    </div>
    <h3 class="sec">รายละเอียดยา</h3>${cards(['amox','amc','azi','ery','clari','cefdi','cefdt','amp','ctx','cro','clox'],w,a)}`; }},
  rsp:{t:'Asthma · Croup · Bronchiolitis',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
-   const hf=(a!=null&&a<12)||w<10?`${fmt(Math.min(12,2*w))} LPM <small>(2 LPM/kg, max 12)</small>`:`7 LPM <small>(max 20)</small>`;
+   const hf=!w?`2 LPM/kg <small>หรือ 7 LPM</small>`:(a!=null&&a<12)||w<10?`${fmt(Math.min(12,2*w))} LPM <small>(2 LPM/kg, max 12)</small>`:`7 LPM <small>(max 20)</small>`;
    return `<div class="srcbar">ตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564): asthma exacerbation ที่ห้องฉุกเฉิน, continuous nebulizer, viral croup, HHHFNC</div>
    <h3 class="sec">Asthma exacerbation ที่ห้องฉุกเฉิน</h3>
    <div class="note bad">Respiratory failure (cardiopulmonary arrest, severe hypoxia, alteration of consciousness): notify กุมารแพทย์ เตรียม intubation และ admit PICU</div>
@@ -294,7 +299,7 @@ const SETS={
    <h3 class="sec">HHHFNC · Bronchiolitis</h3>
    <div class="kv"><div class="k"><span>HHHFNC initial flow</span><b>${hf}</b><em>อายุ <12 เดือน หรือ <10 kg: 2 LPM/kg (max 12) · มากกว่านั้น: เริ่ม 7 LPM (max 20) · ประเมิน RAS ที่ 1, 2, 4 ชม.</em></div>
    <div class="k"><span>Bronchiolitis</span><b style="font-size:14px">รักษาประคับประคอง</b><em>O2, suction, สารน้ำ/อาหาร · ไม่แนะนำ salbutamol, steroid หรือยาปฏิชีวนะเป็นประจำ · 3% NaCl neb ${Q('ns3')} ทางเลือกในผู้ป่วยใน</em></div></div>`; }},
- sz:{t:'Seizure / Status',render(w,a){ const B=id=>{ const d=BY[id], l=d.calc(w,a)[0], x=l.x; return `<b class="n">${fmt(x.lo,l.u)}${Math.abs(x.lo-x.hi)>1e-9?'–'+fmt(x.hi,l.u):''} ${l.u}</b>`; };
+ sz:{t:'Seizure / Status',render(w,a){ const B=id=>dz(id,0,w,a);;
    return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ใช้ CPS / EMSC PEAK status epilepticus algorithm</div><div class="steps">
      <div class="st"><span class="tm">0–5 นาที</span><ul><li>ABC, O2, จัดท่า, monitor</li><li>DTX ถ้า <60 mg/dL: 10% dextrose ${B('d10')}</li><li>เปิด IV/IO, ส่ง lab ตามข้อบ่งชี้</li><li>ไข้: paracetamol ${B('para')}</li></ul></div>
      <div class="st"><span class="tm">5 นาที · benzodiazepine #1</span><ul><li>Midazolam IV ${B('mdziv')}</li><li>หรือ diazepam IV ${B('dziv')}</li><li>ไม่มี IV: midazolam IM/IN ${B('mdzim')} หรือ diazepam PR ${B('dzpr')}</li></ul></div>
@@ -313,11 +318,11 @@ function render(){
   let chk='';
   if(w&&a!=null){ const med=a<12?3.3+a*0.6:a<60?9.5+(a-12)*0.19:a<=216?18.5+(a-60)/12*2.8:60; if(w>med*1.8||w<med*0.55) chk='<span class="wchk warn">⚠ น้ำหนักไม่ค่อยเข้ากับอายุ ตรวจสอบอีกครั้ง</span>'; }
   $('#wchk').innerHTML=w?chk||`<span class="wchk">${fmt(w)} kg${a!=null?' · '+(a>=24?Math.floor(a/12)+' ปี '+(a%12?a%12+' เดือน':''):a+' เดือน'):''}</span>`:'';
-  if(!w){ out.innerHTML='<div class="empty">ใส่น้ำหนักเด็ก (kg) ด้านบนเพื่อคำนวณขนาดยา</div>'; return; }
+  const hint=w?'':'<div class="note warn">ยังไม่ได้ใส่น้ำหนัก: แสดงขนาดยาเป็น mg/kg · ใส่น้ำหนักด้านบนเพื่อคำนวณ mg และ mL</div>';
   if(TAB==='all'){ const q=($('#q').value||'').trim().toLowerCase();
     const list=D.filter(d=>!q||(d.n+' '+d.th+' '+d.rule+' '+C[d.c]).toLowerCase().includes(q));
-    out.innerHTML=Object.keys(C).map(c=>{ const ds=list.filter(d=>d.c===c); return ds.length?`<h3 class="sec">${C[c]}</h3>${cards(ds.map(d=>d.id),w,a)}`:''; }).join('')||'<div class="empty">ไม่พบยา</div>';
-  } else out.innerHTML=SETS[TAB].render(w,a);
+    out.innerHTML=hint+Object.keys(C).map(c=>{ const ds=list.filter(d=>d.c===c); return ds.length?`<h3 class="sec">${C[c]}</h3>${cards(ds.map(d=>d.id),w,a)}`:''; }).join('')||'<div class="empty">ไม่พบยา</div>';
+  } else out.innerHTML=hint+SETS[TAB].render(w,a);
   croupOut();
 }
 document.addEventListener('click',e=>{ const c=e.target.closest('[data-cr]'); if(c){ CS[+c.dataset.cr]=+c.dataset.v; croupOut(); return; } const t=e.target.closest('[data-t]'); if(!t) return; TAB=t.dataset.t; try{localStorage.setItem('drugs-tab',TAB);}catch(_){} renderTabs(); render(); });
