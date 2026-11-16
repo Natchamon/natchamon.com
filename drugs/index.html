@@ -53,6 +53,12 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 .fq{font-size:12px;color:var(--ink-3)}
 .ew{width:100%;border-collapse:collapse;font-size:13.5px}.ew th,.ew td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}.ew th{color:var(--ink-2);font-weight:500;font-size:12.5px}.ew tr.on td{background:var(--accent-soft);font-weight:600}
 .ivlink{display:block;text-decoration:none;color:inherit}.ivlink:hover{border-color:var(--accent)}.ivlink h4{color:var(--accent)}.ivlink span{font-size:13px;color:var(--ink-2)}
+.uriw{overflow-x:auto;margin-top:10px;background:var(--surface);border:1px solid var(--line);border-radius:12px}
+.uri{width:100%;min-width:940px;border-collapse:collapse;font-size:13px;font-variant-numeric:tabular-nums}
+.uri th,.uri td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+.uri thead th{font:600 13px var(--f-head);background:var(--soft)}.uri thead th small{display:block;font:400 11px var(--f-body);color:var(--ink-2)}
+.uri tbody th{font-weight:600;white-space:nowrap}.uri td small{color:var(--ink-3)}.uri .na{color:var(--bad);font-size:12px}
+.uri tr.on th,.uri tr.on td{background:var(--accent-soft)}
 .srcbar{margin-top:12px;font-size:12px;color:var(--ok);background:var(--ok-bg);border-radius:8px;padding:5px 10px}
 .st li.hint{color:var(--ink-3);font-size:12.5px;list-style:none;margin-left:-18px}.st li.wn{color:var(--bad)}
 .note.bad{background:var(--bad-bg);color:var(--bad)}
@@ -94,14 +100,14 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 
 <div class="foot">
   <b>ใช้ประกอบการตัดสินใจเท่านั้น</b> ตรวจสอบขนาดยา ความเข้มข้นของยาในโรงพยาบาล การทำงานของไตและตับ และแนวทางของหน่วยงานทุกครั้งก่อนสั่งยา · ขนาดยาสำหรับเด็กอายุ ≥1 เดือน (ไม่ใช่ทารกแรกเกิด) · ขนาดยาที่เกินขนาดสูงสุดจะถูกตัดลงเป็นขนาดสูงสุดและมีป้ายกำกับ
-  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC, PICU criteria, early warning — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (MgSO4) · EMA 2014 domperidone restriction · CDC group A strep pharyngitis
+  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC, PICU criteria, early warning — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (MgSO4) · EMA 2014 domperidone restriction · BNF for Children / NHS (paracetamol, chlorphenamine, carbocisteine by age) · ambroxol SmPC · CDC group A strep pharyngitis
 </div>
 </div>
 <script>
 const $=s=>document.querySelector(s);
 const W=()=>{const v=parseFloat($('#w').value);return v>0&&v<200?v:null;};
 const AGE=()=>{const y=parseInt($('#ay').value)||0,m=parseInt($('#am').value)||0;return ($('#ay').value===''&&$('#am').value==='')?null:y*12+m;};
-const fmt=(x,u)=>{ if(x==null||!isFinite(x)) return '–'; if(u==='U') return (x>=100000?Math.round(x/10000)*10000:Math.round(x)).toLocaleString('en-US'); const d=x<1?2:x<10?1:0; return (+x.toFixed(d)).toLocaleString('en-US',{maximumFractionDigits:d}); };
+const fmt=(x,u)=>{ if(x==null||!isFinite(x)) return '–'; if(u==='U') return (x>=100000?Math.round(x/10000)*10000:Math.round(x)).toLocaleString('en-US'); const d=x<1?2:x<100?1:0; return (+x.toFixed(d)).toLocaleString('en-US',{maximumFractionDigits:d}); };
 const fml=x=>{ if(!isFinite(x)) return '–'; return x<1?(+x.toFixed(2)).toString():x<10?(+x.toFixed(1)).toString():(Math.round(x*2)/2).toString(); };
 const ftab=x=>{ const q=Math.round(x*4)/4; const w=Math.floor(q), f=q-w; const fr={0:'',0.25:'¼',0.5:'½',0.75:'¾'}[f]; return q<=0?'<¼':(w?w:'')+fr; };
 /* ---- dose helpers ----
@@ -110,7 +116,7 @@ function kg(w,lo,hi,max,min){ let a=w*lo,b=w*(hi==null?lo:hi),cap=false; if(min!
 function day(w,lo,hi,div,maxDose,maxDay){ let dl=w*lo, dh=w*(hi==null?lo:hi), cap=false; if(maxDay!=null){ if(dh>maxDay){dh=maxDay;cap=true;} if(dl>maxDay){dl=maxDay;cap=true;} } let a=dl/div,b=dh/div; if(maxDose!=null){ if(b>maxDose){b=maxDose;cap=true;} if(a>maxDose){a=maxDose;cap=true;} } return {lo:a,hi:b,cap,dl,dh}; }
 const F=(t,c,kind)=>({t,c,kind}); // form: label, concentration (units per mL) or per tablet when kind==='tab'
 /* ---- drug list ---- */
-const C={an:'ยาแก้ปวด/ลดไข้',ge:'ทางเดินอาหาร',rs:'ทางเดินหายใจ',ab:'ยาปฏิชีวนะ/ต้านไวรัส',sz:'ยากันชัก',al:'แพ้ยา/แพ้รุนแรง',rx:'กู้ชีพ/สารน้ำ'};
+const C={an:'ยาแก้ปวด/ลดไข้',ge:'ทางเดินอาหาร',uri:'หวัด / URI',rs:'ทางเดินหายใจ',ab:'ยาปฏิชีวนะ/ต้านไวรัส',sz:'ยากันชัก',al:'แพ้ยา/แพ้รุนแรง',rx:'กู้ชีพ/สารน้ำ'};
 const D=[
 {id:'para',n:'Paracetamol',th:'พาราเซตามอล',c:'an',r:'PO',rule:'10–15 mg/kg/dose q 4–6 h · max 1 g/dose, 75 mg/kg/วัน (≤4 g)',
  calc:w=>[{x:kg(w,10,15,1000),u:'mg',f:'q 4–6 h prn',forms:[F('drop 60 mg/0.6 mL',100),F('syr 120 mg/5 mL',24),F('syr 160 mg/5 mL',32),F('syr 250 mg/5 mL',50),F('tab 500 mg',500,'tab')]}],
@@ -221,6 +227,19 @@ const D=[
  calc:w=>[{x:kg(w,7,null,300),u:'mg',f:'tid × 10 วัน',forms:[F('syr 75 mg/5 mL',15),F('cap 150 mg',150,'tab')]}]},
 {id:'azisf',n:'Azithromycin',th:'(strep, แพ้ penicillin)',c:'ab',r:'PO',rule:'วันแรก 12 mg/kg (max 500) · วันที่ 2–5: 6 mg/kg (max 250)',
  calc:w=>[{x:kg(w,12,null,500),u:'mg',lt:'วันที่ 1',f:'OD',forms:[F('susp 200 mg/5 mL',40)]},{x:kg(w,6,null,250),u:'mg',lt:'วันที่ 2–5',f:'OD',forms:[F('susp 200 mg/5 mL',40)]}]},
+{id:'nssn',n:'NSS nasal irrigation',th:'(ล้างจมูก)',c:'uri',r:'ทางจมูก',rule:'0.9% NaCl · <1 ปี หยด 0.5–1 mL/ข้าง + ลูกยางดูด · 1–5 ปี 2–5 mL/ข้าง · 6–11 ปี 5–10 mL/ข้าง · ≥12 ปี 10–20 mL/ข้าง · 2–4 ครั้ง/วัน',
+ calc:(w,a)=>{ if(a==null) return []; const d=a<12?[0.5,1]:a<72?[2,5]:a<144?[5,10]:[10,20]; return [{x:{lo:d[0],hi:d[1]},u:'mL/ข้าง',f:'2–4 ครั้ง/วัน หรือเมื่อคัดจมูก'}]; },
+ nt:'ใช้ NSS ปราศจากเชื้อ อุณหภูมิห้อง · ใช้ syringe (ไม่ใส่เข็ม) ค่อย ๆ ฉีด ก้มหน้าเล็กน้อย อ้าปากหายใจ · ทารก: ทำก่อนกินนมและก่อนนอน'},
+{id:'ceti',n:'Cetirizine',th:'',c:'uri',r:'PO',rule:'6–23 เดือน 2.5 mg OD · 2–5 ปี 2.5 mg bid (หรือ 5 mg OD) · 6–11 ปี 5 mg bid (หรือ 10 mg OD) · ≥12 ปี 10 mg OD',
+ calc:(w,a)=>{ if(a==null) return []; if(a<6) return [{x:{lo:0,hi:0},u:'mg',lt:'อายุ <6 เดือน: ไม่แนะนำ'}]; const d=a<24?[2.5,'OD']:a<72?[2.5,'bid']:a<144?[5,'bid']:[10,'OD']; return [{x:{lo:d[0],hi:d[0]},u:'mg',f:d[1],forms:[F('syr 1 mg/mL',1),F('tab 10 mg',10,'tab')]}]; }},
+{id:'lora',n:'Loratadine',th:'',c:'uri',r:'PO',rule:'อายุ ≥2 ปี: ≤30 kg 5 mg OD · >30 kg 10 mg OD',
+ calc:(w,a)=>{ if(a!=null&&a<24) return [{x:{lo:0,hi:0},u:'mg',lt:'อายุ <2 ปี: ไม่แนะนำ'}]; const d=w<=30?5:10; return [{x:{lo:d,hi:d},u:'mg',f:'OD',forms:[F('syr 1 mg/mL',1),F('tab 10 mg',10,'tab')]}]; }},
+{id:'cpmuri',n:'Chlorpheniramine',th:'(ตามอายุ)',c:'uri',r:'PO',rule:'1–23 เดือน 1 mg bid · 2–5 ปี 1 mg q 4–6 h (max 6 mg/วัน) · 6–11 ปี 2 mg q 4–6 h (max 12) · ≥12 ปี 4 mg q 4–6 h (max 24)',
+ calc:(w,a)=>{ if(a==null) return []; if(a<12) return [{x:{lo:0,hi:0},u:'mg',lt:'อายุ <1 ปี: ไม่แนะนำ'}]; const d=a<24?[1,'bid (หลีกเลี่ยงในหวัด อายุ <2 ปี)']:a<72?[1,'q 4–6 h (max 6 mg/วัน)']:a<144?[2,'q 4–6 h (max 12 mg/วัน)']:[4,'q 4–6 h (max 24 mg/วัน)']; return [{x:{lo:d[0],hi:d[0]},u:'mg',f:d[1],forms:[F('syr 2 mg/5 mL',0.4),F('tab 4 mg',4,'tab')]}]; }},
+ {id:'ambro',n:'Ambroxol',th:'',c:'uri',r:'PO',rule:'2–5 ปี 7.5 mg tid · 6–11 ปี 15 mg bid–tid · ≥12 ปี 30 mg tid × 2–3 วัน แล้ว bid · ห้ามใช้อายุ <2 ปี',
+ calc:(w,a)=>{ if(a==null) return []; if(a<24) return [{x:{lo:0,hi:0},u:'mg',lt:'อายุ <2 ปี: ห้ามใช้'}]; const d=a<72?[7.5,'tid']:a<144?[15,'bid–tid']:[30,'tid → bid']; return [{x:{lo:d[0],hi:d[0]},u:'mg',f:d[1],forms:[F('syr 15 mg/5 mL',3),F('syr 30 mg/5 mL',6),F('tab 30 mg',30,'tab')]}]; }},
+{id:'carbo',n:'Carbocisteine',th:'',c:'uri',r:'PO',rule:'2–4 ปี 62.5–125 mg qid · 5–11 ปี 250 mg tid · ≥12 ปี 750 mg tid (ลดเป็น 500 mg tid เมื่อดีขึ้น) · ไม่แนะนำอายุ <2 ปี',
+ calc:(w,a)=>{ if(a==null) return []; if(a<24) return [{x:{lo:0,hi:0},u:'mg',lt:'อายุ <2 ปี: ไม่แนะนำ'}]; const d=a<60?[62.5,125,'qid']:a<144?[250,250,'tid']:[750,750,'tid']; return [{x:{lo:d[0],hi:d[1]},u:'mg',f:d[2],forms:[F('syr 250 mg/5 mL',50),F('syr 125 mg/5 mL',25)]}]; }},
 {id:'adrim',n:'Adrenaline IM 1:1000',th:'(anaphylaxis)',c:'al',r:'IM ต้นขาด้านนอก',rule:'0.01 mg/kg · max 0.5 mg · ซ้ำได้ทุก 5–15 นาที',
  calc:w=>[{x:kg(w,0.01,null,0.5),u:'mg',f:'q 5–15 นาที prn',forms:[F('1 mg/mL',1)]}]},
 {id:'cpm',n:'Chlorpheniramine',th:'',c:'al',r:'PO / IV',rule:'0.1 mg/kg/dose q 6 h · max 4 mg/dose',
@@ -241,7 +260,7 @@ const BY=Object.fromEntries(D.map(d=>[d.id,d]));
 const maint=w=>w<=10?100*w:w<=20?1000+50*(w-10):1500+20*(w-20);
 /* ---- render one drug card ---- */
 function card(d,w,a){
-  const lines=w?d.calc(w,a):[]; let anyCap=false;
+  const lines=w?d.calc(w,a):[]; let anyCap=false; const needAge=w&&d.c==='uri'&&a==null;
   const L=lines.map(l=>{ const x=l.x; anyCap=anyCap||x.cap; const same=Math.abs(x.lo-x.hi)<1e-9;
     const v=same?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u);
     const ml=(l.forms||[]).map(f=>{ if(f.kind==='neb'){ const a1=fml(x.lo/f.c); return `<span>${a1} nebule <em>${f.t}</em></span>`; } if(f.kind==='g'){ const a1=fml(x.lo/f.c), b1=fml(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} g <em>${f.t}</em></span>`; } if(f.kind==='tab'){ const a1=ftab(x.lo/f.c), b1=ftab(x.hi/f.c); return `<span>${a1===b1?a1:a1+'–'+b1} <em>× ${f.t}</em></span>`; }
@@ -249,13 +268,13 @@ function card(d,w,a){
     return `<div class="ln">${l.lt?`<span class="lt">${l.lt}</span>`:''}<span class="v">${v}<small>${l.u}${l.f?' · '+l.f:''}</small>${x.cap?'<span class="cap">ขนาดสูงสุด</span>':''}</span><span class="ml">${ml}${l.mix?`<span>${l.mix}</span>`:''}</span></div>`; }).join('');
   const wn=d.wn?d.wn(a):'';
   return `<div class="dc${wn?' flag':''}" data-id="${d.id}"><div class="hd"><span class="nm">${d.n}${d.th?`<small>${d.th}</small>`:''}</span><span class="rt">${d.src==='h'?'<span class="src">แนวทาง รพ.</span>':''}${d.r}</span></div>
-    <div class="rule">${d.rule}</div>${L}${wn?`<div class="wn">⚠ ${wn}</div>`:''}${d.nt?`<div class="nt">${d.nt}</div>`:''}</div>`;
+    <div class="rule">${d.rule}</div>${needAge?'<div class="nt">ใส่อายุด้านบนเพื่อดูขนาดยา</div>':''}${L.replace(/<span class="v">0<small>mg<\/small><\/span>/g,'')}${wn?`<div class="wn">⚠ ${wn}</div>`:''}${d.nt?`<div class="nt">${d.nt}</div>`:''}</div>`;
 }
 const cards=(ids,w,a)=>`<div class="grid">${ids.map(id=>card(BY[id],w,a)).join('')}</div>`;
 const n=(x,u)=>`<b class="n">${fmt(x,u)}</b>`;
 /* ---- admission sets ---- */
 function dz(id,k,w,a){ if(!w){ const t=(SH[id]||[])[k||0]; return t?`<b class="n">${t}</b>`:''; } const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
-const SH={domp:['0.25 mg/kg tid (max 30 mg/วัน)'],amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
+const SH={nssn:['ตามอายุ'],cpmuri:['ตามอายุ'],ceti:['ตามอายุ'],lora:['ตามอายุ'],ambro:['ตามอายุ'],carbo:['ตามอายุ'],domp:['0.25 mg/kg tid (max 30 mg/วัน)'],amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
  amp:['150–200 mg/kg/วัน ÷ q 6 h'],ctx:['150 mg/kg/วัน ÷ q 8 h'],cro:['50–100 mg/kg OD (max 2 g)'],pred:['1 mg/kg (max 40) แล้ว 1–2 mg/kg/วัน'],hc:['5 mg/kg q 6 h'],salb:['<30 kg 1 nebule, ≥30 kg 2 nebule'],
  berod:['≤20 kg ½ nebule, >20 kg 1 nebule'],pulmi:['500 mcg'],terb:['0.01 mg/kg SC (max 0.4 mg)'],cneb:['0.5 mg/kg/ชม. (min 10)'],mg:['25–50 mg/kg (max 2 g)'],dexc:['0.6 mg/kg'],
  adrneb:['0.05–0.5 mL/kg (max 2.5 mL <4 ปี, 5 mL ≥4 ปี)'],ns3:['4 mL'],d10:['2–5 mL/kg'],para:['10–15 mg/kg'],mdziv:['0.1 mg/kg (max 10)'],dziv:['0.2–0.3 mg/kg (max 10)'],
@@ -272,6 +291,23 @@ const SETS={
    <a class="pc ivlink" href="/ivfluid/"><h4>การให้สารน้ำ → Paediatric IV fluid calculator</h4><span>ประเมินภาวะขาดน้ำด้วยตารางในหน้า IV fluid แล้วคำนวณ maintenance + deficit, bolus และอัตราหยด</span></a>
    <div class="note info">ไม่ใช้ยาหยุดถ่ายในเด็ก · ยาปฏิชีวนะเฉพาะ dysentery (ถ่ายเป็นมูกเลือด) หรือสงสัย cholera · ondansetron ครั้งเดียวเมื่ออาเจียนมาก</div>
    <h3 class="sec">ยาที่ใช้บ่อย</h3>${cards(['ond','domp','zinc','para','cipro','azidys','cro'],w,a)}`; }},
+ uri:{t:'URI / หวัด',render(w,a){
+   const R=[[3,6,'3–5 เดือน'],[6,12,'6–11 เดือน'],[12,24,'1 ปี'],[24,48,'2–3 ปี'],[48,72,'4–5 ปี'],[72,96,'6–7 ปี'],[96,120,'8–9 ปี'],[120,144,'10–11 ปี'],[144,999,'≥12 ปี']];
+   const no='<span class="na">ไม่แนะนำ</span>';
+   const para=m=>m<6?'60 mg · 2.5 mL':m<24?'120 mg · 5 mL':m<48?'180 mg · 7.5 mL':m<72?'240 mg · 10 mL':m<96?'240–250 mg · 10 mL':m<120?'360–375 mg · 15 mL<br><small>(250/5: 7.5 mL)</small>':m<144?'480–500 mg<br><small>250/5: 10 mL · 1 tab</small>':'500–750 mg<br><small>1–1½ tab 500 mg</small>';
+   const cpm=m=>m<12?no:m<24?'1 mg · 2.5 mL bid<br><small class="na">หลีกเลี่ยงในหวัด อายุ <2 ปี</small>':m<72?'1 mg · 2.5 mL q 4–6 h':m<144?'2 mg · 5 mL q 4–6 h':'4 mg · 10 mL / 1 tab q 4–6 h';
+   const cet=m=>m<6?no:m<24?'2.5 mg · 2.5 mL OD':m<72?'2.5 mg · 2.5 mL bid':m<144?'5 mg · 5 mL bid':'10 mg · 1 tab OD';
+   const lor=m=>m<24?no:m<144?'5 mg · 5 mL OD<br><small>>30 kg: 10 mg</small>':'10 mg · 1 tab OD';
+   const amb=m=>m<24?'<span class="na">ห้ามใช้</span>':m<72?'7.5 mg · 2.5 mL tid':m<144?'15 mg · 5 mL bid–tid':'30 mg · 10 mL / 1 tab tid';
+   const car=m=>m<24?no:m<60?'62.5–125 mg · 1.25–2.5 mL qid':m<144?'250 mg · 5 mL tid':'750 mg · 15 mL tid';
+   const nss=m=>m<12?'หยด 0.5–1 mL/ข้าง<br><small>+ ลูกยางดูด ก่อนกินนม/นอน</small>':m<72?'2–5 mL/ข้าง':m<144?'5–10 mL/ข้าง':'10–20 mL/ข้าง';
+   const on=r=>a!=null&&a>=r[0]&&a<r[1];
+   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ขนาดยาตามอายุจาก BNF for Children / NHS และเอกสารกำกับยา · ${w?'ด้านล่างมีขนาด paracetamol ตามน้ำหนัก':'ใส่น้ำหนักเพื่อดูขนาด paracetamol ตามน้ำหนัก (แม่นยำกว่า)'}</div>
+   <div class="note info">หวัดเป็นจากไวรัส ไม่ต้องใช้ยาปฏิชีวนะ · <b>ล้างจมูกด้วย NSS เป็นการรักษาหลักของคัดจมูก/น้ำมูก</b> · อายุ >1 ปี ใช้น้ำผึ้งบรรเทาไอได้ · <b>ไม่แนะนำยาแก้ไอ ยาแก้คัดจมูก และ antihistamine รุ่นแรกในเด็กอายุ <2 ปี</b> · ยาลดน้ำมูกชนิด decongestant ไม่แนะนำอายุ <6 ปี</div>
+   <div class="uriw"><table class="uri"><thead><tr><th>อายุ</th><th>NSS ล้างจมูก<small>0.9% NaCl · 2–4 ครั้ง/วัน<br>หรือเมื่อคัดจมูก</small></th><th>Paracetamol<small>120 mg/5 mL · q 4–6 h<br>ไม่เกิน 4 ครั้ง/วัน</small></th><th>Chlorpheniramine<small>2 mg/5 mL</small></th><th>Cetirizine<small>1 mg/mL</small></th><th>Loratadine<small>1 mg/mL</small></th><th>Ambroxol<small>15 mg/5 mL</small></th><th>Carbocisteine<small>250 mg/5 mL</small></th></tr></thead>
+   <tbody>${R.map(r=>`<tr class="${on(r)?'on':''}"><th>${r[2]}</th><td>${nss(r[0])}</td><td>${para(r[0])}</td><td>${cpm(r[0])}</td><td>${cet(r[0])}</td><td>${lor(r[0])}</td><td>${amb(r[0])}</td><td>${car(r[0])}</td></tr>`).join('')}</tbody></table></div>
+   <p class="hint" style="font-size:12px;color:var(--ink-2);margin:6px 2px 0">อายุ <3 เดือนที่มีไข้: ตรวจประเมินก่อนให้ยา · paracetamol ตามน้ำหนัก 10–15 mg/kg แม่นยำกว่าตามอายุ</p>
+   <h3 class="sec">${a!=null?'ขนาดยาสำหรับอายุนี้':'รายละเอียดยา'}</h3>${cards(['nssn','para','cpmuri','ceti','lora','ambro','carbo'],w,a)}`; }},
  pna:{t:'Pneumonia',render(w,a){ const m=maint(w), Q=(id,k)=>dz(id,k,w,a);
    return `<div class="srcbar">ลำดับการรักษาตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564) · ขนาดยาจาก IDSA 2011 (แนวทาง รพ. ไม่ระบุขนาด)</div>
    <h3 class="sec">แผนภูมิ 1 · ปอดบวมไม่รุนแรง <small>อายุ <1 เดือน รักษาแบบปอดบวมรุนแรงทุกราย</small></h3>
