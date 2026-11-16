@@ -51,6 +51,7 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 .croup .opt{border:1.5px solid var(--line);background:var(--surface);border-radius:8px;padding:3px 10px;cursor:pointer;font-size:12.5px;min-height:30px}.croup .opt[aria-pressed="true"]{background:var(--accent-soft);border-color:var(--accent);font-weight:500}
 .cs{font:600 15px var(--f-head);margin-top:4px}.cs.m{color:var(--warn)}.cs.s{color:var(--bad)}.cs.o{color:var(--ok)}
 .fq{font-size:12px;color:var(--ink-3)}
+.ew{width:100%;border-collapse:collapse;font-size:13.5px}.ew th,.ew td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}.ew th{color:var(--ink-2);font-weight:500;font-size:12.5px}.ew tr.on td{background:var(--accent-soft);font-weight:600}
 .srcbar{margin-top:12px;font-size:12px;color:var(--ok);background:var(--ok-bg);border-radius:8px;padding:5px 10px}
 .st li.hint{color:var(--ink-3);font-size:12.5px;list-style:none;margin-left:-18px}.st li.wn{color:var(--bad)}
 .note.bad{background:var(--bad-bg);color:var(--bad)}
@@ -92,7 +93,7 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 
 <div class="foot">
   <b>ใช้ประกอบการตัดสินใจเท่านั้น</b> ตรวจสอบขนาดยา ความเข้มข้นของยาในโรงพยาบาล การทำงานของไตและตับ และแนวทางของหน่วยงานทุกครั้งก่อนสั่งยา · ขนาดยาสำหรับเด็กอายุ ≥1 เดือน (ไม่ใช่ทารกแรกเกิด) · ขนาดยาที่เกินขนาดสูงสุดจะถูกตัดลงเป็นขนาดสูงสุดและมีป้ายกำกับ
-  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (prednisolone, MgSO4)
+  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC, Kawasaki, PICU criteria, early warning — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (MgSO4) · WHO SEARO / Kalayanarooj 2011 dengue management · AHA 2017 Kawasaki disease statement · CDC group A strep pharyngitis
 </div>
 </div>
 <script>
@@ -108,7 +109,7 @@ function kg(w,lo,hi,max,min){ let a=w*lo,b=w*(hi==null?lo:hi),cap=false; if(min!
 function day(w,lo,hi,div,maxDose,maxDay){ let dl=w*lo, dh=w*(hi==null?lo:hi), cap=false; if(maxDay!=null){ if(dh>maxDay){dh=maxDay;cap=true;} if(dl>maxDay){dl=maxDay;cap=true;} } let a=dl/div,b=dh/div; if(maxDose!=null){ if(b>maxDose){b=maxDose;cap=true;} if(a>maxDose){a=maxDose;cap=true;} } return {lo:a,hi:b,cap,dl,dh}; }
 const F=(t,c,kind)=>({t,c,kind}); // form: label, concentration (units per mL) or per tablet when kind==='tab'
 /* ---- drug list ---- */
-const C={an:'ยาแก้ปวด/ลดไข้',ge:'ทางเดินอาหาร',rs:'ทางเดินหายใจ',ab:'ยาปฏิชีวนะ/ต้านไวรัส',sz:'ยากันชัก',al:'แพ้ยา/แพ้รุนแรง',rx:'กู้ชีพ/สารน้ำ'};
+const C={an:'ยาแก้ปวด/ลดไข้',ge:'ทางเดินอาหาร',rs:'ทางเดินหายใจ',ab:'ยาปฏิชีวนะ/ต้านไวรัส',kd:'Kawasaki',sz:'ยากันชัก',al:'แพ้ยา/แพ้รุนแรง',rx:'กู้ชีพ/สารน้ำ'};
 const D=[
 {id:'para',n:'Paracetamol',th:'พาราเซตามอล',c:'an',r:'PO',rule:'10–15 mg/kg/dose q 4–6 h · max 1 g/dose, 75 mg/kg/วัน (≤4 g)',
  calc:w=>[{x:kg(w,10,15,1000),u:'mg',f:'q 4–6 h prn',forms:[F('drop 60 mg/0.6 mL',100),F('syr 120 mg/5 mL',24),F('syr 160 mg/5 mL',32),F('syr 250 mg/5 mL',50),F('tab 500 mg',500,'tab')]}],
@@ -204,6 +205,23 @@ const D=[
  calc:w=>[{x:kg(w,20,null,1000),u:'mg',f:'loading',forms:[F('50 mg/mL',50)]}],nt:'monitor ECG และ BP ระหว่างให้'},
 {id:'phb',n:'Phenobarbital',th:'',c:'sz',r:'IV 20 นาที',rule:'20 mg/kg · max 1,000 mg · ≤1 mg/kg/นาที',
  calc:w=>[{x:kg(w,20,null,1000),u:'mg',f:'loading'}],nt:'ระวังกดการหายใจ โดยเฉพาะหลังให้ benzodiazepine · ความเข้มข้นต่างกันตามผู้ผลิต'},
+{id:'amoxsf',n:'Amoxicillin',th:'(strep / scarlet fever)',c:'ab',r:'PO',rule:'50 mg/kg OD (max 1 g) หรือ 25 mg/kg bid (max 500 mg) × 10 วัน',
+ calc:w=>[{x:kg(w,50,null,1000),u:'mg',lt:'วันละครั้ง',f:'OD × 10 วัน',forms:[F('syr 250 mg/5 mL',50),F('cap 500 mg',500,'tab')]},{x:kg(w,25,null,500),u:'mg',lt:'หรือแบ่งวันละ 2 ครั้ง',f:'bid × 10 วัน',forms:[F('syr 250 mg/5 mL',50),F('cap 500 mg',500,'tab')]}]},
+{id:'penv',n:'Penicillin V',th:'(strep / scarlet fever)',c:'ab',r:'PO',rule:'<27 kg 250 mg bid–tid · ≥27 kg 500 mg bid–tid × 10 วัน',
+ calc:w=>[{x:{lo:w<27?250:500,hi:w<27?250:500},u:'mg',f:'bid–tid × 10 วัน'}]},
+{id:'bpg',n:'Benzathine penicillin G',th:'(strep / scarlet fever)',c:'ab',r:'IM ครั้งเดียว',rule:'<27 kg 600,000 U · ≥27 kg 1,200,000 U',
+ calc:w=>[{x:{lo:w<27?600000:1200000,hi:w<27?600000:1200000},u:'U',f:'IM ครั้งเดียว'}],nt:'เหมาะเมื่อกินยาครบ 10 วันไม่ได้'},
+{id:'cephx',n:'Cephalexin',th:'(แพ้ penicillin ชนิดไม่รุนแรง)',c:'ab',r:'PO',rule:'20 mg/kg/dose bid · max 500 mg/dose × 10 วัน',
+ calc:w=>[{x:kg(w,20,null,500),u:'mg',f:'bid × 10 วัน',forms:[F('syr 125 mg/5 mL',25),F('syr 250 mg/5 mL',50)]}],nt:'ห้ามใช้ถ้าแพ้ penicillin แบบ immediate (anaphylaxis)'},
+{id:'clinpo',n:'Clindamycin',th:'(strep, แพ้ penicillin)',c:'ab',r:'PO',rule:'7 mg/kg/dose tid · max 300 mg/dose × 10 วัน',
+ calc:w=>[{x:kg(w,7,null,300),u:'mg',f:'tid × 10 วัน',forms:[F('syr 75 mg/5 mL',15),F('cap 150 mg',150,'tab')]}]},
+{id:'azisf',n:'Azithromycin',th:'(strep, แพ้ penicillin)',c:'ab',r:'PO',rule:'วันแรก 12 mg/kg (max 500) · วันที่ 2–5: 6 mg/kg (max 250)',
+ calc:w=>[{x:kg(w,12,null,500),u:'mg',lt:'วันที่ 1',f:'OD',forms:[F('susp 200 mg/5 mL',40)]},{x:kg(w,6,null,250),u:'mg',lt:'วันที่ 2–5',f:'OD',forms:[F('susp 200 mg/5 mL',40)]}]},
+{id:'ivig',n:'IVIG',th:'(Kawasaki)',c:'kd',r:'IV 10–12 ชม.',rule:'2 g/kg ครั้งเดียว ภายใน 10 วันแรกของไข้ · เด็กอ้วนใช้ lean body weight',
+ calc:w=>[{x:kg(w,2),u:'g',f:'IV 10–12 ชม.',forms:[F('5% (50 mg/mL = 0.05 g/mL)',0.05),F('10% (0.1 g/mL)',0.1)]}],nt:'เลื่อนวัคซีนเชื้อเป็น (MMR, varicella) 11 เดือนหลังได้ IVIG'},
+{id:'asa',n:'Aspirin',th:'(Kawasaki)',c:'kd',r:'PO',rule:'ระยะเฉียบพลัน 30–50 หรือ 80–100 mg/kg/วัน ÷ q 6 h จนไข้ลง 48–72 ชม. · แล้ว 3–5 mg/kg/วัน OD',
+ calc:w=>[{x:day(w,30,50,4),u:'mg',lt:'moderate dose (30–50 mg/kg/วัน)',f:'q 6 h',forms:[F('tab 81 mg',81,'tab'),F('tab 300 mg',300,'tab')]},{x:day(w,80,100,4,null,4000),u:'mg',lt:'high dose (80–100 mg/kg/วัน)',f:'q 6 h',forms:[F('tab 81 mg',81,'tab'),F('tab 300 mg',300,'tab')]},{x:kg(w,3,5),u:'mg',lt:'low dose (3–5 mg/kg/วัน)',f:'OD',forms:[F('tab 81 mg',81,'tab')]}],
+ nt:'ห้ามใช้ร่วม ibuprofen · ระวัง Reye syndrome ถ้าเป็นไข้หวัดใหญ่/อีสุกอีใส'},
 {id:'adrim',n:'Adrenaline IM 1:1000',th:'(anaphylaxis)',c:'al',r:'IM ต้นขาด้านนอก',rule:'0.01 mg/kg · max 0.5 mg · ซ้ำได้ทุก 5–15 นาที',
  calc:w=>[{x:kg(w,0.01,null,0.5),u:'mg',f:'q 5–15 นาที prn',forms:[F('1 mg/mL',1)]}]},
 {id:'cpm',n:'Chlorpheniramine',th:'',c:'al',r:'PO / IV',rule:'0.1 mg/kg/dose q 6 h · max 4 mg/dose',
@@ -238,7 +256,7 @@ const cards=(ids,w,a)=>`<div class="grid">${ids.map(id=>card(BY[id],w,a)).join('
 const n=(x,u)=>`<b class="n">${fmt(x,u)}</b>`;
 /* ---- admission sets ---- */
 function dz(id,k,w,a){ if(!w){ const t=(SH[id]||[])[k||0]; return t?`<b class="n">${t}</b>`:''; } const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
-const SH={amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
+const SH={amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],ivig:['2 g/kg'],asa:['30–50 mg/kg/วัน ÷ q 6 h','80–100 mg/kg/วัน ÷ q 6 h','3–5 mg/kg/วัน'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
  amp:['150–200 mg/kg/วัน ÷ q 6 h'],ctx:['150 mg/kg/วัน ÷ q 8 h'],cro:['50–100 mg/kg OD (max 2 g)'],pred:['1 mg/kg (max 40) แล้ว 1–2 mg/kg/วัน'],hc:['5 mg/kg q 6 h'],salb:['<30 kg 1 nebule, ≥30 kg 2 nebule'],
  berod:['≤20 kg ½ nebule, >20 kg 1 nebule'],pulmi:['500 mcg'],terb:['0.01 mg/kg SC (max 0.4 mg)'],cneb:['0.5 mg/kg/ชม. (min 10)'],mg:['25–50 mg/kg (max 2 g)'],dexc:['0.6 mg/kg'],
  adrneb:['0.05–0.5 mL/kg (max 2.5 mL <4 ปี, 5 mL ≥4 ปี)'],ns3:['4 mL'],d10:['2–5 mL/kg'],para:['10–15 mg/kg'],mdziv:['0.1 mg/kg (max 10)'],dziv:['0.2–0.3 mg/kg (max 10)'],
@@ -303,6 +321,60 @@ const SETS={
    <h3 class="sec">HHHFNC · Bronchiolitis</h3>
    <div class="kv"><div class="k"><span>HHHFNC initial flow</span><b>${hf}</b><em>อายุ <12 เดือน หรือ <10 kg: 2 LPM/kg (max 12) · มากกว่านั้น: เริ่ม 7 LPM (max 20) · ประเมิน RAS ที่ 1, 2, 4 ชม.</em></div>
    <div class="k"><span>Bronchiolitis</span><b style="font-size:14px">รักษาประคับประคอง</b><em>O2, suction, สารน้ำ/อาหาร · ไม่แนะนำ salbutamol, steroid หรือยาปฏิชีวนะเป็นประจำ · 3% NaCl neb ${Q('ns3')} ทางเลือกในผู้ป่วยใน</em></div></div>`; }},
+ den:{t:'Dengue',render(w,a){ const m=maint(w), R=r=>w?`<b class="n">${fmt(r*w)} mL/ชม.</b>`:`<b class="n">${r} mL/kg/ชม.</b>`;
+   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ตาม WHO SEARO / แนวทางการดูแลไข้เลือดออกของไทย (Kalayanarooj) · เด็กอ้วนให้ใส่ ideal body weight ในช่องน้ำหนัก</div>
+   <div class="kv">
+     <div class="k"><span>Maintenance (M)</span><b>${w?fmt(m/24)+'<small>mL/ชม.</small>':'100/50/20<small>mL/kg/วัน</small>'}</b><em>${w?fmt(m)+' mL/วัน':'Holliday-Segar'}</em></div>
+     <div class="k"><span>M + 5% deficit · ทั้งช่วงวิกฤต 24–48 ชม.</span><b>${w?fmt(m+50*w)+'<small>mL</small>':'M + 50<small>mL/kg</small>'}</b><em>รวมน้ำกินและ IV · เป็นเพดาน ไม่ใช่เป้าหมาย</em></div>
+     <div class="k"><span>Urine output เป้าหมาย</span><b>${w?fmt(0.5*w)+'<small>mL/ชม.</small>':'0.5<small>mL/kg/ชม.</small>'}</b><em>0.5 mL/kg/ชม.</em></div>
+   </div>
+   <h3 class="sec">อัตราสารน้ำ (isotonic: NSS, 5% D/NSS, LRS)</h3>
+   <div class="kv">${[[1.5,'½ M'],[3,'≈ M'],[5,''],[7,''],[10,'compensated shock']].map(r=>`<div class="k"><span>${r[0]} mL/kg/ชม. ${r[1]?'· '+r[1]:''}</span><b>${w?fmt(r[0]*w)+'<small>mL/ชม.</small>':r[0]+'<small>mL/kg/ชม.</small>'}</b></div>`).join('')}</div>
+   <div class="steps">
+     <div class="st"><span class="tm">DHF ไม่ช็อก · มี plasma leakage</span><ul><li>เริ่ม ${R(3)}–${R(5)} (เร็วขึ้นเมื่อ platelet <50,000)</li><li>ปรับขึ้น/ลงทีละขั้น 1.5 → 3 → 5 → 7 ตาม vital signs, Hct, urine</li><li>ให้ IV 48–60 ชม. หลังเริ่มรั่ว</li></ul></div>
+     <div class="st"><span class="tm">Compensated shock (grade III)</span><ul><li>${R(10)} × 1–2 ชม.</li><li>ดีขึ้น: ลดเป็น ${R(7)} → ${R(5)} → ${R(3)} → ${R(1.5)}</li><li>ให้ IV 24–36 ชม. หลังช็อก</li></ul></div>
+     <div class="st"><span class="tm">Profound shock (grade IV)</span><ul><li>NSS/LRS ${w?`<b class="n">${fmt(20*w)} mL</b>`:'<b class="n">20 mL/kg</b>'} ใน 15 นาที (WHO)</li><li>BP กลับมา: ลดเป็น ${R(10)} แล้วลดตามขั้น</li><li>ปรึกษา PICU</li></ul></div>
+     <div class="st"><span class="tm">ไม่ดีขึ้นหลังได้สารน้ำ</span><ul><li>Hct สูงขึ้น/คงสูง: 10% Dextran-40 ${R(10)}</li><li>Hct ลดลง (สงสัยเลือดออก): PRC ${w?`<b class="n">${fmt(5*w)} mL</b>`:'<b class="n">5 mL/kg</b>'} หรือ FWB ${w?`<b class="n">${fmt(10*w)} mL</b>`:'<b class="n">10 mL/kg</b>'}</li><li>ตรวจ BCS: Blood sugar, Calcium, acidosis</li></ul></div>
+   </div>
+   <div class="note warn">ลดไข้ด้วย paracetamol ${dz('para',0,w,a)} ไม่บ่อยกว่า q 4–6 h ร่วมกับเช็ดตัว · <b>ห้าม</b> ibuprofen / aspirin / NSAIDs และการฉีดยาเข้ากล้าม · หยุด IV เมื่อมีสัญญาณฟื้นตัว (ปัสสาวะออกมาก, Hct ลด, อยากอาหาร) หรือเกิน 24–36 ชม. หลังช็อก / 48–60 ชม. หลังเริ่มรั่ว</div>
+   <div class="note info">Warning signs: ปวดท้องมาก, อาเจียนบ่อย, เลือดออก, ซึม/กระสับกระส่าย, ตับโตกดเจ็บ, ปัสสาวะออกน้อย, Hct สูงขึ้นพร้อม platelet ลดลงเร็ว, มือเท้าเย็น</div>
+   ${cards(['para'],w,a)}`; }},
+ kd:{t:'Kawasaki',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
+   return `<div class="srcbar">การวินิจฉัยและการรักษา 2 ระยะตามแนวทาง รพ. (2564) · ขนาดยาจาก AHA 2017 (แนวทาง รพ. ไม่ระบุขนาด)</div>
+   <div class="steps">
+     <div class="st"><span class="tm">วินิจฉัย</span><ul><li>ไข้สูงลอย ≥5 วัน ร่วมกับ ≥4 ใน 5 ข้อ:</li><li>ตาแดงไม่มีขี้ตา</li><li>ปากแดงแห้งแตก ลิ้นสตรอว์เบอร์รี</li><li>ผื่นตามตัวหลายแบบ</li><li>มือเท้าบวมแดง → ลอกปลายนิ้ว (2–3 สัปดาห์)</li><li>ต่อมน้ำเหลืองคอโต >1.5 cm มักข้างเดียว</li><li class="hint">ไม่ครบเกณฑ์: พิจารณา incomplete KD + echo</li></ul></div>
+     <div class="st"><span class="tm">ระยะเฉียบพลัน</span><ul><li>IVIG ${Q('ivig')} (ดีที่สุดภายใน 10 วันของไข้)</li><li>ร่วมกับ aspirin: ${Q('asa')} (30–50 mg/kg/วัน) หรือ ${Q('asa',1)} (80–100 mg/kg/วัน)</li><li>จนไข้ลง 48–72 ชม.</li><li>Echo ตอนวินิจฉัย</li></ul></div>
+     <div class="st"><span class="tm">ระยะไม่เฉียบพลันและต่อเนื่อง</span><ul><li>aspirin ขนาดต่ำ ${Q('asa',2)}</li><li>นาน 2 เดือนหลังไข้ลง หรือจนหลอดเลือดโป่งพองกลับเป็นปกติ</li><li>Echo ซ้ำที่ 1–2 และ 4–6 สัปดาห์</li><li>มียาต้านเกล็ดเลือด/ละลายลิ่มเลือด: หลีกเลี่ยงกีฬาที่กระแทก</li></ul></div>
+     <div class="st"><span class="tm">ไข้ไม่ลง 36 ชม. หลัง IVIG</span><ul><li>IVIG resistant: ให้ IVIG ซ้ำ ${Q('ivig')}</li><li>ปรึกษากุมารแพทย์โรคหัวใจ/โรคข้อ (steroid, infliximab)</li></ul></div>
+   </div>
+   <div class="note bad">ภาวะแทรกซ้อนที่หัวใจและหลอดเลือดโคโรนารีพบ 20–30% ถ้าไม่ได้รับการรักษา · เสียชีวิต 1–2%</div>
+   ${cards(['ivig','asa'],w,a)}`; }},
+ sf:{t:'Scarlet fever',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
+   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ตาม CDC / IDSA group A strep pharyngitis</div>
+   <div class="steps">
+     <div class="st"><span class="tm">ลักษณะทางคลินิก</span><ul><li>ไข้ เจ็บคอ ต่อมทอนซิลอักเสบ</li><li>ผื่นแดงสากแบบกระดาษทราย เริ่มที่คอ รักแร้ ขาหนีบ</li><li>Pastia lines, circumoral pallor, ลิ้นสตรอว์เบอร์รี</li><li>ยืนยันด้วย rapid strep test / throat culture</li></ul></div>
+     <div class="st"><span class="tm">ยาที่เลือกใช้</span><ul><li>amoxicillin ${Q('amoxsf')} OD หรือ ${Q('amoxsf',1)} bid × 10 วัน</li><li>หรือ penicillin V ${Q('penv')} × 10 วัน</li><li>กินยาไม่ได้: benzathine penicillin G IM ${Q('bpg')} ครั้งเดียว</li></ul></div>
+     <div class="st"><span class="tm">แพ้ penicillin</span><ul><li>ไม่รุนแรง: cephalexin ${Q('cephx')} × 10 วัน</li><li>แพ้รุนแรง (anaphylaxis): clindamycin ${Q('clinpo')} × 10 วัน</li><li>หรือ azithromycin ${Q('azisf')} → ${Q('azisf',1)} วันที่ 2–5</li></ul></div>
+     <div class="st"><span class="tm">คำแนะนำ</span><ul><li>กลับไปโรงเรียนได้หลังได้ยา 12–24 ชม. และไม่มีไข้</li><li>กินยาให้ครบ 10 วันเพื่อป้องกัน rheumatic fever</li><li>นัดถ้ามีปัสสาวะสีโคล่า บวม (PSGN) หรือปวดข้อ</li></ul></div>
+   </div>
+   ${cards(['amoxsf','penv','bpg','cephx','clinpo','azisf'],w,a)}`; }},
+ picu:{t:'PICU / Early warning',render(w,a){ const EW=[['< 1 เดือน','<100 หรือ >180','≥60',0,1],['1 เดือน – 1 ปี','<100 หรือ >180','≥50',1,12],['1 – 5 ปี','<80 หรือ >150','≥40',12,60],['5 – 10 ปี','<80 หรือ >130','≥30',60,120],['≥ 10 ปี','<60 หรือ >120','≥20',120,999]];
+   return `<div class="srcbar">ตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564): ข้อบ่งชี้ในการรับผู้ป่วยเข้า PICU และข้อบ่งชี้ในการรายงานแพทย์ (early warning sign)</div>
+   <h3 class="sec">ข้อบ่งชี้ในการรับเข้า PICU</h3>
+   <div class="pc"><ol>
+     <li>ภาวะฉุกเฉินต้องใช้ ventilator ทั้ง invasive และ non-invasive (conventional, HFOV, HHHFNC)</li>
+     <li>Severe asthmatic attack ต้องพ่น continuous nebulizer และ/หรือ continuous IV β2-agonist, MgSO4</li>
+     <li>Shock ทุกชนิด: hypovolemic ที่ได้ IV fluid >40 mL/kg${w?` (<b class="n">${fmt(40*w)} mL</b>)`:''} แล้วยังช็อก, dengue shock syndrome ที่ refractory shock หรือ unstable, cardiogenic shock, septic shock</li>
+     <li>ต้องใช้ inotropic drug และยา high alert drug ในขนาดที่ต้อง monitor</li>
+     <li>อายุ 1 เดือน – 15 ปี แผนกอื่นที่เข้าเกณฑ์ข้อ 1–4, post-operative care (แจ้ง staff ward PICU ทุกครั้งที่จะย้าย/จองเตียง)</li>
+     <li>ต้องได้รับ continuous renal replacement therapy</li>
+     <li>Metabolic derangement: Na ≤115 หรือ ≥175 · K ≤2 หรือ ≥7.5 · CO2 ≤5 หรือ pH ≤6.9</li>
+     <li>Severe DKA</li>
+   </ol>
+   <p class="hint" style="font-size:12.5px;color:var(--ink-2);margin:8px 0 0">ให้ priority ผู้ป่วยเด็กบ้านก่อน · ไม่รับ case palliative / NR ที่รู้ล่วงหน้า · ขึ้นกับดุลยพินิจของแพทย์เจ้าของไข้ · case แผนกอื่นที่มีปัญหาให้ notify แพทย์เจ้าของไข้แผนกนั้นก่อนกุมารแพทย์ · ผู้ป่วย on HHHFNC อยู่ ward 10/1 ได้เมื่อ PICU เตียงเต็ม</p></div>
+   <h3 class="sec">ข้อบ่งชี้ในการรายงานแพทย์ (early warning sign)</h3>
+   <div class="pc"><table class="ew"><thead><tr><th>อายุ</th><th>HR (ครั้ง/นาที)</th><th>RR (ครั้ง/นาที)</th></tr></thead><tbody>${EW.map(r=>`<tr class="${a!=null&&a>=r[3]&&a<r[4]?'on':''}"><td>${r[0]}</td><td>${r[1]}</td><td>${r[2]}</td></tr>`).join('')}</tbody></table>
+   <ul style="margin-top:8px"><li>หายใจลำบาก หอบเหนื่อย หายใจตื้น เร็วจมูกบาน หยุดหายใจ</li><li>ริมฝีปากเขียว ตัวลาย ตัวเขียว หรือตัวแดง เหงื่อออก</li><li>ซึมลง สับสน กระสับกระส่าย พฤติกรรมเปลี่ยนแปลง · ชักเกร็ง</li><li>ปัสสาวะ <1 mL/kg/ชม. (อายุ <7 ปี) หรือ <0.5 mL/kg/ชม. (อายุ >7 ปี) หรือ >4 mL/kg/ชม.${w?` → <b class="n">${a!=null&&a>84?fmt(0.5*w):fmt(w)} mL/ชม.</b>${a==null?' (คิดแบบ <7 ปี)':''} · >${fmt(4*w)} mL/ชม.`:''}</li><li>เลือดออกในทางเดินอาหาร · ท้องอืด อาเจียน หรือรับนมไม่ได้</li></ul></div>`; }},
  sz:{t:'Seizure / Status',render(w,a){ const B=id=>dz(id,0,w,a);;
    return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ใช้ CPS / EMSC PEAK status epilepticus algorithm</div><div class="steps">
      <div class="st"><span class="tm">0–5 นาที</span><ul><li>ABC, O2, จัดท่า, monitor</li><li>DTX ถ้า <60 mg/dL: 10% dextrose ${B('d10')}</li><li>เปิด IV/IO, ส่ง lab ตามข้อบ่งชี้</li><li>ไข้: paracetamol ${B('para')}</li></ul></div>
