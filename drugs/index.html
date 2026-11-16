@@ -136,6 +136,8 @@ const D=[
  calc:w=>[{x:kg(w,10,null,500),u:'mg',f:'OD × 3 วัน',forms:[F('susp 200 mg/5 mL',40)]}]},
 {id:'salb',n:'Salbutamol neb',th:'(Ventolin)',c:'rs',r:'NB',src:'h',rule:'0.15 mg/kg · BW <30 kg 1 nebule (2.5 mg), ≥30 kg 2 nebule (5 mg) · q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.',
  calc:w=>{ const n=w<30?1:2; return [{x:{lo:n*2.5,hi:n*2.5},u:'mg',f:'q 20 นาที × 3',forms:[F('nebule 2.5 mg/2.5 mL (1 mg/mL)',2.5,'neb')],lt:'0.15 mg/kg = '+fmt(w*0.15)+' mg'}]; },nt:'ผสมพ่นร่วมกับ Berodual / Pulmicort ได้'},
+{id:'salbpo',n:'Salbutamol oral',th:'',c:'rs',r:'PO',rule:'0.1–0.15 mg/kg/dose tid–qid · max 2 mg/dose (<12 ปี), 4 mg (≥12 ปี)',
+ calc:(w,a)=>[{x:kg(w,0.1,0.15,a!=null&&a>=144?4:2),u:'mg',f:'tid–qid',forms:[F('syr 2 mg/5 mL',0.4),F('tab 2 mg',2,'tab')]}],nt:'ใช้เมื่อพ่นยาไม่ได้ · ออกฤทธิ์ช้ากว่าและผลข้างเคียงมากกว่ายาพ่น'},
 {id:'salbmdi',n:'Salbutamol MDI + spacer',th:'',c:'rs',r:'MDI 100 mcg',src:'h',rule:'2–6 puffs via spacer q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.',
  calc:w=>[{x:{lo:2,hi:6},u:'puffs',f:'q 20 นาที × 3'}]},
 {id:'berod',n:'Berodual neb',th:'(ipratropium + fenoterol)',c:'rs',r:'NB',src:'h',rule:'รายรุนแรง/เสี่ยงสูง · BW ≤20 kg ½ nebule, >20 kg 1 nebule · q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.',
@@ -143,7 +145,7 @@ const D=[
 {id:'pulmi',n:'Pulmicort neb',th:'(budesonide)',c:'rs',r:'NB',src:'h',rule:'500 mcg/dose q 20 นาที × 3 (พิจารณาในรายรุนแรง)',
  calc:w=>[{x:{lo:500,hi:500},u:'mcg',f:'q 20 นาที × 3',forms:[F('0.5 mg/2 mL',250),F('1 mg/2 mL',500)]}],nt:'ไม่มี Pulmicort: budesonide MDI 200 mcg 2 puffs'},
 {id:'terb',n:'β2-agonist SC',th:'(terbutaline)',c:'rs',r:'SC',src:'h',rule:'0.01 mg/kg SC · max 0.4 mg · เมื่อ poor air entry',
- calc:w=>[{x:kg(w,0.01,null,0.4),u:'mg',f:'SC',forms:[F('terbutaline 0.5 mg/mL',0.5)]}],nt:'แนวทางระบุ "SABA injection" ตรวจชื่อยาและความเข้มข้นใน รพ.'},
+ calc:w=>[{x:kg(w,0.01,null,0.4),u:'mg',f:'',forms:[F('terbutaline 0.5 mg/mL',0.5)]}],nt:'แนวทางระบุ "SABA injection" ตรวจชื่อยาและความเข้มข้นใน รพ.'},
 {id:'ipra',n:'Ipratropium neb',th:'',c:'rs',r:'NB',rule:'<20 kg 250 mcg · ≥20 kg 500 mcg q 20 นาที × 3 (ชั่วโมงแรก)',
  calc:w=>[{x:{lo:w<20?250:500,hi:w<20?250:500},u:'mcg',f:'q 20 นาที × 3',forms:[F('0.025% (250 mcg/mL)',250)]}],nt:'ใช้เมื่อไม่มี Berodual'},
 {id:'pred',n:'Prednisolone',th:'',c:'rs',r:'PO',src:'h',rule:'1 mg/kg/dose (max 40 mg) แล้ว 1–2 mg/kg/วัน · กลับบ้านกินต่อ 5–7 วัน',
@@ -255,7 +257,7 @@ const cards=(ids,w,a)=>`<div class="grid">${ids.map(id=>card(BY[id],w,a)).join('
 const n=(x,u)=>`<b class="n">${fmt(x,u)}</b>`;
 /* ---- admission sets ---- */
 function dz(id,k,w,a){ if(!w){ const t=(SH[id]||[])[k||0]; return t?`<b class="n">${t}</b>`:''; } const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
-const SH={domp:['0.25 mg/kg tid (max 30 mg/วัน)'],amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
+const SH={ipra:['<20 kg 250 mcg, ≥20 kg 500 mcg'],salbpo:['0.1–0.15 mg/kg tid–qid (max 2 mg)'],domp:['0.25 mg/kg tid (max 30 mg/วัน)'],amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
  amp:['150–200 mg/kg/วัน ÷ q 6 h'],ctx:['150 mg/kg/วัน ÷ q 8 h'],cro:['50–100 mg/kg OD (max 2 g)'],pred:['1 mg/kg (max 40) แล้ว 1–2 mg/kg/วัน'],hc:['5 mg/kg q 6 h'],salb:['<30 kg 1 nebule, ≥30 kg 2 nebule'],
  berod:['≤20 kg ½ nebule, >20 kg 1 nebule'],pulmi:['500 mcg'],terb:['0.01 mg/kg SC (max 0.4 mg)'],cneb:['0.5 mg/kg/ชม. (min 10)'],mg:['25–50 mg/kg (max 2 g)'],dexc:['0.6 mg/kg'],
  adrneb:['0.05–0.5 mL/kg (max 2.5 mL <4 ปี, 5 mL ≥4 ปี)'],ns3:['4 mL'],d10:['2–5 mL/kg'],para:['10–15 mg/kg'],mdziv:['0.1 mg/kg (max 10)'],dziv:['0.2–0.3 mg/kg (max 10)'],
@@ -294,12 +296,12 @@ const SETS={
    <h3 class="sec">Asthma exacerbation ที่ห้องฉุกเฉิน</h3>
    <div class="note bad">Respiratory failure (cardiopulmonary arrest, severe hypoxia, alteration of consciousness): notify กุมารแพทย์ เตรียม intubation และ admit PICU</div>
    <div class="steps">
-     <div class="st"><span class="tm">ไม่รุนแรง</span><ul><li class="hint">ไม่มีชายโครงบุ๋ม พูดเป็นประโยค · SpO2 (RA) ≥92% · PR 100–120</li><li>O2 keep SpO2 >95%</li><li>prednisolone ${Q('pred')} (หรือ hydrocortisone IV ${Q('hc')})</li><li>Ventolin neb ${Q('salb')} หรือ MDI 2–6 puffs + spacer q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.</li></ul></div>
-     <div class="st"><span class="tm">รุนแรง หรือเสี่ยงสูง*</span><ul><li class="hint">ชายโครงบุ๋ม พูดเป็นคำ กระสับกระส่าย · SpO2 (RA) <92% · PR >120</li><li>O2 keep SpO2 >95% + systemic steroid ตามด้านซ้าย</li><li>Berodual neb ${Q('berod')} หรือ MDI 2–6 puffs q 20 นาที × 3 ใน 1 ชม.</li><li>พิจารณา Pulmicort ${Q('pulmi')} q 20 นาที × 3</li><li>poor air entry: β2-agonist SC ${Q('terb')}</li></ul></div>
-     <div class="st"><span class="tm">ประเมินซ้ำที่ 1 ชม.</span><ul><li>ดีขึ้น (good air entry, no retraction, SpO2 >95% RA): กลับบ้าน · Ventolin สูด/พ่น หรือกิน q 4–6 ชม. · prednisolone กิน 5–7 วัน</li><li>ไม่ดีขึ้น → รับไว้ในโรงพยาบาล</li><li>status asthmaticus → continuous neb ${Q('cneb')} · พิจารณา PICU</li></ul></div>
+     <div class="st"><span class="tm">ไม่รุนแรง</span><ul><li class="hint">ไม่มีชายโครงบุ๋ม พูดเป็นประโยค · SpO2 (RA) ≥92% · PR 100–120</li><li>O2 keep SpO2 >95%</li><li>prednisolone ${Q('pred')} (หรือ hydrocortisone IV ${Q('hc')})</li><li><b>Salbutamol (Ventolin)</b> neb ${Q('salb')} หรือ MDI 2–6 puffs + spacer · q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.</li></ul></div>
+     <div class="st"><span class="tm">รุนแรง หรือเสี่ยงสูง*</span><ul><li class="hint">ชายโครงบุ๋ม พูดเป็นคำ กระสับกระส่าย · SpO2 (RA) <92% · PR >120</li><li>O2 keep SpO2 >95% + systemic steroid ตามด้านซ้าย</li><li><b>Berodual</b> neb (ipratropium + fenoterol) ${Q('berod')} หรือ MDI 2–6 puffs · q 20 นาที สูงสุด 3 ครั้งใน 1 ชม.</li><li class="hint">ไม่มี Berodual: salbutamol neb ${Q('salb')} + ipratropium ${Q('ipra')}</li><li>พิจารณา Pulmicort ${Q('pulmi')}</li><li>poor air entry: β2-agonist SC ${Q('terb')}</li></ul></div>
+     <div class="st"><span class="tm">ประเมินซ้ำที่ 1 ชม.</span><ul><li>ดีขึ้น (good air entry, no retraction, SpO2 >95% RA): กลับบ้าน · salbutamol MDI 2–6 puffs หรือพ่น q 4–6 ชม. (หรือกิน ${Q('salbpo')}) · prednisolone กิน 5–7 วัน</li><li>ไม่ดีขึ้น → รับไว้ในโรงพยาบาล</li><li>status asthmaticus → continuous salbutamol neb ${Q('cneb')} · พิจารณา PICU</li></ul></div>
      <div class="st"><span class="tm">*ผู้ป่วยกลุ่มเสี่ยงสูง</span><ul><li>เคย respiratory failure / ใส่ท่อ / ICU</li><li>ICS ขนาดสูง (>500 mcg/วัน) หรือ prednisolone หลายครั้ง / กำลังกิน / เพิ่งหยุด</li><li>สงสัย pneumonia, atelectasis, pneumothorax</li><li>มี underlying / chronic illness</li></ul></div>
    </div>
-   ${cards(['salb','salbmdi','berod','pulmi','pred','hc','terb','cneb'],w,a)}
+   ${cards(['salb','salbmdi','salbpo','berod','ipra','pulmi','pred','hc','terb','cneb'],w,a)}
    <div class="note info">MgSO4 IV ไม่มีขนาดในแนวทาง รพ. (อยู่ในเกณฑ์รับเข้า PICU) · ขนาดตาม GINA: ${Q('mg')} IV 20 นาที</div>
 `; }},
  crp:{t:'Croup · Bronchiolitis',render(w,a){ const Q=(id,k)=>dz(id,k,w,a);
