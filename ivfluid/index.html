@@ -41,10 +41,38 @@ th{font-weight:500;color:var(--ink-2);font-size:12.5px}
 .foot{margin-top:18px;font-size:12px;color:var(--ink-2)}
 .btn{border:1.5px solid var(--accent);background:transparent;color:var(--accent);padding:6px 12px;border-radius:9px;cursor:pointer;font-weight:500;min-height:36px}
 .home{display:inline-flex;align-items:center;gap:4px;margin-top:14px;font:500 13px var(--f-body,system-ui);color:var(--accent);text-decoration:none;padding:4px 10px;border:1.5px solid var(--line);border-radius:999px;background:var(--surface)}.home:hover{border-color:var(--accent)}@media print{.home{display:none}}
+.dtab{margin-top:14px;background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden}
+.dtab>summary{cursor:pointer;padding:10px 16px;font:600 15px/1.35 var(--f-head);list-style:none;display:flex;justify-content:space-between;align-items:center;gap:10px}
+.dtab>summary::-webkit-details-marker{display:none}.dtab>summary::after{content:'แสดง ▾';font:500 12.5px var(--f-body);color:var(--accent)}.dtab[open]>summary::after{content:'ซ่อน ▴'}
+.dtab>summary small{font:400 12px var(--f-body);color:var(--ink-2);margin-left:6px}
+.dtw{overflow-x:auto;padding:0 12px 12px}
+.dt{width:100%;min-width:520px;border-collapse:collapse;font-size:13px}
+.dt th,.dt td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+.dt thead th{font:600 13px var(--f-head);color:var(--ink)}.dt thead th small{display:block;font:400 11.5px var(--f-body);color:var(--ink-2)}
+.dt tbody th{font-weight:500;color:var(--ink-2);width:22%}
+.dt .c1{background:#F1F8F4}.dt .c2{background:#FDF6EC}.dt .c3{background:#FCEEF1}
+.dt .use{margin-top:4px;border:1.5px solid var(--accent);background:transparent;color:var(--accent);border-radius:7px;padding:2px 9px;font:500 12px var(--f-body);cursor:pointer}
+.dtn{font-size:12px;color:var(--ink-2);margin:6px 4px 0}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Paediatric IV fluid calculator<small>Maintenance (Holliday-Segar 100-50-20) + deficit replacement · by weight</small></h1></header>
 
+<details class="dtab" id="dtab"><summary><span>Dehydration assessment<small>ประเมินภาวะขาดน้ำ</small></span></summary><div class="dtw">
+<table class="dt"><thead><tr><th></th><th class="c1">Mild<small>&lt;10 kg 5% · 10–30 kg 3%</small><button class="use" data-use="mild">ใช้ค่านี้</button></th><th class="c2">Moderate<small>&lt;10 kg 10% · 10–30 kg 6%</small><button class="use" data-use="mod">ใช้ค่านี้</button></th><th class="c3">Severe<small>&lt;10 kg 15% · 10–30 kg 9%</small><button class="use" data-use="sev">ใช้ค่านี้</button></th></tr></thead><tbody>
+<tr><th>Mental status</th><td class="c1">Alert, normal</td><td class="c2">Irritable, restless, thirsty</td><td class="c3">Lethargic, drowsy, unable to drink</td></tr>
+<tr><th>Heart rate</th><td class="c1">Normal</td><td class="c2">Increased</td><td class="c3">Markedly increased (bradycardia late)</td></tr>
+<tr><th>Pulses</th><td class="c1">Normal</td><td class="c2">Normal to weak</td><td class="c3">Weak, thready or absent</td></tr>
+<tr><th>Blood pressure</th><td class="c1">Normal</td><td class="c2">Normal</td><td class="c3">Low (late sign)</td></tr>
+<tr><th>Breathing</th><td class="c1">Normal</td><td class="c2">Normal to fast</td><td class="c3">Deep, fast (acidosis)</td></tr>
+<tr><th>Capillary refill</th><td class="c1">&lt;2 s</td><td class="c2">2–3 s</td><td class="c3">&gt;3 s, cool mottled skin</td></tr>
+<tr><th>Mucous membranes</th><td class="c1">Moist / slightly dry</td><td class="c2">Dry</td><td class="c3">Parched</td></tr>
+<tr><th>Eyes · tears</th><td class="c1">Normal · present</td><td class="c2">Sunken · decreased</td><td class="c3">Deeply sunken · absent</td></tr>
+<tr><th>Fontanelle (infant)</th><td class="c1">Normal</td><td class="c2">Sunken</td><td class="c3">Deeply sunken</td></tr>
+<tr><th>Skin pinch</th><td class="c1">Goes back immediately</td><td class="c2">Goes back slowly (&lt;2 s)</td><td class="c3">Goes back very slowly (&gt;2 s)</td></tr>
+<tr><th>Urine output</th><td class="c1">Normal / slightly less</td><td class="c2">Decreased</td><td class="c3">Minimal or none</td></tr>
+</tbody></table>
+<p class="dtn">Over 30 kg: mild = 120%, moderate = 150% of maintenance (no separate deficit). Severe: give an isotonic bolus 20 mL/kg first and reassess. Signs adapted from AAP / Nelson Textbook of Pediatrics and the WHO dehydration assessment.</p>
+</div></details>
 <div class="card"><h2>Patient</h2><div class="body">
  <div class="g2">
   <label class="f"><span class="lb">Weight</span><span class="inp"><input id="w" type="number" inputmode="decimal" min="0" step="0.1" placeholder="e.g. 12"><i>kg</i></span></label>
@@ -156,6 +184,7 @@ function sync(){
   else if(sev!=='custom') $('d').value= sev==='none'?0:PCT[br][sev];
   renderPre(w); seg('bp',parseFloat($('b').value)||0); seg('mp',mp); seg('md',md); calc();
 }
+document.querySelectorAll('[data-use]').forEach(b=>b.onclick=e=>{e.preventDefault(); const w=parseFloat($('w').value); sev=(bracket(w)==='h'&&b.dataset.use==='sev')?'mod':b.dataset.use; sync(); $('w').focus();});
 $('w').addEventListener('input',sync); $('b').addEventListener('input',sync);
 $('d').addEventListener('input',()=>{const v=parseFloat($('d').value)||0, P=PCT[bracket(parseFloat($('w').value))]||PCT.l; sev=v===0?'none':v===P.mild?'mild':v===P.mod?'mod':v===P.sev?'sev':'custom'; sync();});
 sync();
