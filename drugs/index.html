@@ -52,6 +52,7 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 .cs{font:600 15px var(--f-head);margin-top:4px}.cs.m{color:var(--warn)}.cs.s{color:var(--bad)}.cs.o{color:var(--ok)}
 .fq{font-size:12px;color:var(--ink-3)}
 .ew{width:100%;border-collapse:collapse;font-size:13.5px}.ew th,.ew td{padding:5px 8px;border-bottom:1px solid var(--line);text-align:left}.ew th{color:var(--ink-2);font-weight:500;font-size:12.5px}.ew tr.on td{background:var(--accent-soft);font-weight:600}
+.ivlink{display:block;text-decoration:none;color:inherit}.ivlink:hover{border-color:var(--accent)}.ivlink h4{color:var(--accent)}.ivlink span{font-size:13px;color:var(--ink-2)}
 .srcbar{margin-top:12px;font-size:12px;color:var(--ok);background:var(--ok-bg);border-radius:8px;padding:5px 10px}
 .st li.hint{color:var(--ink-3);font-size:12.5px;list-style:none;margin-left:-18px}.st li.wn{color:var(--bad)}
 .note.bad{background:var(--bad-bg);color:var(--bad)}
@@ -263,14 +264,10 @@ function croupOut(){ const el=document.getElementById('csout'); if(!el) return; 
   document.querySelectorAll('[data-cr]').forEach(b=>b.setAttribute('aria-pressed',CS[+b.dataset.cr]===+b.dataset.v)); }
 const SETS={
  all:{t:'ยาทั้งหมด'},
- age:{t:'AGE / ขาดน้ำ',render(w,a){ const m=maint(w), pc1=a!=null&&a<12;
-   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ใช้ WHO Pocket Book</div><div class="kv">
-     <div class="k"><span>Plan A · ORS หลังถ่ายแต่ละครั้ง</span><b>${w?fmt(w*10)+'<small>mL</small>':'10<small>mL/kg</small>'}</b><em>10 mL/kg ต่อการถ่ายเหลว 1 ครั้ง</em></div>
-     <div class="k"><span>Plan B · ORS ใน 4 ชม. (ขาดน้ำเล็กน้อย–ปานกลาง)</span><b>${w?fmt(w*75)+'<small>mL / 4 ชม.</small>':'75<small>mL/kg / 4 ชม.</small>'}</b><em>75 mL/kg${w?' ≈ '+fmt(w*75/4)+' mL/ชม.':''}</em></div>
-     <div class="k"><span>Plan C · ขาดน้ำรุนแรง (Ringer's lactate / NSS 100 mL/kg)</span><b>${w?fmt(w*30)+'<small>mL</small> → '+fmt(w*70)+'<small>mL</small>':'30 → 70<small>mL/kg</small>'}</b><em>${a==null?'<12 เดือน: 30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม. · ≥12 เดือน: ใน 30 นาที แล้ว 2½ ชม.':pc1?'30 mL/kg ใน 1 ชม. แล้ว 70 mL/kg ใน 5 ชม.':'30 mL/kg ใน 30 นาที แล้ว 70 mL/kg ใน 2½ ชม.'}</em></div>
-     <div class="k"><span>Maintenance IV (Holliday-Segar)</span><b>${w?fmt(m/24)+'<small>mL/ชม.</small>':'100/50/20<small>mL/kg/วัน</small>'}</b><em>${w?fmt(m)+' mL/วัน · ':'10 kg แรก 100, 10 kg ถัดไป 50, ส่วนที่เกิน 20 mL/kg/วัน · '}ใช้ isotonic + dextrose · <a href="/ivfluid/">คำนวณ deficit</a></em></div>
-   </div>
-   <div class="note info">ไม่ใช้ยาหยุดถ่ายในเด็ก · ยาปฏิชีวนะเฉพาะ dysentery (ถ่ายเป็นมูกเลือด) หรือสงสัย cholera · ondansetron ครั้งเดียวเมื่ออาเจียนมากจน ORS ไม่ได้</div>
+ age:{t:'AGE / ขาดน้ำ',render(w,a){
+   return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ยาตาม WHO Pocket Book</div>
+   <a class="pc ivlink" href="/ivfluid/"><h4>การให้สารน้ำ → Paediatric IV fluid calculator</h4><span>ประเมินภาวะขาดน้ำด้วยตารางในหน้า IV fluid แล้วคำนวณ maintenance + deficit, bolus และอัตราหยด</span></a>
+   <div class="note info">ไม่ใช้ยาหยุดถ่ายในเด็ก · ยาปฏิชีวนะเฉพาะ dysentery (ถ่ายเป็นมูกเลือด) หรือสงสัย cholera · ondansetron ครั้งเดียวเมื่ออาเจียนมาก</div>
    <h3 class="sec">ยาที่ใช้บ่อย</h3>${cards(['ond','zinc','para','cipro','azidys','cro'],w,a)}`; }},
  pna:{t:'Pneumonia',render(w,a){ const m=maint(w), Q=(id,k)=>dz(id,k,w,a);
    return `<div class="srcbar">ลำดับการรักษาตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564) · ขนาดยาจาก IDSA 2011 (แนวทาง รพ. ไม่ระบุขนาด)</div>
