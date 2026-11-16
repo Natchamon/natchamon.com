@@ -94,7 +94,7 @@ h3.sec small{font:400 12.5px var(--f-body);color:var(--ink-2)}
 
 <div class="foot">
   <b>ใช้ประกอบการตัดสินใจเท่านั้น</b> ตรวจสอบขนาดยา ความเข้มข้นของยาในโรงพยาบาล การทำงานของไตและตับ และแนวทางของหน่วยงานทุกครั้งก่อนสั่งยา · ขนาดยาสำหรับเด็กอายุ ≥1 เดือน (ไม่ใช่ทารกแรกเกิด) · ขนาดยาที่เกินขนาดสูงสุดจะถูกตัดลงเป็นขนาดสูงสุดและมีป้ายกำกับ
-  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC, PICU criteria, early warning — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (MgSO4) · CDC group A strep pharyngitis
+  <br>อ้างอิงหลัก: <b>แนวทางปฏิบัติสาขาวิชากุมารเวชกรรม (เด็กโต) ศูนย์การแพทย์ปัญญานันทภิกขุ ชลประทาน 2564</b> (asthma, continuous nebulizer, croup, pneumonia, HHHFNC, PICU criteria, early warning — การ์ดที่มีป้าย "แนวทาง รพ.") · WHO Pocket Book of Hospital Care for Children (diarrhoea, zinc, ciprofloxacin) · IDSA Pediatric CAP guideline 2011 (antibiotics) · Children's Health Queensland asthma &amp; croup medication guides · Canadian Paediatric Society / EMSC PEAK status epilepticus algorithms · NHS paediatric analgesia &amp; IV paracetamol guidance (SPS) · GINA (MgSO4) · EMA 2014 domperidone restriction · CDC group A strep pharyngitis
 </div>
 </div>
 <script>
@@ -124,6 +124,9 @@ const D=[
 {id:'ond',n:'Ondansetron',th:'',c:'ge',r:'IV / PO',rule:'0.15 mg/kg/dose · max 4 mg/dose (ER ให้ 1 ครั้ง)',
  calc:w=>[{x:kg(w,0.15,null,4),u:'mg',f:'ครั้งเดียว',forms:[F('inj 2 mg/mL',2),F('syr 4 mg/5 mL',0.8)]}],
  wn:a=>a!=null&&a<6?'อายุ <6 เดือน: ข้อมูลน้อย ปรึกษาก่อนใช้':''},
+{id:'domp',n:'Domperidone',th:'',c:'ge',r:'PO',rule:'0.25 mg/kg/dose ได้ถึง tid · max 0.75 mg/kg/วัน และ 30 mg/วัน · ≥35 kg: 10 mg tid · ไม่เกิน 7 วัน',
+ calc:w=>[{x:w>=35?{lo:10,hi:10,cap:false}:kg(w,0.25,null,10),u:'mg',f:'tid prn ≤ 7 วัน',forms:[F('susp 1 mg/mL',1),F('tab 10 mg',10,'tab')]}],
+ nt:'ใช้ขนาดต่ำสุดในเวลาสั้นที่สุด · ระวัง QT prolongation (ห้ามใช้ร่วม macrolide/azole, โรคหัวใจ, เกลือแร่ผิดปกติ) · ไม่แนะนำเป็นประจำใน AGE (EMA 2014)'},
 {id:'zinc',n:'Zinc',th:'สังกะสี',c:'ge',r:'PO',rule:'อายุ <6 เดือน 10 mg · ≥6 เดือน 20 mg วันละครั้ง × 10–14 วัน',
  calc:(w,a)=>a==null?[{x:{lo:10,hi:10},u:'mg',lt:'อายุ <6 เดือน',f:'OD',forms:[F('tab 20 mg',20,'tab')]},{x:{lo:20,hi:20},u:'mg',lt:'อายุ ≥6 เดือน',f:'OD',forms:[F('tab 20 mg',20,'tab')]}]
    :[{x:{lo:a<6?10:20,hi:a<6?10:20},u:'mg',f:'OD × 10–14 วัน',forms:[F('tab 20 mg',20,'tab')]}]},
@@ -252,7 +255,7 @@ const cards=(ids,w,a)=>`<div class="grid">${ids.map(id=>card(BY[id],w,a)).join('
 const n=(x,u)=>`<b class="n">${fmt(x,u)}</b>`;
 /* ---- admission sets ---- */
 function dz(id,k,w,a){ if(!w){ const t=(SH[id]||[])[k||0]; return t?`<b class="n">${t}</b>`:''; } const l=BY[id].calc(w,a)[k||0]; if(!l) return ''; const x=l.x, v=Math.abs(x.lo-x.hi)<1e-9?fmt(x.lo,l.u):fmt(x.lo,l.u)+'–'+fmt(x.hi,l.u); return `<b class="n">${v} ${l.u}</b>${l.f&&!/ครั้งเดียว|stat|bolus|loading/.test(l.f)?` <span class="fq">${l.f}</span>`:''}`; }
-const SH={amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
+const SH={domp:['0.25 mg/kg tid (max 30 mg/วัน)'],amoxsf:['50 mg/kg OD (max 1 g)','25 mg/kg bid (max 500)'],penv:['<27 kg 250 mg, ≥27 kg 500 mg bid–tid'],bpg:['<27 kg 600,000 U, ≥27 kg 1.2 MU'],cephx:['20 mg/kg bid (max 500)'],clinpo:['7 mg/kg tid (max 300)'],azisf:['12 mg/kg (max 500)','6 mg/kg (max 250)'],amox:['80–90 mg/kg/วัน ÷ bid'],ery:['40–50 mg/kg/วัน ÷ q 6 h'],azi:['10 mg/kg (max 500)','5 mg/kg (max 250)'],clari:['15 mg/kg/วัน ÷ bid'],amc:['90 mg/kg/วัน ÷ bid'],cefdt:['3 mg/kg tid'],cefdi:['14 mg/kg/วัน ÷ bid'],
  amp:['150–200 mg/kg/วัน ÷ q 6 h'],ctx:['150 mg/kg/วัน ÷ q 8 h'],cro:['50–100 mg/kg OD (max 2 g)'],pred:['1 mg/kg (max 40) แล้ว 1–2 mg/kg/วัน'],hc:['5 mg/kg q 6 h'],salb:['<30 kg 1 nebule, ≥30 kg 2 nebule'],
  berod:['≤20 kg ½ nebule, >20 kg 1 nebule'],pulmi:['500 mcg'],terb:['0.01 mg/kg SC (max 0.4 mg)'],cneb:['0.5 mg/kg/ชม. (min 10)'],mg:['25–50 mg/kg (max 2 g)'],dexc:['0.6 mg/kg'],
  adrneb:['0.05–0.5 mL/kg (max 2.5 mL <4 ปี, 5 mL ≥4 ปี)'],ns3:['4 mL'],d10:['2–5 mL/kg'],para:['10–15 mg/kg'],mdziv:['0.1 mg/kg (max 10)'],dziv:['0.2–0.3 mg/kg (max 10)'],
@@ -268,7 +271,7 @@ const SETS={
    return `<div class="srcbar" style="background:var(--soft);color:var(--ink-2)">ไม่มีในแนวทาง รพ. · ยาตาม WHO Pocket Book</div>
    <a class="pc ivlink" href="/ivfluid/"><h4>การให้สารน้ำ → Paediatric IV fluid calculator</h4><span>ประเมินภาวะขาดน้ำด้วยตารางในหน้า IV fluid แล้วคำนวณ maintenance + deficit, bolus และอัตราหยด</span></a>
    <div class="note info">ไม่ใช้ยาหยุดถ่ายในเด็ก · ยาปฏิชีวนะเฉพาะ dysentery (ถ่ายเป็นมูกเลือด) หรือสงสัย cholera · ondansetron ครั้งเดียวเมื่ออาเจียนมาก</div>
-   <h3 class="sec">ยาที่ใช้บ่อย</h3>${cards(['ond','zinc','para','cipro','azidys','cro'],w,a)}`; }},
+   <h3 class="sec">ยาที่ใช้บ่อย</h3>${cards(['ond','domp','zinc','para','cipro','azidys','cro'],w,a)}`; }},
  pna:{t:'Pneumonia',render(w,a){ const m=maint(w), Q=(id,k)=>dz(id,k,w,a);
    return `<div class="srcbar">ลำดับการรักษาตามแนวทางปฏิบัติสาขาวิชากุมารเวชกรรม รพ. (2564) · ขนาดยาจาก IDSA 2011 (แนวทาง รพ. ไม่ระบุขนาด)</div>
    <h3 class="sec">แผนภูมิ 1 · ปอดบวมไม่รุนแรง <small>อายุ <1 เดือน รักษาแบบปอดบวมรุนแรงทุกราย</small></h3>
