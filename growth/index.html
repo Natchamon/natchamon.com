@@ -88,6 +88,20 @@ details>summary{cursor:pointer;font-size:13.5px;color:var(--accent)}
 #ibwc .kpi.main,#bmic .kpi.main{background:var(--accent-soft,#E4E8FB);border-color:var(--accent)}
 #ibwc .kpi>span,#bmic .kpi>span{font-size:12.5px;color:var(--ink-2)}#bmic .sm th{text-align:left;font-weight:500;color:var(--ink-2);font-size:12.5px}#ibwc .kpi b,#bmic .kpi b{font-size:22px}#ibwc .kpi small,#bmic .kpi small{font-size:12px;color:var(--ink-2)}
 #bmic table.sm{margin-top:4px}#bmic .zv{font-style:normal;font:600 22px/1.2 var(--f-head)}.bad-t{color:var(--bad);font-weight:600}.ok-t{color:var(--ok);font-weight:600}.warn-t{color:var(--warn);font-weight:600}
+
+/* compact visit rows */
+.vrow{padding:10px 12px;gap:8px}
+.vtop{display:flex;align-items:center;gap:10px}.vtop b{font:600 14.5px var(--f-head)}.vtop .vage{font-size:12.5px;color:var(--ink-2);background:var(--soft);border-radius:99px;padding:1px 9px}.vtop .vage:empty{display:none}.vtop .x{margin-left:auto}
+.vin{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:flex-end}
+.vin .f{gap:3px}.vin .fa{flex:0 0 86px}.vin .fw{flex:1 1 120px;max-width:170px}.vin .fd{flex:0 0 180px}
+.vin .inp{min-height:38px}.vin .lb{font-size:12.5px}
+.res{gap:6px}
+.rc{grid-template-columns:150px minmax(0,1fr) minmax(160px,1.2fr);align-items:center;gap:4px 14px;padding:7px 12px;border-radius:10px}
+.rc.out{border-color:var(--warn);box-shadow:inset 3px 0 0 var(--warn)}
+.rc .rn b{display:block;font:600 13px var(--f-head)}.rc .rn small{font-size:11.5px;color:var(--ink-2)}
+.rc .rv{display:flex;flex-wrap:wrap;align-items:baseline;gap:2px 8px;font-size:12px}.rc .rv b{font-size:17px;margin:0}
+.rc .bar{height:12px;margin:2px 0 16px}.rc .bar u{top:15px;font-size:10.5px}
+@media (max-width:560px){.rc{grid-template-columns:1fr}.vin .fw{max-width:none}}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Growth plotter<small>Weight and length/height on the Thai Society for Pediatric Endocrinology charts, 0–19 years</small></h1></header>
@@ -158,12 +172,11 @@ function today(){const d=new Date();return d.getFullYear()+'-'+String(d.getMonth
 
 function card(title,sub,val,unit,r){
   const pos=Math.max(2,Math.min(98,50+r.z/3*50));
-  const out=r.below||r.above, cc=out?'warn':'ok';
+  const out=r.below||r.above;
   const ticks=PN7.map((p,i)=>{const x=50+ZN7[i]/3*50;return `<i style="left:${x}%"></i>`+((p===3||p===50||p===97)?`<u style="left:${x}%">P${p}</u>`:'')}).join('');
-  return `<div class="rc"><div class="rt"><b>${title}</b><small>${val} ${unit}</small></div>
-   <div class="rv"><b>${band(r)}</b>(P${pct(r)}) · z ${sgn(r.z)}</div>
-   <div class="bar">${ticks}<em style="left:${pos}%"></em></div>
-   <span class="chip ${cc}">${r.below?'Below P3':r.above?'Above P97':'Within P3–P97'}</span></div>`;
+  return `<div class="rc${out?' out':''}"><div class="rn"><b>${title}</b><small>${val} ${unit}</small></div>
+   <div class="rv"><b>${band(r)}</b><span>P${pct(r)} · z ${sgn(r.z)}</span>${out?`<span class="chip warn">${r.below?'Below P3':'Above P97'}</span>`:''}</div>
+   <div class="bar">${ticks}<em style="left:${pos}%"></em></div></div>`;
 }
 function modeUI(){
   $('dobw').hidden=mode!=='dob';
@@ -174,14 +187,14 @@ function addRow(v){V.push(v||{d:today(),y:'',mo:'',w:'',l:''});renderRows()}
 function renderRows(){
   $('rows').innerHTML=V.map((v,i)=>{
     const when=mode==='age'
-      ?`<div class="ag"><label class="f"><span class="lb">Age</span><span class="inp"><input data-k="y" data-i="${i}" type="number" inputmode="numeric" min="0" max="19" step="1" value="${v.y}" placeholder="0"><i>years</i></span></label>
-         <label class="f"><span class="lb">&nbsp;</span><span class="inp"><input data-k="mo" data-i="${i}" type="number" inputmode="decimal" min="0" max="23" step="0.5" value="${v.mo}" placeholder="0"><i>months</i></span></label></div>`
-      :`<label class="f"><span class="lb">Visit date</span><span class="inp"><input data-k="d" data-i="${i}" type="date" value="${v.d}"></span></label>`;
-    return `<div class="vrow"><div style="display:flex;justify-content:space-between;align-items:center"><b style="font:600 15px var(--f-head)">Visit ${i+1}</b>${V.length>1?`<button class="x" data-del="${i}" aria-label="Remove visit">×</button>`:''}</div>
-     ${when}
-     <div class="g2"><label class="f"><span class="lb">Weight</span><span class="inp"><input data-k="w" data-i="${i}" type="number" inputmode="decimal" step="0.01" min="0" value="${v.w}"><i>kg</i></span></label>
-     <label class="f"><span class="lb" data-lbl="${i}">Length / height</span><span class="inp"><input data-k="l" data-i="${i}" type="number" inputmode="decimal" step="0.1" min="0" value="${v.l}"><i>cm</i></span></label></div>
-     <div class="res" id="res${i}" style="gap:10px"></div></div>`}).join('');
+      ?`<label class="f fa"><span class="lb">Age</span><span class="inp"><input data-k="y" data-i="${i}" type="number" inputmode="numeric" min="0" max="19" step="1" value="${v.y}" placeholder="0"><i>y</i></span></label>
+        <label class="f fa"><span class="lb">&nbsp;</span><span class="inp"><input data-k="mo" data-i="${i}" type="number" inputmode="decimal" min="0" max="23" step="0.5" value="${v.mo}" placeholder="0"><i>mo</i></span></label>`
+      :`<label class="f fd"><span class="lb">Visit date</span><span class="inp"><input data-k="d" data-i="${i}" type="date" value="${v.d}"></span></label>`;
+    return `<div class="vrow"><div class="vtop"><b>Visit ${i+1}</b><span class="vage" id="vage${i}"></span>${V.length>1?`<button class="x" data-del="${i}" aria-label="Remove visit">×</button>`:''}</div>
+     <div class="vin">${when}
+      <label class="f fw"><span class="lb">Weight</span><span class="inp"><input data-k="w" data-i="${i}" type="number" inputmode="decimal" step="0.01" min="0" value="${v.w}"><i>kg</i></span></label>
+      <label class="f fw"><span class="lb" data-lbl="${i}">Length / height</span><span class="inp"><input data-k="l" data-i="${i}" type="number" inputmode="decimal" step="0.1" min="0" value="${v.l}"><i>cm</i></span></label></div>
+     <div class="res" id="res${i}"></div></div>`}).join('');
   document.querySelectorAll('#rows input').forEach(e=>e.addEventListener('input',()=>{V[+e.dataset.i][e.dataset.k]=e.value;calc()}));
   document.querySelectorAll('[data-del]').forEach(b=>b.onclick=()=>{V.splice(+b.dataset.del,1);renderRows()});
   calc();
@@ -206,11 +219,11 @@ function calc(){
     else if(m0<0) h='<span class="chip bad">Date is before birth</span>';
     else if(!ok) h='<span class="chip bad">Older than 19 years, outside the charts</span>';
     else{
-      h=`<div><span class="chip">${ageTxt(m0)}${e.corr?' · corrected '+ageTxt(e.m):''}</span></div>`;
+      h='';
       if(e.rw) h+=card('Weight-for-age','',e.w,'kg',e.rw);
       if(e.rl) h+=card(nm+'-for-age','',e.l,'cm',e.rl);
     }
-    $('res'+i).innerHTML=h;
+    $('res'+i).innerHTML=h; const va=$('vage'+i); if(va) va.textContent=ok?ageTxt(m0)+(e.corr?' · corrected '+ageTxt(e.m):''):'';
   });
   const E=P.filter(e=>e.ok&&(e.rw||e.rl)).sort((a,b)=>a.m0-b.m0);
   { const Q=P.filter(e=>e.ok&&(e.w||e.l)).sort((a,b)=>a.m0-b.m0); LASTV=Q.length?Q[Q.length-1]:null; ibwCalc(); bmiCalc(); }
