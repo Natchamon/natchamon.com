@@ -60,10 +60,10 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
 .ok-t{color:var(--ok);font-weight:600}.warn-t{color:var(--warn);font-weight:600}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
-<header><h1>Neonatal IV &amp; GIR<small>IV rate and dextrose GIR · step feed with IV · hypoglycemia push · order wording</small></h1></header>
+<header><h1>Neonatal IV &amp; GIR<small>IV rate and dextrose GIR · step feed with IV · hypoglycemia push · TV / GIR / TC check · order wording</small></h1></header>
 
 <div class="card"><h2>What do you need?</h2><div class="body">
- <div class="seg" id="tab"><button class="opt" data-v="npo" aria-pressed="true">NPO, all IV</button><button class="opt" data-v="step" aria-pressed="false">Step feed + IV</button><button class="opt" data-v="hypo" aria-pressed="false">Symptomatic hypoglycemia</button></div>
+ <div class="seg" id="tab"><button class="opt" data-v="npo" aria-pressed="true">NPO, all IV</button><button class="opt" data-v="step" aria-pressed="false">Step feed + IV</button><button class="opt" data-v="hypo" aria-pressed="false">Symptomatic hypoglycemia</button><button class="opt" data-v="chk" aria-pressed="false">Calculate TV / GIR / TC</button></div>
 </div></div>
 
 <div class="card"><h2>Baby</h2><div class="body">
@@ -85,6 +85,14 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
   </div>
   <label class="chk"><input type="checkbox" id="og"><span>Fed by OG tube (adds "via OG" to the order)</span></label>
  </div>
+ <div id="chin" class="body" style="padding:0;display:none">
+  <label class="f"><span class="lb">IV rate</span><span class="inp"><input id="crate" type="number" inputmode="decimal" min="0" step="0.1" placeholder="0 if no IV"><i>mL/h</i></span></label>
+  <div class="g2">
+   <label class="f"><span class="lb">Oral per feed</span><span class="inp"><input id="cpf" type="number" inputmode="decimal" min="0" step="1" placeholder="0 if NPO"><i>mL</i></span></label>
+   <label class="f"><span class="lb">Feeds per day</span><span class="inp"><input id="cnf" type="number" inputmode="numeric" min="1" max="24" step="1" value="8"><i>feeds</i></span></label>
+  </div>
+  <label class="f"><span class="lb">Milk energy</span><span class="inp"><input id="ckc" type="number" inputmode="decimal" min="1" step="1" value="20"><i>kcal / oz</i></span></label>
+ </div>
  <label class="f" id="rcw"><span class="lb">Use my own IV rate (optional)</span><span class="inp"><input id="rc" type="number" inputmode="decimal" min="0" step="0.1" placeholder="optional"><i>mL/h</i></span></label>
 </div></div>
 
@@ -97,7 +105,7 @@ details.card[open]>summary{border-bottom:1px solid var(--line)}
 <div class="lb">The fluid and dextrose % are set automatically from the age you pick; you can still change them.</div></div></details>
 <details class="card"><summary>Fluid requirement table<small>mL/kg/day</small></summary><div class="body"><div class="ovw"><table id="ov"></table></div><div class="lb" id="ovn"></div></div></details>
 
-<p class="foot">Calculation aid only. Based on the Newborn Feeding calculation sheet and the PCMC maintenance table; check against your unit protocol and the baby's clinical state. GIR = % dextrose × rate (mL/h) ÷ (6 × weight kg). Target GIR: term 4–6, preterm 6–8 mg/kg/min. Rates are rounded up to the next 0.5 mL/h as in the sheet. Dextrose is counted at 3.4 kcal/g.</p>
+<p class="foot">Calculation aid only. Based on the Newborn Feeding calculation sheet and the PCMC maintenance table; check against your unit protocol and the baby's clinical state. GIR = % dextrose × rate (mL/h) ÷ (6 × weight kg). Target GIR: term 4–6, preterm 6–8 mg/kg/min. Rates are rounded down to 0.1 mL/h (e.g. 12.13 → 12.1); TV and GIR are recalculated at the rounded rate. Dextrose is counted at 3.4 kcal/g.</p>
 </div>
 <script>
 const $=id=>document.getElementById(id);
@@ -123,6 +131,7 @@ const fluOf=a=>a<=2?'dw':a<=7?'dn5':'dnss';
 let dxEdited=false;
 function autoFlu(){flu=fluOf(age);if(!dxEdited)$('dx').value=flu==='dnss'?5:10}
 const ceilHalf=x=>Math.ceil(x*2-1e-9)/2;
+const fl1=x=>Math.floor(x*10+1e-9)/10; // round down to 0.1 mL/h (12.13 → 12.1)
 const tg=()=>gest==='term'?'term':'pre';
 const girCls=(g,r)=>g<r[0]||g>r[1]?'warn-t':'ok-t';
 function calc(){
@@ -140,8 +149,8 @@ function calc(){
   if(!W||goal==null){ $('out').innerHTML=h+`<div class="note info" style="margin-top:14px">Enter the weight to see the result.</div>`; return }
   const L=[];
   if(tab==='npo'){
-    const ex=kg*goal/24, up=r1(ex), used=cu||up;
-    const cols=[['Exact',up,up]]; if(cu) cols.push(['Your rate',cu,cu]);
+    const ex=kg*goal/24, up=fl1(ex), used=cu||up;
+    const cols=[['Exact',ex,r2(ex)],['Rounded down',up,up]]; if(cu) cols.push(['Your rate',cu,cu]);
     const row=(lab,f)=>`<tr><td>${lab}</td>${cols.map(c=>`<td>${f(c[1],c[2])}</td>`).join('')}</tr>`;
     h+=`<div class="card"><h2>IV fluid <small>${bag} · required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day</small></h2><div class="body">
      <table class="rt"><tr><th></th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr>
@@ -162,7 +171,7 @@ function calc(){
     const opts={exact:r1(pfx), down:Math.floor(pfx/5)*5, up:Math.ceil(pfx/5)*5};
     if(sel==='down'&&opts.down<=0) sel='up';
     const pf=opts[sel], oralTV=pf*nf/kg, ivTV=Math.max(0,goal-oralTV);
-    const exR=ivTV*kg/24, upR=r1(exR), used=cu||upR;
+    const exR=ivTV*kg/24, upR=fl1(exR), used=cu||upR;
     const gir=girOf(used), totTV=tvOfRate(used)+oralTV, tcK=oralTV*kc/30;
     const lab=kc===24?'HMF/PF':kc===20?'BM/IF':'BM/IF/HMF', og=$('og').checked?' via OG':'';
     const st=STEP[gest];
@@ -173,7 +182,8 @@ function calc(){
     h+=`<div class="card"><h2>With this per-feed volume <small>goal ${goal===r0(goal)?goal:r1(goal)} mL/kg/day</small></h2><div class="body"><table class="sm">
      <tr><td>Oral TV</td><td>${r1(oralTV)} mL/kg/day<br><small>(${r0(pf*nf)} mL/day · TC ${r1(tcK)} kcal/kg/day)</small></td></tr>
      <tr><td>IV TV still needed</td><td>${r1(ivTV)} mL/kg/day<br><small>(goal − oral)</small></td></tr>
-     <tr><td>IV rate</td><td><b>${cu?cu+' (yours)':upR}</b> mL/h<br><small>(exact rate, not rounded up)</small></td></tr>
+     <tr><td>IV rate</td><td>${r2(exR)} → <b>${cu?cu+' (yours)':upR}</b> mL/h<br><small>(rounded down to 0.1)</small></td></tr>
+     <tr><td>IV TV at this rate</td><td>${r1(tvOfRate(used))} mL/kg/day</td></tr>
      <tr><td>Total TV</td><td>${r1(totTV)} mL/kg/day</td></tr>
      <tr><td>GIR of the IV</td><td class="${gir>=2?'ok-t':'warn-t'}">${r1(gir)} mg/kg/min<br><small>(keep at 2 or more)</small></td></tr>
      <tr><td>Lowest rate with GIR 2</td><td>${r1(2*6*kg/dx)} mL/h<br><small>(do not taper below this)</small></td></tr></table>
@@ -185,14 +195,31 @@ function calc(){
     L.push(`If feeds well 2 meals, reduce IV to ${bag} IV drip rate __ ml/hr x 24 hrs`);
   }
   if(tab==='hypo'){
-    const bol=2*kg, rate=kg*goal/24, up=r1(rate), used=cu||up, gir=girOf(used);
+    const bol=2*kg, rate=kg*goal/24, up=fl1(rate), used=cu||up, gir=girOf(used);
     h+=`<div class="card"><h2>Symptomatic hypoglycemia <small>10% DW</small></h2><div class="body"><table class="sm">
      <tr><td>Mini-bolus</td><td>${r1(bol)} → <b>${r0(bol)}</b> mL<br><small>(10% DW 2 mL/kg/dose, slow push)</small></td></tr>
-     <tr><td>Then IV rate</td><td><b>${cu?cu+' (yours)':up}</b> mL/h<br><small>(required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day, exact rate)</small></td></tr>
+     <tr><td>Then IV rate</td><td>${r2(rate)} → <b>${cu?cu+' (yours)':up}</b> mL/h<br><small>(required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day, rounded down to 0.1)</small></td></tr>
      <tr><td>TV at this rate</td><td>${r1(tvOfRate(used))} mL/kg/day</td></tr>
      <tr><td>GIR</td><td class="${girCls(gir,gr)}">${r1(gir)} mg/kg/min<br><small>(target ${gr[0]}–${gr[1]})</small></td></tr></table></div></div>`;
     L.push(`10%DW ${r0(bol)} ml IV slowly push`);
     L.push(`then 10% DW 500 ml IV rate ${used} ml/hr (TV ${r1(tvOfRate(used))}, GIR ${r1(gir)})`);
+  }
+  if(tab==='chk'){
+    const rate=Math.max(0,parseFloat($('crate').value)||0), pf=Math.max(0,parseFloat($('cpf').value)||0), nf=Math.max(1,parseFloat($('cnf').value)||8), kc=parseFloat($('ckc').value)||20;
+    const ivTV=tvOfRate(rate), oTV=pf*nf/kg, tTV=ivTV+oTV, gir=girOf(rate), kOral=oTV*kc/30, kIV=gir*1.44*3.4, tc=kOral+kIV;
+    h+=`<div class="card"><h2>TV / GIR / TC <small>${r0(kg*1000)} g · ${dx}% dextrose IV</small></h2><div class="body">
+     <div class="big"><div class="kpi main"><span>Total TV</span><b>${r1(tTV)}<small> mL/kg/day</small></b></div>
+     <div class="kpi"><span>GIR</span><b class="${rate?girCls(gir,gr):''}">${r1(gir)}<small> mg/kg/min</small></b></div>
+     <div class="kpi"><span>Total TC</span><b>${r1(tc)}<small> kcal/kg/day</small></b></div></div>
+     <table class="sm">
+      <tr><td>IV</td><td>${rate} mL/h × 24 = ${r1(rate*24)} mL/day → <b>${r1(ivTV)}</b> mL/kg/day</td></tr>
+      <tr><td>Oral</td><td>${pf} mL × ${nf} = ${r0(pf*nf)} mL/day → <b>${r1(oTV)}</b> mL/kg/day</td></tr>
+      <tr><td>Required for age</td><td>${goal===r0(goal)?goal:r1(goal)} mL/kg/day <small>(${tTV>=goal?'total meets it':'total is '+r1(goal-tTV)+' below'})</small></td></tr>
+      <tr><td>GIR</td><td>${dx} × ${rate} ÷ (6 × ${r2(kg)}) = <b>${r1(gir)}</b> mg/kg/min <small>(target ${gr[0]}–${gr[1]})</small></td></tr>
+      <tr><td>TC from milk</td><td>${r1(oTV)} × ${kc} ÷ 30 = <b>${r1(kOral)}</b> kcal/kg/day</td></tr>
+      <tr><td>TC from IV dextrose</td><td>GIR × 1.44 × 3.4 = <b>${r1(kIV)}</b> kcal/kg/day</td></tr></table>
+    </div></div>`;
+    L.push(`TV ${r1(tTV)} ml/kg/day (IV ${r1(ivTV)}, oral ${r1(oTV)}), GIR ${r1(gir)} mg/kg/min, TC ${r1(tc)} kcal/kg/day`);
   }
   lastRep=L.join('\n'); h+=orderCard(L);
   const qs=`?w=${encodeURIComponent($('w').value||'')}&g=${tg()}&a=${age}`;
@@ -203,7 +230,7 @@ function calc(){
 function setSS(){ if(!ssEdited) $('ss').value={term:20,late:15,pre:10}[gest]; const s=STEP[gest]; $('ssh').textContent=`Usual step feed for this group: ${s[0]}–${s[1]} mL/kg/day.` }
 function sync(){
   seg('tab',v=>v===tab);seg('gest',v=>v===gest);seg('day',v=>+v===age);seg('flu',v=>v===flu);
-  $('ivin').style.display=tab==='hypo'?'none':''; $('stin').style.display=tab==='step'?'':'none';
+  $('ivin').style.display=tab==='hypo'?'none':''; $('stin').style.display=tab==='step'?'':'none'; $('chin').style.display=tab==='chk'?'':'none'; $('rcw').style.display=tab==='chk'?'none':'';
   setSS(); calc();
 }
 $('day').innerHTML=AGES.map((l,i)=>`<button class="opt" data-v="${i+1}" aria-pressed="false">${l}</button>`).join('');
@@ -211,7 +238,7 @@ document.querySelectorAll('#day .opt').forEach(b=>b.onclick=()=>{age=+b.dataset.
 document.querySelectorAll('#tab .opt').forEach(b=>b.onclick=()=>{tab=b.dataset.v;sync()});
 document.querySelectorAll('#gest .opt').forEach(b=>b.onclick=()=>{gest=b.dataset.v;ssEdited=false;sync()});
 document.querySelectorAll('#flu .opt').forEach(b=>b.onclick=()=>{flu=b.dataset.v;if(!dxEdited)$('dx').value=flu==='dnss'?5:10;sync()});
-['w','dx','nf','kc','rc'].forEach(i=>$(i).addEventListener('input',sync));
+['w','dx','nf','kc','rc','crate','cpf','cnf','ckc'].forEach(i=>$(i).addEventListener('input',sync));
 $('dx').addEventListener('input',()=>{dxEdited=true});
 $('ss').addEventListener('input',()=>{ssEdited=true;sync()});$('og').addEventListener('change',sync);
 const q=new URLSearchParams(location.search);
