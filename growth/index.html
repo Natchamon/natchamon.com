@@ -87,7 +87,7 @@ details>summary{cursor:pointer;font-size:13.5px;color:var(--accent)}
 #ibwc .kpi,#bmic .kpi{border:1px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--soft,#EEF1FA);display:grid;gap:2px}
 #ibwc .kpi.main,#bmic .kpi.main{background:var(--accent-soft,#E4E8FB);border-color:var(--accent)}
 #ibwc .kpi>span,#bmic .kpi>span{font-size:12.5px;color:var(--ink-2)}#bmic .sm th{text-align:left;font-weight:500;color:var(--ink-2);font-size:12.5px}#ibwc .kpi b,#bmic .kpi b{font-size:22px}#ibwc .kpi small,#bmic .kpi small{font-size:12px;color:var(--ink-2)}
-#bmic table.sm{margin-top:4px}.bad-t{color:var(--bad);font-weight:600}.ok-t{color:var(--ok);font-weight:600}.warn-t{color:var(--warn);font-weight:600}
+#bmic table.sm{margin-top:4px}#bmic .zv{font-style:normal;font:600 22px/1.2 var(--f-head)}.bad-t{color:var(--bad);font-weight:600}.ok-t{color:var(--ok);font-weight:600}.warn-t{color:var(--warn);font-weight:600}
 </style></head><body><div class="app">
 <a class="home" href="/tools/">← Ped tools</a>
 <header><h1>Growth plotter<small>Weight and length/height on the Thai Society for Pediatric Endocrinology charts, 0–19 years</small></h1></header>
@@ -358,7 +358,7 @@ function bmiCalc(){
   else { if(z>3){cls='bad';txt='Obesity · อ้วน';} else if(z>2){cls='warn';txt='Overweight · น้ำหนักเกิน';} else if(z<-3){cls='bad';txt='Severe wasting · ผอมมาก (< −3 SDS)';} else if(z<-2){cls='warn';txt='Wasting · ผอม (< −2 SDS)';} else {cls='ok';txt='Normal · ปกติ';} }
   const m2=Math.pow(h/100,2), wt=b=>r1(b*m2);
   const zc=cls==='ok'?'ok-t':cls==='warn'?'warn-t':'bad-t';
-  out+=`<div class="ibwk">${k('BMI',r1(bmi)+' kg/m²',`${r1(w)} kg ÷ (${(h/100).toFixed(2)} m)²`,'main')}${k('BMI z-score (SDS)',`<span class="${zc}">${z>=0?'+':''}${r1(z)}</span>`,`about P${Math.max(0.1,Math.min(99.9,r1(cdf(z)*100)))} · ${m<24?'WHO 0–2 y':m<60?'WHO 2–5 y':'Thai 5–19 y'}`)}</div>`;
+  out+=`<div class="ibwk">${k('BMI',r1(bmi)+' kg/m²',`${r1(w)} kg ÷ (${(h/100).toFixed(2)} m)²`,'main')}${k('BMI z-score (SDS)',`<em class="zv ${zc}">${z>=0?'+':''}${r1(z)}</em>`,`about P${Math.max(0.1,Math.min(99.9,r1(cdf(z)*100)))} · ${m<24?'WHO 0–2 y':m<60?'WHO 2–5 y':'Thai 5–19 y'}`)}</div>`;
   out+=`<div class="note ${cls==='ok'?'info':cls}"><b>${txt}</b>${old&&(bmi>=23)&&z<=1?' (by the adult BMI cut-off 23/25)':''}</div>`;
   const cuts=old?[['−2 SDS',vs[1]],['0 (median)',vs[4]],['+1 SDS · overweight',vs[5]],['+2 SDS · obesity',vs[7]]]:[['−2 SDS',vs[1]],['0 (median)',vs[4]],['+2 SDS · overweight',vs[7]],['+3 SDS · obesity',vs[8]]];
   out+=`<table class="sm"><tr><th>Cut-off for this age</th><th>BMI</th><th>Weight at ${r1(h)} cm</th></tr>${cuts.map(c=>`<tr><td>${c[0]}</td><td>${r1(c[1])}</td><td>${wt(c[1])} kg</td></tr>`).join('')}</table>`;
