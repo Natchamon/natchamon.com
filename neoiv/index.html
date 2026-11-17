@@ -140,8 +140,8 @@ function calc(){
   if(!W||goal==null){ $('out').innerHTML=h+`<div class="note info" style="margin-top:14px">Enter the weight to see the result.</div>`; return }
   const L=[];
   if(tab==='npo'){
-    const ex=kg*goal/24, up=ceilHalf(ex), used=cu||up;
-    const cols=[['Exact',ex,r2(ex)],['Round up',up,up]]; if(cu) cols.push(['Your rate',cu,cu]);
+    const ex=kg*goal/24, up=r1(ex), used=cu||up;
+    const cols=[['Exact',up,up]]; if(cu) cols.push(['Your rate',cu,cu]);
     const row=(lab,f)=>`<tr><td>${lab}</td>${cols.map(c=>`<td>${f(c[1],c[2])}</td>`).join('')}</tr>`;
     h+=`<div class="card"><h2>IV fluid <small>${bag} · required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day</small></h2><div class="body">
      <table class="rt"><tr><th></th>${cols.map(c=>`<th>${c[0]}</th>`).join('')}</tr>
@@ -162,7 +162,7 @@ function calc(){
     const opts={exact:r1(pfx), down:Math.floor(pfx/5)*5, up:Math.ceil(pfx/5)*5};
     if(sel==='down'&&opts.down<=0) sel='up';
     const pf=opts[sel], oralTV=pf*nf/kg, ivTV=Math.max(0,goal-oralTV);
-    const exR=ivTV*kg/24, upR=ceilHalf(exR), used=cu||upR;
+    const exR=ivTV*kg/24, upR=r1(exR), used=cu||upR;
     const gir=girOf(used), totTV=tvOfRate(used)+oralTV, tcK=oralTV*kc/30;
     const lab=kc===24?'HMF/PF':kc===20?'BM/IF':'BM/IF/HMF', og=$('og').checked?' via OG':'';
     const st=STEP[gest];
@@ -173,7 +173,7 @@ function calc(){
     h+=`<div class="card"><h2>With this per-feed volume <small>goal ${goal===r0(goal)?goal:r1(goal)} mL/kg/day</small></h2><div class="body"><table class="sm">
      <tr><td>Oral TV</td><td>${r1(oralTV)} mL/kg/day<br><small>(${r0(pf*nf)} mL/day · TC ${r1(tcK)} kcal/kg/day)</small></td></tr>
      <tr><td>IV TV still needed</td><td>${r1(ivTV)} mL/kg/day<br><small>(goal − oral)</small></td></tr>
-     <tr><td>IV rate</td><td>${r2(exR)} → <b>${cu?cu+' (yours)':upR}</b> mL/h<br><small>(rounded up to 0.5)</small></td></tr>
+     <tr><td>IV rate</td><td><b>${cu?cu+' (yours)':upR}</b> mL/h<br><small>(exact rate, not rounded up)</small></td></tr>
      <tr><td>Total TV</td><td>${r1(totTV)} mL/kg/day</td></tr>
      <tr><td>GIR of the IV</td><td class="${gir>=2?'ok-t':'warn-t'}">${r1(gir)} mg/kg/min<br><small>(keep at 2 or more)</small></td></tr>
      <tr><td>Lowest rate with GIR 2</td><td>${r1(2*6*kg/dx)} mL/h<br><small>(do not taper below this)</small></td></tr></table>
@@ -185,10 +185,10 @@ function calc(){
     L.push(`If feeds well 2 meals, reduce IV to ${bag} IV drip rate __ ml/hr x 24 hrs`);
   }
   if(tab==='hypo'){
-    const bol=2*kg, rate=kg*goal/24, up=ceilHalf(rate), used=cu||up, gir=girOf(used);
+    const bol=2*kg, rate=kg*goal/24, up=r1(rate), used=cu||up, gir=girOf(used);
     h+=`<div class="card"><h2>Symptomatic hypoglycemia <small>10% DW</small></h2><div class="body"><table class="sm">
      <tr><td>Mini-bolus</td><td>${r1(bol)} → <b>${r0(bol)}</b> mL<br><small>(10% DW 2 mL/kg/dose, slow push)</small></td></tr>
-     <tr><td>Then IV rate</td><td>${r2(rate)} → <b>${cu?cu+' (yours)':up}</b> mL/h<br><small>(required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day, rounded up to 0.5)</small></td></tr>
+     <tr><td>Then IV rate</td><td><b>${cu?cu+' (yours)':up}</b> mL/h<br><small>(required ${goal===r0(goal)?goal:r1(goal)} mL/kg/day, exact rate)</small></td></tr>
      <tr><td>TV at this rate</td><td>${r1(tvOfRate(used))} mL/kg/day</td></tr>
      <tr><td>GIR</td><td class="${girCls(gir,gr)}">${r1(gir)} mg/kg/min<br><small>(target ${gr[0]}–${gr[1]})</small></td></tr></table></div></div>`;
     L.push(`10%DW ${r0(bol)} ml IV slowly push`);
