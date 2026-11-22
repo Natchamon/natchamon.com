@@ -161,7 +161,7 @@ footer a { color: var(--accent); }
     <p class="hint">วาดใหม่จากแผนภูมิในแนวเวชปฏิบัติฯ หน้า 28 · กรอบสีคือเส้นทางของเด็กคนนี้</p>
     <div class="flowwrap">
       <div class="flow" id="flow">
-        <div class="node span5" data-n="dx"><b>เกณฑ์วินิจฉัย</b>อายุ 2–5 ปี WH z-score &gt; 2 · อายุ &gt; 5 ปี BMI z-score &gt; 1 → ซักประวัติ ตรวจร่างกาย ประเมินสาเหตุและภาวะแทรกซ้อน</div>
+        <div class="node span5" data-n="dx"><b>เกณฑ์วินิจฉัย</b>อายุ 2–5 ปี WH z-score &gt; 2 · อายุ &gt; 5 ปี BMI z-score &gt; 1 (หรือ BMI ≥ 23 ตามกราฟสมาคมฯ) → ซักประวัติ ตรวจร่างกาย ประเมินสาเหตุและภาวะแทรกซ้อน</div>
         <div class="node span2" data-n="ow"><b>น้ำหนักเกิน</b>2–5 ปี WH z &gt; 2 ถึง 3 · &gt; 5 ปี BMI z &gt; 1 ถึง 2</div>
         <div class="node span3" data-n="ob"><b>โรคอ้วน</b>2–5 ปี WH z &gt; 3 · &gt; 5 ปี BMI z &gt; 2</div>
         <div class="node" data-n="ow-2-9"><b>2–9 ปี</b>ไม่แนะนำเจาะเลือด</div>
@@ -204,7 +204,7 @@ footer a { color: var(--accent); }
   <footer>
     <div><b>ใช้ช่วยตัดสินใจเท่านั้น</b> ไม่แทนการตัดสินใจทางคลินิกของแพทย์ ข้อมูลที่กรอกประมวลผลในเครื่องของคุณ ไม่ถูกส่งหรือบันทึกที่ใด</div>
     <div>อ้างอิง: สมาคมโภชนาการเด็กแห่งประเทศไทย ราชวิทยาลัยกุมารแพทย์แห่งประเทศไทย และสมาคมกุมารแพทย์แห่งประเทศไทย. แนวเวชปฏิบัติการป้องกันและดูแลรักษาภาวะน้ำหนักเกินและโรคอ้วนในเด็กและวัยรุ่น พ.ศ. 2568 (ISBN 978-616-93494-5-7) บทที่ 2–5</div>
-    <div>BMI z-score อายุ &gt; 5–19 ปี อ่านจากกราฟ BMI z-score ของสมาคมต่อมไร้ท่อเด็กและวัยรุ่นไทย (National Growth References for children aged 5–19 years, 2020 กรมอนามัย) ชุดเดียวกับหน้า Growth plotter · อายุ &lt; 2 ปีและ 2–5 ปีใช้ weight-for-length/height z-score ของ WHO Child Growth Standards 2006 (วิธี LMS) เพราะกราฟไทยมีเฉพาะเส้นเปอร์เซ็นไทล์ ไม่มีเส้น SD</div>
+    <div>BMI z-score อายุ &gt; 5–19 ปี อ่านจากกราฟ BMI z-score ของสมาคมต่อมไร้ท่อเด็กและวัยรุ่นไทย (National Growth References for children aged 5–19 years, 2020 กรมอนามัย) ชุดเดียวกับหน้า Growth plotter · อายุ &gt; 5–19 ปีใช้เกณฑ์ BMI ≥ 23 (น้ำหนักเกิน) / ≥ 25 กก./ม.² (อ้วน) ร่วมด้วยตามกราฟ โดยเลือกเกณฑ์ที่รุนแรงกว่า · อายุ &lt; 2 ปีและ 2–5 ปีใช้ weight-for-length/height z-score ของ WHO Child Growth Standards 2006 (วิธี LMS) เพราะกราฟไทยมีเฉพาะเส้นเปอร์เซ็นไทล์ ไม่มีเส้น SD</div>
     <div>สร้างโดย <a href="https://natchamon.com">natchamon.com</a></div>
   </footer>
 </div>
@@ -261,7 +261,12 @@ function classify({ sex, ageMo, wt, ht }) {
   } else {
     res.index = 'BMI'; res.indexName = 'BMI-for-age z-score (Thai)'; res.z = thaiBmiZ(thaiBmiCurves(sex, ageMo), res.bmi);
     res.group = '5to19';
-    res.cat = res.z > 3 ? 'severe' : res.z > 2 ? 'obese' : res.z > 1 ? 'overweight' : 'none';
+    const byZ = res.z > 3 ? 'severe' : res.z > 2 ? 'obese' : res.z > 1 ? 'overweight' : 'none';
+    // Thai Society BMI chart (5–19 y): overweight also if BMI ≥ 23, obesity if BMI ≥ 25; use the more severe of the two
+    const byBmi = res.bmi >= 25 ? 'obese' : res.bmi >= 23 ? 'overweight' : 'none';
+    const rank = { none: 0, overweight: 1, obese: 2, severe: 3 };
+    res.cat = rank[byBmi] > rank[byZ] ? byBmi : byZ;
+    res.byBmi = rank[byBmi] > rank[byZ];
   }
   res.ok = true;
   return res;
@@ -406,6 +411,7 @@ function update() {
     stats.innerHTML = html;
     if (c.cat === 'flag') notes.push(['warn', 'อายุ < 2 ปียังไม่มีนิยามน้ำหนักเกินหรือโรคอ้วน แต่ WL z-score > 2 ควรหาสาเหตุเสมอ (endogenous vs exogenous) และให้คำแนะนำโภชนาการ']);
     if (c.index === 'WH' && c.cat === 'obese') notes.push(['info', 'อายุ 2–5 ปีไม่มีนิยามโรคอ้วนรุนแรง']);
+    if (c.byBmi) notes.push(['warn', `จัดกลุ่มตามค่า BMI ${f1(c.bmi)} ≥ ${c.cat === 'obese' ? '25' : '23'} กก./ม.² ซึ่งรุนแรงกว่าเกณฑ์ BMI z-score (${f2(c.z)}) · กราฟ BMI ของสมาคมฯ ให้ใช้เกณฑ์ที่รุนแรงกว่า`]);
     if (c.cat === 'severe') notes.push(['bad', 'โรคอ้วนรุนแรง: เสี่ยง HDL-C ต่ำมากขึ้นในเด็กไทย (OR 1.64) ควรประเมินภาวะแทรกซ้อนอย่างละเอียด']);
     $('dxNotes').innerHTML = notes.map(([l, t]) => `<div class="note ${l}">${t}</div>`).join('');
   }
@@ -473,7 +479,7 @@ function update() {
   if (c.ok) {
     const lines = [];
     lines.push(`${sex === 1 ? 'เด็กชาย' : 'เด็กหญิง'} อายุ ${fmtAge(ageMo)} BW ${wt} กก. Ht ${ht} ซม. BMI ${f1(c.bmi)} กก./ม.²${wc > 0 ? ` WC ${wc} ซม. (WHtR ${(wc / ht).toFixed(2)})` : ''}`);
-    lines.push(`Dx: ${CAT_LABEL[c.cat]} (${c.index} z-score ${f2(c.z)}) ตามแนวเวชปฏิบัติฯ 2568`);
+    lines.push(`Dx: ${CAT_LABEL[c.cat]} (${c.index} z-score ${f2(c.z)}${c.byBmi ? `; BMI ≥ ${c.cat === 'obese' ? 25 : 23}` : ''}) ตามแนวเวชปฏิบัติฯ 2568${c.byBmi ? ' และเกณฑ์ BMI ของสมาคมฯ' : ''}`);
     const rfT = RED_FLAGS.filter((_, i) => rfOn[i]);
     if (rfT.length) lines.push(`Red flags: ${rfT.join('; ')}`);
     const rkT = RISKS.filter((_, i) => rkOn[i]).map(r => r.t);
