@@ -467,7 +467,8 @@ function zBand(res){ if(!res||res.out||res.lo!==undefined) return res; const z=r
   let k=0; while(k<5&&ZN7[k+1]<=z) k++; return Object.assign(res,{lo:PN7[k],hi:PN7[k+1]}); }
 function rngTxt(r){ return r.below?'< P3':r.above?'> P97':'P'+r.lo+'–P'+r.hi; }
 function exTxt(r){ const p=r.pct; return p<1?'< P1':p>99?'> P99':'P'+Math.round(p); }
-function pctFull(r){ return rngTxt(r)+' ('+exTxt(r)+')'; }
+function pctFull(r){ return rngTxt(r); }
+function pctRng(p){ const B=[3,10,25,50,75,90,97]; if(p<3) return '< P3'; if(p>=97) return '> P97'; let k=0; while(k<5&&B[k+1]<=p) k++; return 'P'+B[k]+'–P'+B[k+1]; }
 function chartRes(kind,x,sex,ageM){ const boy=sex==='M'; let vs;
   if(ageM<24){ const c=CH[boy?'b02':'g02']; vs=chVals(kind==='w'?c.weight:c.length,ageM,0.05); }
   else { const c=CH[boy?'b219':'g219']; vs=chVals(kind==='w'?c.weight:c.height,ageM/12,0.005); }
@@ -521,7 +522,7 @@ function bmiThai(res,sex,m){ const who=(sex==='M'?'เด็กชาย':'เ�
   const where=res.z<-2?'ต่ำกว่าเด็กส่วนใหญ่มาก':res.z<-1?'ค่อนไปทางต่ำ':res.z<=1?'อยู่กลาง ๆ':res.z<=2?'ค่อนไปทางสูง':'สูงกว่าเด็กส่วนใหญ่มาก';
   const mean=res.cls==='ob'?'เข้าเกณฑ์อ้วน ควรประเมินอาหาร กิจกรรม และติดตามใกล้ชิด':res.cls==='ow'?'เข้าเกณฑ์น้ำหนักเกิน ควรให้คำแนะนำเรื่องอาหารและกิจกรรม':res.cls==='low'?'ผอม/น้ำหนักน้อยเทียบส่วนสูง ควรหาสาเหตุและติดตาม':'สมส่วน น้ำหนักเหมาะสมกับส่วนสูง';
   return `สูงกว่าประมาณ ${p}% ของ${who} (${where}) → ${mean}`; }
-function bmiLine(r){ return 'BMI '+r.res.bmi.toFixed(1)+' กก./ม.² · อยู่ที่ ≈ '+exTxt(r.res)+' (SDS '+zTxt(r.res.z)+') · '+r.res.txt+' — '+bmiThai(r.res,S.sex,growthAge().m).split(' → ')[1]; }
+function bmiLine(r){ return 'BMI '+r.res.bmi.toFixed(1)+' กก./ตร.ม. · '+pctRng(r.res.pct)+' (SDS '+zTxt(r.res.z)+') · '+r.res.txt+' — '+bmiThai(r.res,S.sex,growthAge().m).split(' → ')[1]; }
 function wfhChart(wt,len,sex){ const vs=chVals(CH[sex==='M'?'bwh':'gwh'].weight_for_height,len,0); return vs?chCalc(vs,wt):null; }
 
 const $=s=>document.querySelector(s);
@@ -884,6 +885,7 @@ const CN={
  48:{adv:['ส่งเสริมความนับถือตนเองเช่น ช่วยตัวเอง มอบหมายงานบ้าน มีส่วนร่วมในการตัดสินใจ','เริ่มฝึกให้ควบคุมความโกรธเบื้องต้น ฝึกให้เล่าเหตุการณ์ที่ทำให้โกรธ เสียใจ ดีใจ','นอนหลับพักผ่อนให้เพียงพอ ประมาณ 10-13 ชมต่อวัน.','อาหารตามวัยครบอาหาร 5 หมู่ 3 มื้อ และอาหารเสริมนมรสจืดวันละ 2-3 แก้วหรือกล่อง','สื่อหน้าจอทุกชนิดไม่เกิน 1 ชม./วัน เลือกรายการให้เหมาะกับวัย ดูร่วมกับเด็กและพูดคุยชี้แนะ','การป้องกันอุบัติเหตุ: ในบ้าน, การโดยสารรถ, สิ่งแวดล้อมนอกบ้าน, คนแปลกหน้า, อวัยวะส่วนตัว'],fu:'5 years',pcm:0,name:'4 years'},
  60:{adv:['ส่งเสริมความเป็นตัวของตัวเอง ให้รับผิดชอบกิจวัตรและงานบ้านตามวัย','ฝึกวินัยสม่ำเสมอ ชมทันทีเมื่อทำดี ใช้การตักเตือนหรือ time-out แทนการตี','พูดคุยรับฟังความรู้สึก ช่วยแก้ปัญหาทีละขั้นตอน','สื่อหน้าจอไม่เกิน 1 ชม./วัน ไม่ใช้ขณะกินข้าวและก่อนนอน','อาหารหลัก 3 มื้อ อาหารว่าง 2 มื้อ นมจืด 3 แก้วต่อวัน','กิจกรรมทางกายทุกวันอย่างน้อย 60 นาที นอนหลับ 10-13 ชมต่อวัน','แปรงฟันเองวันละ 2 ครั้ง ผู้ปกครองแปรงซ้ำ','ความปลอดภัย: คนแปลกหน้า อวัยวะส่วนตัว การข้ามถนน หมวกกันน็อก ว่ายน้ำ'],fu:'6 years',pcm:0,name:'5 years'}
 };
+function emr(t){ return String(t).replace(/²/g,'2').replace(/≈\s*/g,'ประมาณ ').replace(/[—−]/g,'-').replace(/[“”]/g,'"').replace(/[‘’]/g,"'").replace(/≥/g,'>=').replace(/≤/g,'<=').replace(/×/g,'x'); }
 function chartNote(){
   const v=S.visit, c=CN[v], L=[]; const has=k=>(S.milk||[]).indexOf(k)>-1;
   L.push('well baby clinic '+c.name+(S.example?'  (ตัวอย่าง ไม่ใช่ผู้ป่วยจริง)':'')); L.push('');
@@ -957,16 +959,16 @@ const fmtOz=x=>String(Math.round(x*10)/10).replace(/\.0$/,'');
 function nutriRec(v){
   const w=+S.wt, B=NUTSRC, r={milk:null,milkTxt:'',milkSrc:B,meals:null,mealTxt:'',mealSrc:B};
   if(v<4){ r.milkSrc='หลักทั่วไป ไม่ได้ระบุปริมาณในคู่มือ';
-    r.milkTxt='นมแม่อย่างเดียวในช่วง 6 เดือนแรก ให้ตามความหิว · นมผสม/นมแม่ที่ปั๊ม ประมาณ 120–180 มล./กก./วัน (≈ 4–6 ออนซ์/กก./วัน) ไม่เกินประมาณ 32 ออนซ์/วัน';
+    r.milkTxt='นมแม่อย่างเดียวในช่วง 6 เดือนแรก ให้ตามความหิว · นมผสม/นมแม่ที่ปั๊ม ประมาณ 120–180 มล./กก./วัน (ประมาณ 4–6 ออนซ์/กก./วัน) ไม่เกินประมาณ 32 ออนซ์/วัน';
     if(w>0) r.milk=[Math.min(32,4*w),Math.min(32,6*w)]; }
   else if(v===4){ r.milk=[30,32]; r.milkTxt='กินนมวันละ 6–7 มื้อ เฉลี่ยวันละ 30–32 ออนซ์ (เฉลี่ย แต่ละมื้อไม่เท่ากันได้)'; }
   else if(v<12){ r.milk=[24,32]; r.milkTxt='นมวันละ 24–32 ออนซ์ ควบคู่กับอาหารตามวัย';
     r.meals=v===6?1:3; r.mealTxt=v===6?'อายุ 6–7 เดือน: อาหารตามวัย 1 มื้อ (8 เดือน 2 มื้อ, 9 เดือน 3 มื้อ)':'อายุ 9 เดือน: อาหารตามวัย 3 มื้อ'; }
-  else if(v<24){ r.milk=[14,24]; r.milkTxt='นม 2–3 ครั้ง ครั้งละ 7–8 ออนซ์ ≈ 14–24 ออนซ์/วัน (นมวัวเกิน 32 ออนซ์/วัน เสี่ยงขาดธาตุเหล็ก)';
+  else if(v<24){ r.milk=[14,24]; r.milkTxt='นม 2–3 ครั้ง ครั้งละ 7–8 ออนซ์ ประมาณ 14–24 ออนซ์/วัน (นมวัวเกิน 32 ออนซ์/วัน เสี่ยงขาดธาตุเหล็ก)';
     r.meals=3; r.mealTxt='อาหารตามวัย 3 มื้อ/วัน มื้อละ 4–5 ช้อนโต๊ะ ครบหมู่'; }
   else if(v>=36){ r.milk=[2,3]; r.box=true; r.milkTxt=v===60?'นมรสจืด 3 แก้ว/วัน (คู่มือ 2569) · แก้วหรือกล่องละ 180–250 มล.':'นมจืด 2–3 แก้วหรือกล่อง/วัน (180–250 มล.)';
     r.meals=3; r.mealTxt=v===60?'อาหารหลัก 3 มื้อ ครบ 5 หมู่ อาหารว่าง 2 มื้อ':v===48?'อาหารครบ 5 หมู่ 3 มื้อ/วัน':'อาหารมื้อหลัก 3 มื้อ/วัน อาหารว่างที่มีคุณภาพไม่เกิน 2 มื้อ/วัน'; }
-  else { r.milk=[12,25]; r.milkTxt='นมจืด 2–3 แก้ว/วัน (180–250 มล./แก้ว) ≈ 12–25 ออนซ์/วัน';
+  else { r.milk=[12,25]; r.milkTxt='นมจืด 2–3 แก้ว/วัน (180–250 มล./แก้ว) ประมาณ 12–25 ออนซ์/วัน';
     r.meals=3; r.mealTxt=v===48?'อาหารครบ 5 หมู่ 3 มื้อ/วัน':'อาหารมื้อหลัก 3 มื้อ/วัน อาหารว่างที่มีคุณภาพไม่เกิน 2 มื้อ/วัน'; }
   return r;
 }
@@ -1203,7 +1205,7 @@ function ageInfo(){
 }
 function growthAge(){ const a=ageInfo(); if(a) return {m:a.corrM,from:a.pre>0?'อายุปรับ':'อายุจริง'}; return {m:S.visit,from:'อายุตามนัด'}; }
 function pctTxt(p){ if(p<1) return '< P1'; if(p>99) return '> P99'; return 'P'+Math.round(p); }
-function zTxt(z){ return (z>=0?'+':'−')+Math.abs(z).toFixed(2); }
+function zTxt(z){ return (z>=0?'+':'-')+Math.abs(z).toFixed(2); }
 const ZP=[[3,-1.881],[10,-1.282],[25,-0.674],[50,0],[75,0.674],[90,1.282],[97,1.881]];
 function stripHTML(z){ const c=Math.max(-3,Math.min(3,z)); const L=x=>((x+3)/6*100).toFixed(2)+'%';
   return `<div class="strip"><span class="zone" style="left:${L(-1.881)};width:${((3.762)/6*100).toFixed(2)}%"></span>${ZP.map(p=>`<i class="tk" style="left:${L(p[1])}"></i>`).join('')}${[3,50,97].map(p=>`<span class="tl" style="left:${L(ZP.find(q=>q[0]===p)[1])}">P${p}</span>`).join('')}<b class="mk" style="left:${L(c)}"></b></div>`; }
@@ -1345,7 +1347,7 @@ function renderReport(){
   const el=$('#view-report'); if(el.hidden) return;
   const m=model(); const v=S.visit;
   let h=`<div class="rbar"><button class="btn solid" id="btn-copy" type="button">คัดลอก Chart note</button><button class="btn ghost" id="btn-copy2" type="button">คัดลอกรายงานเต็ม</button><button class="btn ghost" id="btn-back" type="button">กลับไปแก้ไข</button></div><div class="cctog"><button type="button" class="opt" data-cc="1" aria-pressed="${CCON}">${CCON?'✓ ใส่รหัสต่อเนื่องท้าย Chart note: เปิด':'รหัสต่อเนื่องท้าย Chart note: ปิด (แตะเพื่อเปิด)'}</button><span class="hint">ปิดไว้เป็นค่าเริ่มต้น เปิดเมื่อต้องการให้ครั้งหน้ากู้คืนประวัติได้ (รหัสมีเพศ อายุ น้ำหนัก ส่วนสูง วัคซีน ปัญหาที่ต้องติดตาม และวันเกิดถ้ากรอก ไม่มีชื่อ/HN)</span></div><div id="copyarea"></div>`;
-  h+=`<section class="card"><h2><span>Chart note</span><small>รูปแบบตามเทมเพลตของคุณ · แก้ไขหลังวางได้</small></h2><div class="body"><pre class="cnote">${E(chartNote()+ccLine())}</pre></div></section>`;
+  h+=`<section class="card"><h2><span>Chart note</span><small>รูปแบบตามเทมเพลตของคุณ · แก้ไขหลังวางได้</small></h2><div class="body"><pre class="cnote">${E(emr(chartNote()+ccLine()))}</pre></div></section>`;
   h+=`<article class="sheet"><div class="sh"><h1>บันทึกการตรวจสุขภาพเด็กดี อายุ ${vl(v)}</h1><p>Child Health Supervision Visit · ${E(S.name||'ไม่ระบุชื่อ')}${S.hn?' · HN '+E(S.hn):''}</p></div>`;
   if(S.example) h+=`<div class="wm">ข้อมูลตัวอย่าง ไม่ใช่ผู้ป่วยจริง</div>`;
   m.forEach(s=>{ h+=`<div class="rsec"><h3>${s.t}</h3>${s.rows.map(r=>`<div class="rrow"><span class="k">${s.html?E(r[0]).replace(/&lt;/g,'<'):E(r[0])}</span><span class="v">${s.html?r[1]:E(r[1])}</span></div>`).join('')}</div>`; });
@@ -1514,7 +1516,7 @@ document.addEventListener('click',e=>{
     case 'btn-allnormal': allNormal(); renderForm(); refresh(); break;
     case 'btn-clear2': if(t.dataset.arm){ delete t.dataset.arm; t.textContent=t.dataset.lab; HIST=null; HISTMSG=''; for(const k in VS) delete VS[k]; S=freshS(S.visit); renderForm(); refresh(); if(!$('#view-report').hidden) setView('form'); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อล้าง'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent=t.dataset.lab; } },4000); } break;
     case 'btn-clear': if(t.dataset.arm){ HIST=null; HISTMSG=''; for(const k in VS) delete VS[k]; S=freshS(S.visit); renderForm(); refresh(); } else { t.dataset.arm='1'; t.textContent='กดอีกครั้งเพื่อยืนยันการล้างข้อมูลทั้งหมด'; setTimeout(()=>{ if(t.isConnected){ delete t.dataset.arm; t.textContent='เริ่มใหม่ (ล้างทั้งหมด)'; } },4000); } break;
-    case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=(t.id==='btn-copy'?chartNote():reportText())+ccLine(); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
+    case 'btn-copy': case 'btn-copy2': { const lab=t.textContent; const txt=emr((t.id==='btn-copy'?chartNote():reportText())+ccLine()); const done=()=>{t.textContent='คัดลอกแล้ว'; setTimeout(()=>{t.textContent=lab},2000);};
       const fb=()=>{ $('#copyarea').innerHTML='<textarea class="copybox" id="cptxt" readonly></textarea>'; const ta=$('#cptxt'); ta.value=txt; ta.focus(); ta.select(); };
       try{ navigator.clipboard.writeText(txt).then(done,fb); }catch(_){ fb(); } break; }
   }
